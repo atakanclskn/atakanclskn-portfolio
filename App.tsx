@@ -140,7 +140,18 @@ const App: React.FC = () => {
         const mergedProfile: Profile = {
             _id: '1',
             name: ghProfile?.name || 'Atakan Çalışkan',
-            titles: ['Software Engineer', 'AI Developer', 'Open Source Contributor'],
+            // Varied titles for the scramble effect
+            titles: [
+              'SOFTWARE_ENGINEER', 
+              'AI_SPECIALIST', 
+              'SYSTEM_ARCHITECT', 
+              'FULL_STACK_DEV', 
+              'DATA_ENGINEER', 
+              'OPEN_SOURCE', 
+              'UI_UX_DESIGNER',
+              'NEURAL_NETWORKS',
+              'PROBLEM_SOLVER'
+            ],
             bio: ghProfile?.bio || 'Architecting high-performance digital ecosystems through code and data intelligence.',
             status: 'System Online',
             heroImage: undefined,

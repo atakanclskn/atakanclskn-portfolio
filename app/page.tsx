@@ -33,7 +33,8 @@ export default async function Home() {
         <Hero profile={profile} />
         <TechStack techStack={techStack} />
         <SelectedWork projects={projects} />
-        <Experience experiences={experiences} />
+        {/* Pass projects prop which is required by ExperienceProps */}
+        <Experience experiences={experiences} projects={projects} />
         <Connect socials={socials} profile={profile} />
       </main>
     </div>
