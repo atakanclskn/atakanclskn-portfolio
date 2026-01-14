@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, Terminal, ArrowRight, Star, GitBranch } from 'lucide-react';
+import { ArrowUpRight, Terminal, ArrowRight, Star } from 'lucide-react';
 import { Project } from '../types';
 import { urlFor } from '../lib/sanity.client';
 
@@ -9,7 +9,7 @@ interface SelectedWorkProps {
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
   return (
-    <section id="work" className="py-32 relative bg-transparent">
+    <section id="projects" className="py-32 relative bg-transparent">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex items-center justify-between mb-16">
           <div>
@@ -30,7 +30,6 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
           {projects?.map((project) => {
             const isLarge = project.size === 'large';
             
-            // Image handling: Check if it's a string (GitHub) or Sanity Object
             let imageUrl = '';
             if (typeof project.mainImage === 'string') {
                 imageUrl = project.mainImage;
@@ -59,14 +58,12 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                    </div>
                 )}
 
-                {/* Arrow Icon */}
                 <div className="absolute top-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                   <div className="bg-black/50 p-3 rounded-full backdrop-blur-md border border-white/10 group-hover:bg-primary group-hover:text-black transition-all">
                     <ArrowUpRight className="w-5 h-5 text-white group-hover:text-black" />
                   </div>
                 </div>
 
-                {/* GitHub Stats Badge */}
                 {project.isLiveData && (
                     <div className="absolute top-6 left-6 z-20 flex gap-2">
                          {project.language && (
@@ -84,7 +81,6 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                     </div>
                 )}
 
-                {/* Text Content */}
                 <div className={`absolute bottom-0 left-0 p-${isLarge ? '8' : '6'} z-20 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500`}>
                    {isLarge && (
                      <span className="inline-block px-3 py-1 mb-3 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20 backdrop-blur-md">

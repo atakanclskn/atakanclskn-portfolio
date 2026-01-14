@@ -11,8 +11,8 @@ export const InteractiveBackground: React.FC = () => {
 
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
+    let time = 0;
     
-    // Store particles
     interface Point {
       x: number;
       y: number;
@@ -20,26 +20,29 @@ export const InteractiveBackground: React.FC = () => {
       vy: number;
       baseX: number;
       baseY: number;
+      phaseX: number;
+      phaseY: number;
+      size: number;
+      driftSpeed: number;
+      amplitude: number;
     }
     
     let points: Point[] = [];
-    const mouse = { x: -1000, y: -1000 };
-    const connectionDistance = 100;
-    const mouseRadius = 200;
+    const mouse = { x: -2000, y: -2000 };
+    const mouseRadius = 250; 
 
     const init = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
       points = [];
       
-      // Grid density based on screen size
-      const spacing = width < 768 ? 60 : 40; 
+      const spacing = width < 768 ? 60 : 50; 
       
-      for(let x = 0; x < width + spacing; x += spacing) {
-        for(let y = 0; y < height + spacing; y += spacing) {
-          // Add some randomness to initial position
+      for(let x = -spacing; x < width + spacing; x += spacing) {
+        for(let y = -spacing; y < height + spacing; y += spacing) {
           const randomX = (Math.random() - 0.5) * 20;
           const randomY = (Math.random() - 0.5) * 20;
+          const size = 0.5 + Math.random() * 1.0;
           
           points.push({
             x: x + randomX,
@@ -47,16 +50,18 @@ export const InteractiveBackground: React.FC = () => {
             baseX: x + randomX,
             baseY: y + randomY,
             vx: 0,
-            vy: 0
+            vy: 0,
+            phaseX: Math.random() * Math.PI * 2,
+            phaseY: Math.random() * Math.PI * 2,
+            size: size,
+            driftSpeed: 0.12 + (size * 0.04), 
+            amplitude: 12 + Math.random() * 12
           });
         }
       }
     };
 
-    const handleResize = () => {
-      init();
-    };
-
+    const handleResize = () => init();
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
@@ -68,65 +73,65 @@ export const InteractiveBackground: React.FC = () => {
     init();
 
     const animate = () => {
+      time += 0.003; 
       ctx.clearRect(0, 0, width, height);
       
       points.forEach(point => {
-        // Mouse interaction physics
-        const dx = mouse.x - point.x;
-        const dy = mouse.y - point.y;
+        // 1. Autonomous Wave Movement (The constant "drift")
+        const driftX = Math.sin(time * point.driftSpeed + point.phaseX) * point.amplitude;
+        const driftY = Math.cos(time * 0.8 * point.driftSpeed + point.phaseY) * point.amplitude;
+        
+        // This is the ideal position the point wants to be in
+        const targetX = point.baseX + driftX;
+        const targetY = point.baseY + driftY;
+
+        // 2. Subtle Mouse Displacement (Pushing away, not pulling)
+        const dx = point.x - mouse.x;
+        const dy = point.y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        // Move points away from mouse (Repulsion effect)
-        // or Towards mouse (Attraction). Let's do a slight magnetic pull.
-        
         if (distance < mouseRadius) {
-          const forceDirectionX = dx / distance;
-          const forceDirectionY = dy / distance;
-          const force = (mouseRadius - distance) / mouseRadius;
-          const directionX = forceDirectionX * force * 5; // Strength
-          const directionY = forceDirectionY * force * 5;
+          // Push strength based on distance squared for a very soft falloff
+          const force = Math.pow((mouseRadius - distance) / mouseRadius, 2);
+          const pushX = (dx / distance) * force * 1.2;
+          const pushY = (dy / distance) * force * 1.2;
 
-          // Pull slightly towards mouse
-          point.vx += directionX * 0.5;
-          point.vy += directionY * 0.5;
+          point.vx += pushX;
+          point.vy += pushY;
         }
 
-        // Spring back to base
-        const baseDx = point.baseX - point.x;
-        const baseDy = point.baseY - point.y;
-        point.vx += baseDx * 0.05;
-        point.vy += baseDy * 0.05;
+        // 3. Fluid Physics
+        // Spring back to the wave target position
+        const springX = (targetX - point.x) * 0.02;
+        const springY = (targetY - point.y) * 0.02;
+        
+        point.vx += springX;
+        point.vy += springY;
 
-        // Friction
-        point.vx *= 0.85;
-        point.vy *= 0.85;
+        // High friction for "water-like" resistance
+        point.vx *= 0.93;
+        point.vy *= 0.93;
 
         point.x += point.vx;
         point.y += point.vy;
 
-        // Draw Point
-        const active = distance < mouseRadius;
+        // 4. Drawing Logic
+        const isNear = distance < 150;
+        const pulse = (Math.sin(time * 0.5 + point.phaseX) + 1) * 0.5;
         
-        // Visuals
         ctx.beginPath();
-        if (active) {
-          ctx.fillStyle = `rgba(6, 182, 212, ${1 - distance/mouseRadius})`; // Cyan glow
-          ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+        if (isNear) {
+          // Reactive glow when mouse is hovering
+          const reactiveAlpha = (1 - distance / 150) * 0.4;
+          ctx.fillStyle = `rgba(6, 182, 212, ${reactiveAlpha + 0.1})`;
+          ctx.arc(point.x, point.y, point.size + 0.5, 0, Math.PI * 2);
         } else {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'; // Faint inactive
-          ctx.arc(point.x, point.y, 1, 0, Math.PI * 2);
+          // Standard breathing background dot
+          const opacity = 0.03 + pulse * 0.05;
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.arc(point.x, point.y, point.size, 0, Math.PI * 2);
         }
         ctx.fill();
-
-        // Connect to mouse if very close
-        if (distance < 100) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(6, 182, 212, ${0.2 * (1 - distance/100)})`;
-          ctx.lineWidth = 1;
-          ctx.moveTo(point.x, point.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.stroke();
-        }
       });
 
       requestAnimationFrame(animate);
@@ -145,7 +150,7 @@ export const InteractiveBackground: React.FC = () => {
     <canvas 
       ref={canvasRef} 
       className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"
-      style={{ opacity: 0.8 }}
+      style={{ opacity: 1 }}
     />
   );
 };

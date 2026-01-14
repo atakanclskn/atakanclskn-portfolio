@@ -9,7 +9,6 @@ interface ConnectProps {
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   
-  // Helper to get icon
   const getIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
       case 'twitch': return <Twitch className="w-6 h-6" />;
@@ -28,13 +27,24 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
     }
   };
 
+  const handleFooterLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    if(id === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const element = document.getElementById(id);
+    if (element) {
+      window.scrollTo({ top: element.offsetTop - 80, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
-      <section id="connect" className="py-32 relative overflow-hidden bg-surface/50 backdrop-blur-sm">
+      <section id="contact" className="py-32 relative overflow-hidden bg-surface/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <div className="flex flex-col md:flex-row gap-12">
             
-            {/* Latest Transmission (Video) */}
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-8">
                 <div className="relative flex h-3 w-3">
@@ -62,9 +72,8 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
               </div>
             </div>
 
-            {/* Social Links */}
             <div className="w-full md:w-1/3 flex flex-col gap-4">
-              <h3 className="text-2xl font-display font-bold text-white mb-4">Connect</h3>
+              <h3 className="text-2xl font-display font-bold text-white mb-4">Contact</h3>
               
               {socials?.map(social => (
                  <a key={social._id} href={social.url} target="_blank" className="group flex items-center justify-between p-5 rounded-xl bg-background border border-white/5 hover:border-white/20 transition-all">
@@ -85,27 +94,47 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
         </div>
       </section>
 
-      <footer className="py-12 border-t border-white/5 bg-black/80 backdrop-blur-md relative z-20">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <span className="font-display font-bold text-2xl text-white tracking-tighter">{profile?.name ? profile.name.toLowerCase().replace(' ', '') : 'atakanclskn'}</span>
-            <p className="text-gray-600 text-xs">© {new Date().getFullYear()} {profile?.name}. Built for the future.</p>
+      <footer className="py-16 border-t border-white/5 bg-black/80 backdrop-blur-md relative z-20">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12">
+          
+          <div 
+            className="flex flex-col items-center md:items-start gap-4 cursor-pointer group"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <div className="flex items-center">
+               <span className="text-primary font-mono font-bold text-xl mr-1 animate-pulse">{'>'}</span>
+               <span className="text-primary font-mono font-bold text-xl mr-2">_</span>
+               <span className="font-display font-bold text-2xl tracking-tighter text-white group-hover:text-primary transition-colors">
+                  atakanclskn
+               </span>
+            </div>
+            <p className="text-gray-600 text-[10px] font-mono tracking-widest uppercase">© {new Date().getFullYear()} • ARCHITECTING_THE_FUTURE</p>
           </div>
           
-          <div className="flex gap-8">
-            {['Home', 'Work', 'Stack', 'Contact'].map((item) => (
-               <a key={item} href="#" className="text-sm font-medium text-gray-500 hover:text-white transition-colors">
-                 {item}
+          <div className="flex gap-10">
+            {[
+              { label: 'Expertise', id: 'expertise' },
+              { label: 'Projects', id: 'projects' },
+              { label: 'Experience', id: 'experience' },
+              { label: 'Contact', id: 'contact' }
+            ].map((item) => (
+               <a 
+                 key={item.id} 
+                 href={`#${item.id}`} 
+                 onClick={(e) => handleFooterLinkClick(e, item.id)}
+                 className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-all hover:scale-105"
+               >
+                 {item.label}
                </a>
             ))}
           </div>
 
           <div className="flex gap-4">
-            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black transition-all">
-              <Mail className="w-4 h-4" />
+            <a href="mailto:contact@atakan.dev" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all transform hover:-translate-y-1">
+              <Mail className="w-5 h-5" />
             </a>
-            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black transition-all">
-              <Code className="w-4 h-4" />
+            <a href="https://github.com/atakanclskn" target="_blank" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-white hover:text-black hover:border-white transition-all transform hover:-translate-y-1">
+              <Code className="w-5 h-5" />
             </a>
           </div>
         </div>

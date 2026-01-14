@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -11,7 +12,7 @@ import { fetchGitHubProfile, fetchGitHubRepos } from './lib/github.service';
 import { groq } from 'next-sanity';
 import { ExperienceItem, Profile, Project, Social, TechItem } from './types';
 
-// Hardcoded Static Experiences (Formerly mock/fetched)
+// Hardcoded Static Experiences
 const STATIC_EXPERIENCES: ExperienceItem[] = [
     {
         _id: 'li-oyku',
@@ -111,17 +112,13 @@ const fallbackSocials: Social[] = [
 const App: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [experiences, setExperiences] = useState<ExperienceItem[]>([]);
-  const [techStack, setTechStack] = useState<TechItem[]>([]);
-  const [socials, setSocials] = useState<Social[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMsg, setLoadingMsg] = useState('ESTABLISHING CONNECTION...');
+  const [experiences, setExperiences] = useState<ExperienceItem[]>(STATIC_EXPERIENCES);
+  const [techStack, setTechStack] = useState<TechItem[]>(fallbackTechStack);
+  const [socials, setSocials] = useState<Social[]>(fallbackSocials);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Fetch from Sanity/GitHub for Dynamic components
-        setLoadingMsg('INITIALIZING SYSTEM...');
         const techStackQuery = groq`*[_type == "techStack"]`;
         const socialQuery = groq`*[_type == "social"]`;
         
@@ -140,7 +137,6 @@ const App: React.FC = () => {
           ghReposPromise,
         ]);
 
-        // 2. Set Profile
         const mergedProfile: Profile = {
             _id: '1',
             name: ghProfile?.name || 'Atakan Çalışkan',
@@ -153,46 +149,20 @@ const App: React.FC = () => {
 
         setProfile(mergedProfile);
         
-        // 3. Set Projects (GitHub is still useful for live star counts)
         if (ghRepos && ghRepos.length > 0) {
             setProjects(ghRepos);
         }
 
-        // 4. Set Static Experience (LinkedIn Sync Removed)
-        setExperiences(STATIC_EXPERIENCES);
-
-        // 5. Set Tech Stack & Socials
-        setTechStack(techStackData && techStackData.length > 0 ? techStackData : fallbackTechStack);
-        setSocials(socialData && socialData.length > 0 ? socialData : fallbackSocials);
+        if (techStackData && techStackData.length > 0) setTechStack(techStackData);
+        if (socialData && socialData.length > 0) setSocials(socialData);
 
       } catch (err) {
         console.warn("Error during hydration:", err);
-      } finally {
-        setTimeout(() => setLoading(false), 500); // Small delay for smoothness
       }
     };
 
     fetchData();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-6">
-          <div className="relative">
-            <div className="w-16 h-16 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-            </div>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="font-mono text-[10px] text-primary tracking-[0.4em] uppercase opacity-70">Atakan Portfolio v2.5</p>
-            <p className="font-mono text-xs text-white tracking-widest animate-pulse uppercase">{loadingMsg}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden selection:bg-primary selection:text-black relative">
@@ -202,7 +172,7 @@ const App: React.FC = () => {
         <Hero profile={profile!} />
         <TechStack techStack={techStack} />
         <SelectedWork projects={projects} />
-        <Experience experiences={experiences} />
+        <Experience experiences={experiences} projects={projects} />
         <Connect socials={socials} profile={profile!} />
       </main>
     </div>
