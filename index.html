@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
@@ -34,6 +35,7 @@
       body {
         background-color: #050505;
         color: #e5e5e5;
+        overflow-x: hidden;
       }
       .glass {
         background: rgba(255, 255, 255, 0.03);
@@ -56,6 +58,21 @@
       /* Smooth scrolling */
       html {
         scroll-behavior: smooth;
+      }
+
+      /* Custom animations */
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.8s ease-out forwards;
       }
     </style>
   <script type="importmap">
