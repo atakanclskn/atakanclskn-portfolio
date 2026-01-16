@@ -7,6 +7,9 @@ import { SelectedWork } from './components/SelectedWork';
 import { Experience } from './components/Experience';
 import { Connect } from './components/Connect';
 import { InteractiveBackground } from './components/InteractiveBackground';
+import { AIAssistant } from './components/AIAssistant';
+import { Spotlight } from './components/Spotlight';
+import { GitHubStats } from './components/GitHubStats';
 import { client } from './lib/sanity.client';
 import { fetchGitHubProfile, fetchGitHubRepos } from './lib/github.service';
 import { groq } from 'next-sanity';
@@ -175,17 +178,22 @@ const App: React.FC = () => {
     fetchData();
   }, []);
 
+  if (!profile) return null;
+
   return (
     <div className="min-h-screen text-white overflow-x-hidden selection:bg-primary selection:text-black relative">
       <InteractiveBackground />
       <Navbar />
       <main className="relative z-10">
-        <Hero profile={profile!} />
+        <Hero profile={profile} />
         <TechStack techStack={techStack} />
+        <Spotlight />
+        <GitHubStats projects={projects} profile={profile} />
         <SelectedWork projects={projects} />
         <Experience experiences={experiences} projects={projects} />
-        <Connect socials={socials} profile={profile!} />
+        <Connect socials={socials} profile={profile} />
       </main>
+      <AIAssistant profile={profile} projects={projects} experiences={experiences} />
     </div>
   );
 };
