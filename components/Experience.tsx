@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ExperienceItem, Project } from '../types';
 import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
 import { BorderBeam } from './BorderBeam';
@@ -53,7 +53,7 @@ const getTypeStyles = (type?: string) => {
     }
   };
 
-const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: boolean }> = ({ item, side = 'left', isMobile = false }) => {
+const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: boolean, index?: number }> = ({ item, side = 'left', isMobile = false, index = 0 }) => {
      const type = item.type || 'work';
      const style = getTypeStyles(type);
      const startYear = new Date(item.startDate).getFullYear();
@@ -83,7 +83,10 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
      const linkAlign = (!isMobile && side === 'left') ? "ml-auto" : "mr-auto";
 
      return (
-        <div className="relative group w-full">
+        <div 
+            className="relative group w-full animate-fade-in-up opacity-0 fill-mode-forwards"
+            style={{ animationDelay: `${index * 0.1}s`, animationFillMode: 'forwards' }}
+        >
             {/* Connector Line (Desktop) */}
             {!isMobile && (
                  <div className={`absolute top-12 h-px bg-gray-200 dark:bg-white/10 ${connectorClass}`}></div>
@@ -166,6 +169,8 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
 
 export const Experience: React.FC<ExperienceProps> = ({ experiences, projects }) => {
   const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'project']);
+  // Add a key state to force re-render of animations when filters change
+  const [animationKey, setAnimationKey] = useState(0);
 
   const toggleFilter = (filter: FilterType) => {
     setActiveFilters(prev => 
@@ -173,6 +178,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
         ? prev.filter(f => f !== filter) 
         : [...prev, filter]
     );
+    setAnimationKey(prev => prev + 1);
   };
 
   // Merge Experiences and Projects into a single timeline list
@@ -255,30 +261,31 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
             </div>
         </div>
 
-        <div className="relative">
+        {/* We use a key here to force re-mounting when filters change, triggering CSS animations */}
+        <div className="relative" key={animationKey}>
             {/* Mobile View (Single Line) */}
             <div className="md:hidden relative border-l border-gray-200 dark:border-white/10 ml-4 space-y-12 pb-12">
-                {filteredItems.map(item => (
-                    <TimelineCard key={item._id} item={item} isMobile={true} />
+                {filteredItems.map((item, index) => (
+                    <TimelineCard key={item._id} item={item} isMobile={true} index={index} />
                 ))}
             </div>
 
             {/* Desktop View (Dual Column Masonry) */}
             <div className="hidden md:grid grid-cols-2 gap-x-0 relative">
-                 {/* Center Line */}
-                 <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 dark:bg-white/10 -translate-x-1/2"></div>
+                 {/* Center Line with Gradient Fade */}
+                 <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-gray-300 dark:via-white/20 to-transparent -translate-x-1/2"></div>
                  
                  {/* Left Column */}
                  <div className="pr-12 space-y-16 py-4">
-                     {leftItems.map(item => (
-                         <TimelineCard key={item._id} item={item} side="left" />
+                     {leftItems.map((item, index) => (
+                         <TimelineCard key={item._id} item={item} side="left" index={index * 2} />
                      ))}
                  </div>
 
                  {/* Right Column (Offset start) */}
                  <div className="pl-12 space-y-16 py-4 mt-32">
-                     {rightItems.map(item => (
-                         <TimelineCard key={item._id} item={item} side="right" />
+                     {rightItems.map((item, index) => (
+                         <TimelineCard key={item._id} item={item} side="right" index={(index * 2) + 1} />
                      ))}
                  </div>
             </div>

@@ -87,17 +87,20 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                         );
                       })}
                       
-                      <a href="mailto:contact@atakan.dev" className="relative group p-6 bg-primary/5 border border-primary/20 rounded-2xl hover:bg-primary/10 transition-all hover:-translate-y-1 overflow-hidden">
+                      <a 
+                        href="mailto:contact@atakan.dev" 
+                        className="relative group p-6 bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
+                      >
                           <BorderBeam size={100} duration={6} colorFrom="#06b6d4" colorTo="transparent" />
                           <div className="relative z-10">
                             <div className="flex items-center justify-between mb-4">
-                              <div className="p-3 bg-primary/10 rounded-full text-primary group-hover:scale-110 transition-transform">
+                              <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
                                 <Mail className="w-5 h-5" />
                               </div>
-                              <ArrowUpRight className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
+                              <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
                             </div>
-                            <p className="font-bold text-primary">Email</p>
-                            <p className="text-xs text-primary/70">contact@atakan.dev</p>
+                            <p className="font-bold text-gray-900 dark:text-white">Email</p>
+                            <p className="text-xs text-gray-500">contact@atakan.dev</p>
                           </div>
                       </a>
                    </div>
