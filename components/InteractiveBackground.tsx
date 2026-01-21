@@ -14,6 +14,16 @@ export const InteractiveBackground: React.FC = () => {
     let height = canvas.height = window.innerHeight;
     let time = 0;
     
+    // Get primary color from CSS variable set by Admin Context
+    const getPrimaryColor = () => {
+        const style = getComputedStyle(document.documentElement);
+        const rgb = style.getPropertyValue('--primary').trim();
+        // Fallback to space-separated RGB to match Tailwind's variable format
+        return rgb || '6 182 212';
+    };
+
+    let primaryRGB = getPrimaryColor();
+    
     interface Point {
       x: number;
       y: number;
@@ -35,6 +45,7 @@ export const InteractiveBackground: React.FC = () => {
     const init = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      primaryRGB = getPrimaryColor();
       points = [];
       
       const spacing = width < 768 ? 60 : 45; 
@@ -68,6 +79,16 @@ export const InteractiveBackground: React.FC = () => {
       mouse.y = e.clientY;
     };
 
+    // Watch for style changes (when admin changes color)
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === "attributes" && mutation.attributeName === "style") {
+                 primaryRGB = getPrimaryColor();
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
 
@@ -77,7 +98,7 @@ export const InteractiveBackground: React.FC = () => {
       time += 0.002; 
       ctx.clearRect(0, 0, width, height);
       
-      // Draw Aurora/Fog Effect - subtle global gradient
+      // Draw Aurora/Fog Effect - subtle global gradient using Dynamic Color
       const gradient = ctx.createRadialGradient(
         width / 2 + Math.sin(time) * 200, 
         height / 2 + Math.cos(time * 0.5) * 200, 
@@ -86,8 +107,11 @@ export const InteractiveBackground: React.FC = () => {
         height / 2, 
         width
       );
-      gradient.addColorStop(0, 'rgba(6, 182, 212, 0.03)'); // Cyan
-      gradient.addColorStop(0.5, 'rgba(217, 70, 239, 0.02)'); // Magenta
+      
+      // Dynamic color interpolation
+      // Use rgb(r g b / a) syntax to support space-separated primaryRGB variable
+      gradient.addColorStop(0, `rgb(${primaryRGB} / 0.03)`); 
+      gradient.addColorStop(0.5, 'rgba(217, 70, 239, 0.02)'); // Secondary kept fixed magenta for contrast
       gradient.addColorStop(1, 'rgba(5, 5, 5, 0)');
       
       ctx.fillStyle = gradient;
@@ -122,7 +146,8 @@ export const InteractiveBackground: React.FC = () => {
         ctx.beginPath();
         if (distance < 200) {
           const reactiveAlpha = (1 - distance / 200) * 0.3;
-          ctx.fillStyle = `rgba(6, 182, 212, ${reactiveAlpha + 0.1})`;
+          // Use rgb(r g b / a) syntax
+          ctx.fillStyle = `rgb(${primaryRGB} / ${reactiveAlpha + 0.1})`;
           ctx.arc(point.x, point.y, point.size + 1, 0, Math.PI * 2);
         } else {
           const opacity = 0.02 + pulse * 0.04;
@@ -139,6 +164,7 @@ export const InteractiveBackground: React.FC = () => {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      observer.disconnect();
       cancelAnimationFrame(animId);
     };
   }, []);

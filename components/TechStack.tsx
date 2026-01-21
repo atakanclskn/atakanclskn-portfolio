@@ -48,21 +48,26 @@ const ShadcnLogo = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const DefaultLogo = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <rect x="2" y="2" width="20" height="20" rx="4" />
+    </svg>
+);
+
+const LogoMap: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
+    'NextLogo': NextLogo,
+    'ReactLogo': ReactLogo,
+    'TSLogo': TSLogo,
+    'TailwindLogo': TailwindLogo,
+    'FramerLogo': FramerLogo,
+    'ShadcnLogo': ShadcnLogo,
+};
+
 interface TechStackProps {
   techStack: TechItem[];
 }
 
-export const TechStack: React.FC<TechStackProps> = () => {
-  // Hardcoded logos to match the specific design request
-  const logos = [
-    { name: 'Next.js', component: <NextLogo className="h-10 w-auto" />, color: 'text-black dark:text-white' },
-    { name: 'React', component: <ReactLogo className="h-10 w-auto" />, color: 'text-cyan-400' },
-    { name: 'TypeScript', component: <TSLogo className="h-10 w-auto" />, color: 'text-blue-500' },
-    { name: 'Tailwind CSS', component: <TailwindLogo className="h-8 w-auto" />, color: 'text-cyan-500' },
-    { name: 'Framer Motion', component: <FramerLogo className="h-8 w-auto" />, color: 'text-pink-500' },
-    { name: 'Shadcn UI', component: <ShadcnLogo className="h-8 w-auto" />, color: 'text-white' },
-  ];
-
+export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
   return (
     <section id="expertise" className="py-12 relative overflow-hidden bg-white dark:bg-[#050505] border-y border-gray-100 dark:border-white/5">
       <div className="max-w-[100vw] mx-auto relative">
@@ -73,18 +78,20 @@ export const TechStack: React.FC<TechStackProps> = () => {
 
         <div className="flex w-full overflow-hidden group">
             <div className="flex animate-infinite-scroll group-hover:[animation-play-state:paused] gap-16 py-4 px-8 items-center">
-                {/* Render items 4 times to create seamless loop for wider screens */}
-                {[...logos, ...logos, ...logos, ...logos].map((item, index) => (
-                    <div 
-                        key={`${item.name}-${index}`} 
-                        className="flex items-center justify-center flex-shrink-0 group/item cursor-default"
-                    >
-                        <div className={`transition-all duration-300 filter grayscale opacity-40 group-hover/item:grayscale-0 group-hover/item:opacity-100 transform group-hover/item:scale-110 ${item.color}`}>
-                             {item.component}
+                {/* Render items multiple times for loop */}
+                {[...techStack, ...techStack, ...techStack].map((item, index) => {
+                    const LogoComponent = LogoMap[item.iconName] || DefaultLogo;
+                    return (
+                        <div 
+                            key={`${item.title}-${index}`} 
+                            className="flex items-center justify-center flex-shrink-0 group/item cursor-default"
+                        >
+                            <div className={`transition-all duration-300 filter grayscale opacity-40 group-hover/item:grayscale-0 group-hover/item:opacity-100 transform group-hover/item:scale-110 ${item.color}`}>
+                                <LogoComponent className="h-10 w-auto" />
+                            </div>
                         </div>
-                        {/* Text removed as per request "sadece logolar kaysın" */}
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
       </div>
