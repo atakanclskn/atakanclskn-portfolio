@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { ArrowUpRight, Terminal, ArrowRight, Star } from 'lucide-react';
+import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Project } from '../types';
 import { urlFor } from '../lib/sanity.client';
 
@@ -9,26 +10,27 @@ interface SelectedWorkProps {
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
   return (
-    <section id="projects" className="py-32 relative bg-transparent">
+    <section id="projects" className="py-32 relative bg-gray-50 dark:bg-[#050505] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="flex items-center justify-between mb-16">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight">Selected Work</h2>
-            <p className="text-primary/60 font-mono text-xs mt-2 tracking-wider">SYNCED FROM GITHUB REPOSITORIES</p>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-            </span>
-            <span className="text-xs font-mono text-green-400 uppercase tracking-wider">Live Fetch Active</span>
-          </div>
+        <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
+              Checkout my latest work
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg">
+               A selection of projects I've worked on, ranging from web applications to open source tools.
+            </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[340px]">
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[300px] gap-4">
           
-          {projects?.map((project) => {
-            const isLarge = project.size === 'large';
+          {projects?.map((project, index) => {
+            // Logic to create a bento feel: 
+            // First item is big (2x2), others vary.
+            // Index 0: col-span-2 row-span-2
+            // Index 3: col-span-2 (wide)
+            const isFeatured = index === 0;
+            const isWide = index === 3;
             
             let imageUrl = '';
             if (typeof project.mainImage === 'string') {
@@ -40,67 +42,50 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
             return (
               <div 
                 key={project._id}
-                className={`rounded-2xl overflow-hidden relative group cursor-pointer border border-white/5 hover:border-primary/30 transition-all duration-500 bg-surface/80 backdrop-blur-sm ${isLarge ? 'md:col-span-2 md:row-span-2' : ''}`}
+                className={`
+                    group relative overflow-hidden rounded-3xl bg-white dark:bg-surface border border-gray-200 dark:border-white/10
+                    ${isFeatured ? 'md:col-span-2 md:row-span-2' : ''}
+                    ${isWide ? 'md:col-span-2' : ''}
+                    hover:shadow-2xl transition-all duration-500 cursor-pointer
+                `}
                 onClick={() => project.link && window.open(project.link, '_blank')}
               >
                 {imageUrl ? (
                    <>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10 opacity-90 group-hover:opacity-60 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
                     <img 
                       src={imageUrl} 
                       alt={project.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter brightness-75 group-hover:brightness-100"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                    </>
                 ) : (
-                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent flex items-center justify-center">
-                      <Terminal className="w-20 h-20 text-white/10 group-hover:text-primary/40 transition-colors" />
+                   <div className="absolute inset-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+                      <Terminal className="w-16 h-16 text-gray-300 dark:text-white/10" />
                    </div>
                 )}
 
-                <div className="absolute top-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                  <div className="bg-black/50 p-3 rounded-full backdrop-blur-md border border-white/10 group-hover:bg-primary group-hover:text-black transition-all">
-                    <ArrowUpRight className="w-5 h-5 text-white group-hover:text-black" />
-                  </div>
+                <div className="absolute top-4 right-4 z-20 bg-white dark:bg-black/80 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+                    <ArrowUpRight className="w-4 h-4 text-black dark:text-white" />
                 </div>
 
-                {project.isLiveData && (
-                    <div className="absolute top-6 left-6 z-20 flex gap-2">
-                         {project.language && (
-                            <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono font-bold text-gray-300 flex items-center gap-1">
-                                <div className="w-2 h-2 rounded-full bg-primary/80"></div>
-                                {project.language}
-                            </span>
-                         )}
-                         {(project.stars || 0) > 0 && (
-                            <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono font-bold text-yellow-500 flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-current" />
-                                {project.stars}
-                            </span>
-                         )}
-                    </div>
-                )}
-
-                <div className={`absolute bottom-0 left-0 p-${isLarge ? '8' : '6'} z-20 w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500`}>
-                   {isLarge && (
-                     <span className="inline-block px-3 py-1 mb-3 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/20 backdrop-blur-md">
+                {/* Content Overlay */}
+                <div className="absolute bottom-0 left-0 w-full p-6 z-20 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-20">
+                   {project.category && (
+                     <span className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 block">
                       {project.category}
                     </span>
                    )}
-                  <h3 className={`${isLarge ? 'text-4xl' : 'text-xl'} font-display font-bold text-white mb-2 leading-tight`}>{project.title}</h3>
-                  <p className={`${isLarge ? 'text-gray-400 max-w-lg' : 'text-gray-500 text-xs font-mono'} line-clamp-2`}>
+                  <h3 className={`font-display font-bold text-white mb-2 leading-tight ${isFeatured ? 'text-3xl' : 'text-xl'}`}>
+                      {project.title}
+                  </h3>
+                  <p className="text-gray-300 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
                     {project.description}
                   </p>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        <div className="mt-12 text-center">
-          <a href="https://github.com/atakanclskn?tab=repositories" target="_blank" rel="noreferrer" className="text-sm font-bold font-mono text-gray-400 hover:text-primary transition-colors inline-flex items-center gap-2 group">
-            VIEW_FULL_ARCHIVE_ON_GITHUB <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </a>
         </div>
       </div>
     </section>

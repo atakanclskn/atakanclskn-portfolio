@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { ExperienceItem, Project } from '../types';
-import { GraduationCap, Briefcase, Award, FolderGit2, Sparkles, Binary } from 'lucide-react';
+import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
 
 interface ExperienceProps {
   experiences: ExperienceItem[];
@@ -10,9 +10,151 @@ interface ExperienceProps {
 
 type FilterType = 'work' | 'education' | 'certification' | 'project';
 
+const getTypeStyles = (type?: string) => {
+    switch (type) {
+      case 'education': 
+        return { 
+            icon: <GraduationCap className="w-5 h-5" />, 
+            color: 'text-purple-600 dark:text-purple-400',
+            bg: 'bg-purple-100 dark:bg-purple-900/20',
+            border: 'border-purple-200 dark:border-purple-700'
+        };
+      case 'certification': 
+        return { 
+            icon: <Award className="w-5 h-5" />, 
+            color: 'text-yellow-600 dark:text-yellow-400',
+            bg: 'bg-yellow-100 dark:bg-yellow-900/20',
+            border: 'border-yellow-200 dark:border-yellow-700'
+        };
+      case 'project':
+        return {
+            icon: <FolderGit2 className="w-5 h-5" />,
+            color: 'text-emerald-600 dark:text-emerald-400',
+            bg: 'bg-emerald-100 dark:bg-emerald-900/20',
+            border: 'border-emerald-200 dark:border-emerald-700'
+        };
+      case 'work': 
+      default: 
+        return { 
+            icon: <Briefcase className="w-5 h-5" />, 
+            color: 'text-blue-600 dark:text-blue-400',
+            bg: 'bg-blue-100 dark:bg-blue-900/20',
+            border: 'border-blue-200 dark:border-blue-700'
+        };
+    }
+  };
+
+const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: boolean }> = ({ item, side = 'left', isMobile = false }) => {
+     const type = item.type || 'work';
+     const style = getTypeStyles(type);
+     const startYear = new Date(item.startDate).getFullYear();
+     const endYear = item.isCurrent ? 'Present' : (item.endDate ? new Date(item.endDate).getFullYear() : startYear);
+     const period = `${startYear}${startYear !== endYear ? ` — ${endYear}` : ''}`;
+
+     // Desktop specific classes
+     const dotClass = isMobile 
+        ? "left-0 -translate-x-1/2" 
+        : side === 'left' 
+            ? "-right-12 translate-x-1/2" 
+            : "-left-12 -translate-x-1/2";
+            
+     const connectorClass = isMobile
+        ? "hidden"
+        : side === 'left'
+            ? "right-[-48px] w-12" 
+            : "left-[-48px] w-12";
+
+     const alignClass = isMobile 
+        ? "text-left pl-0" 
+        : side === 'left' 
+            ? "text-right items-end" 
+            : "text-left items-start";
+
+     const skillJustify = (!isMobile && side === 'left') ? "justify-end" : "justify-start";
+     const linkAlign = (!isMobile && side === 'left') ? "ml-auto" : "mr-auto";
+
+     return (
+        <div className="relative group w-full">
+            {/* Connector Line (Desktop) */}
+            {!isMobile && (
+                 <div className={`absolute top-12 h-px bg-gray-200 dark:bg-white/10 ${connectorClass}`}></div>
+            )}
+
+            {/* Dot */}
+            <div className={`absolute top-8 w-10 h-10 rounded-full bg-white dark:bg-[#050505] border-4 border-gray-100 dark:border-white/10 flex items-center justify-center z-20 shadow-sm transition-transform duration-300 group-hover:scale-110 ${dotClass}`}>
+                <div className={`${style.color}`}>
+                    {style.icon}
+                </div>
+            </div>
+
+            {/* Card Content */}
+            <div className={`
+                relative p-8 rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 
+                hover:shadow-xl transition-all duration-300 hover:-translate-y-1
+                flex flex-col gap-4
+                ${isMobile ? 'ml-6' : ''}
+                ${!isMobile && side === 'left' ? 'items-end' : ''}
+            `}>
+                <div className={`flex flex-col gap-1 w-full ${alignClass}`}>
+                     <div className={`flex items-center gap-2 mb-1 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
+                            {type}
+                        </span>
+                        {(isMobile || side === 'right') && (
+                            <span className="flex items-center gap-1 text-xs text-gray-400">
+                                <Calendar className="w-3 h-3" /> {period}
+                            </span>
+                        )}
+                         {!isMobile && side === 'left' && (
+                            <span className="flex items-center gap-1 text-xs text-gray-400">
+                                {period} <Calendar className="w-3 h-3" />
+                            </span>
+                        )}
+                     </div>
+
+                     <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
+                        {item.role || item.title}
+                     </h3>
+
+                     <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                        <span>{item.company}</span>
+                     </div>
+                </div>
+
+                <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
+                    {item.description}
+                </p>
+
+                {item.skills && (
+                    <div className={`flex flex-wrap gap-2 ${skillJustify}`}>
+                        {item.skills.map((skill: string) => (
+                        <span 
+                            key={skill} 
+                            className="text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 px-2.5 py-1 rounded-lg"
+                        >
+                            {skill}
+                        </span>
+                        ))}
+                    </div>
+                )}
+
+                 {item.link && (
+                    <a 
+                        href={item.link} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity ${linkAlign}`}
+                    >
+                        View Project <ArrowUpRight className="w-3 h-3" />
+                    </a>
+                )}
+            </div>
+        </div>
+     );
+  };
+
 export const Experience: React.FC<ExperienceProps> = ({ experiences, projects }) => {
-  // Default to showing Work and Projects for a good first impression
-  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'project']);
+  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'project']);
 
   const toggleFilter = (filter: FilterType) => {
     setActiveFilters(prev => 
@@ -22,27 +164,30 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
     );
   };
 
-  // Map projects to a timeline-compatible format
-  const mappedProjects: ExperienceItem[] = useMemo(() => {
-    return projects.map(p => ({
-      _id: p._id,
-      role: p.title,
-      company: p.category || 'GitHub Project',
-      startDate: new Date().toISOString(), // Use for sorting
-      isCurrent: false,
-      description: p.description,
-      skills: p.language ? [p.language] : [],
-      type: 'project' as any
-    }));
-  }, [projects]);
-
-  // Combine and sort all items
+  // Merge Experiences and Projects into a single timeline list
   const allTimelineItems = useMemo(() => {
-    const combined = [...experiences, ...mappedProjects];
-    return combined.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
-  }, [experiences, mappedProjects]);
+    const projectItems = projects.map(p => ({
+        _id: p._id,
+        role: p.title,
+        company: 'Project',
+        startDate: '2024-01-01', // Fallback
+        isCurrent: false,
+        description: p.description,
+        skills: [p.category],
+        type: 'project' as const,
+        link: p.link
+    }));
 
-  // Filter based on active selection
+    const combined = [...experiences, ...projectItems];
+    
+    // Sort by date descending
+    return combined.sort((a, b) => {
+        const dateA = new Date(a.startDate).getTime();
+        const dateB = new Date(b.startDate).getTime();
+        return dateB - dateA;
+    });
+  }, [experiences, projects]);
+
   const filteredItems = useMemo(() => {
     return allTimelineItems.filter(item => {
         const type = (item as any).type || 'work';
@@ -50,186 +195,84 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
     });
   }, [allTimelineItems, activeFilters]);
 
-  const getIcon = (type?: string) => {
-    switch (type) {
-      case 'education': return <GraduationCap className="w-5 h-5" />;
-      case 'certification': return <Award className="w-5 h-5" />;
-      case 'project': return <FolderGit2 className="w-5 h-5" />;
-      case 'work': default: return <Briefcase className="w-5 h-5" />;
-    }
-  };
-
-  const getTypeLabel = (type?: string) => {
-    switch (type) {
-      case 'education': return 'EDUCATION';
-      case 'certification': return 'LICENSE & CERT';
-      case 'project': return 'PROJECT';
-      default: return 'EXPERIENCE';
-    }
-  };
-
-  const getTypeColorClasses = (type: FilterType, isActive: boolean) => {
-    const colors = {
-      work: {
-        active: 'bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]',
-        inactive: 'border-primary/30 text-gray-500 hover:border-primary/60',
-        text: 'text-primary'
-      },
-      education: {
-        active: 'bg-secondary/20 border-secondary text-white shadow-[0_0_15px_rgba(217,70,239,0.3)]',
-        inactive: 'border-secondary/30 text-gray-500 hover:border-secondary/60',
-        text: 'text-secondary'
-      },
-      certification: {
-        active: 'bg-yellow-400/20 border-yellow-400 text-white shadow-[0_0_15px_rgba(250,204,21,0.3)]',
-        inactive: 'border-yellow-400/30 text-gray-500 hover:border-yellow-400/60',
-        text: 'text-yellow-400'
-      },
-      project: {
-        active: 'bg-emerald-400/20 border-emerald-400 text-white shadow-[0_0_15px_rgba(52,211,153,0.3)]',
-        inactive: 'border-emerald-400/30 text-gray-500 hover:border-emerald-400/60',
-        text: 'text-emerald-400'
-      }
-    };
-    return isActive ? colors[type].active : colors[type].inactive;
-  };
+  // Split items for Desktop 2-Column Layout
+  const leftItems = filteredItems.filter((_, i) => i % 2 === 0);
+  const rightItems = filteredItems.filter((_, i) => i % 2 !== 0);
 
   const filters: { label: string; value: FilterType }[] = [
-    { label: 'WORK', value: 'work' },
-    { label: 'EDUCATION', value: 'education' },
-    { label: 'CERTS', value: 'certification' },
-    { label: 'PROJECTS', value: 'project' },
+    { label: 'Work', value: 'work' },
+    { label: 'Education', value: 'education' },
+    { label: 'Certifications', value: 'certification' },
+    { label: 'Projects', value: 'project' },
   ];
 
   return (
-    <section id="experience" className="py-32 relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
+    <section id="experience" className="py-32 relative bg-white dark:bg-[#050505] transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Header Section */}
-        <div className="flex flex-col items-center mb-16 text-center">
-            <h2 className="text-5xl md:text-7xl font-display font-bold text-white tracking-tighter mb-6">
-              The Journey
-            </h2>
-            <div className="w-16 h-1.5 bg-primary rounded-full mb-10"></div>
+        <div className="flex flex-col items-center justify-center text-center mb-24 gap-6">
+            <div>
+                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
+                  Timeline
+                </h2>
+                <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto">
+                  My professional journey, educational background, and key project milestones.
+                </p>
+            </div>
             
-            {/* Interactive Multi-Select Filter Bar */}
-            <div className="flex flex-wrap justify-center gap-4 mb-14">
+            {/* Filter Pills */}
+            <div className="flex flex-wrap justify-center gap-3">
               {filters.map((f) => {
                 const isActive = activeFilters.includes(f.value);
+                const styles = getTypeStyles(f.value);
+                
                 return (
                   <button
                     key={f.value}
                     onClick={() => toggleFilter(f.value)}
-                    className={`px-8 py-3 rounded-full text-[11px] font-mono font-bold tracking-[0.2em] transition-all duration-500 border-2 ${
-                      getTypeColorClasses(f.value, isActive)
-                    } ${isActive ? 'scale-110' : 'scale-100 hover:scale-105'}`}
+                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all duration-300 border flex items-center justify-center ${
+                      isActive 
+                        ? `${styles.bg} ${styles.color} ${styles.border}`
+                        : 'bg-transparent text-gray-500 border-gray-200 dark:border-white/10 hover:border-gray-400'
+                    }`}
                   >
                     {f.label}
                   </button>
                 );
               })}
             </div>
-
-            <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.5em] flex items-center gap-3">
-              <Sparkles className="w-3 h-3 text-primary animate-pulse" />
-              Toggle categories to filter results
-            </p>
         </div>
 
-        <div className="relative min-h-[500px]">
-          {/* Central Vertical Line */}
-          <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary/0 via-primary/20 to-primary/0 -translate-x-1/2 hidden md:block"></div>
-          <div className="absolute left-6 top-0 bottom-0 w-px bg-primary/10 md:hidden"></div>
+        <div className="relative">
+            {/* Mobile View (Single Line) */}
+            <div className="md:hidden relative border-l border-gray-200 dark:border-white/10 ml-4 space-y-12 pb-12">
+                {filteredItems.map(item => (
+                    <TimelineCard key={item._id} item={item} isMobile={true} />
+                ))}
+            </div>
 
-          <div className="space-y-16 md:space-y-0">
-            {filteredItems.length > 0 ? (
-              filteredItems.map((exp, index) => {
-                const isEven = index % 2 === 0;
-                const type = (exp as any).type || 'work';
-                const startYear = new Date(exp.startDate).getFullYear();
-                const endYear = exp.isCurrent ? 'PRESENT' : exp.endDate ? new Date(exp.endDate).getFullYear() : '';
-                
-                const isProject = type === 'project';
-                const period = isProject ? 'MILESTONE' : (exp.startDate === exp.endDate || !exp.endDate ? startYear : `${startYear} — ${endYear}`);
+            {/* Desktop View (Dual Column Masonry) */}
+            <div className="hidden md:grid grid-cols-2 gap-x-0 relative">
+                 {/* Center Line */}
+                 <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 dark:bg-white/10 -translate-x-1/2"></div>
+                 
+                 {/* Left Column */}
+                 <div className="pr-12 space-y-16 py-4">
+                     {leftItems.map(item => (
+                         <TimelineCard key={item._id} item={item} side="left" />
+                     ))}
+                 </div>
 
-                // Visual theme based on type
-                const themeColor = type === 'education' ? 'text-secondary' : type === 'certification' ? 'text-yellow-400' : type === 'project' ? 'text-emerald-400' : 'text-primary';
-                const nodeBorder = type === 'education' ? 'group-hover:border-secondary' : type === 'certification' ? 'group-hover:border-yellow-400' : type === 'project' ? 'group-hover:border-emerald-400' : 'group-hover:border-primary';
-
-                return (
-                  <div 
-                    key={exp._id} 
-                    className={`relative flex flex-col md:flex-row items-start md:items-center justify-between mb-20 md:mb-32 group transition-all duration-1000 animate-in fade-in slide-in-from-bottom-8 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
-                  >
-                    <div className={`w-full md:w-[45%] pl-16 md:pl-0 ${isEven ? 'md:text-right md:pr-16' : 'md:text-left md:pl-16'}`}>
-                      <div className="relative">
-                        <div className={`text-[10px] font-bold tracking-[0.3em] uppercase mb-3 ${themeColor}`}>
-                          {getTypeLabel(type)}
-                        </div>
-                        <h3 className="text-3xl md:text-4xl font-display font-bold text-white leading-tight mb-2 group-hover:text-white transition-colors">
-                          {exp.role}
-                        </h3>
-                        <p className="text-gray-400 font-medium text-xl mb-5">{exp.company}</p>
-                        <p className={`text-gray-500 text-sm leading-relaxed mb-8 max-w-xl ${isEven ? 'ml-auto mr-0' : 'mr-auto ml-0'}`}>
-                          {exp.description}
-                        </p>
-                        
-                        {exp.skills && (
-                          <div className={`flex flex-wrap gap-2.5 ${isEven ? 'md:justify-end' : 'md:justify-start'}`}>
-                            {exp.skills.map(skill => (
-                              <span 
-                                key={skill} 
-                                className={`px-4 py-1.5 rounded-lg bg-white/5 text-[10px] font-mono font-bold text-gray-500 border border-white/5 transition-all duration-300 group-hover:border-current group-hover:text-gray-300`}
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Icon Node */}
-                    <div className={`absolute left-6 md:left-1/2 top-0 md:top-auto w-14 h-14 rounded-2xl bg-surface border-2 border-white/5 shadow-2xl transition-all duration-700 z-10 -translate-x-1/2 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 ${nodeBorder}`}>
-                      <div className={`transition-colors duration-500 ${themeColor} opacity-40 group-hover:opacity-100`}>
-                          {getIcon(type)}
-                      </div>
-                      {exp.isCurrent && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-4 border-background animate-pulse"></span>
-                      )}
-                    </div>
-
-                    <div className={`w-full md:w-[45%] pl-16 md:pl-0 mt-4 md:mt-0 ${isEven ? 'md:text-left md:pl-16' : 'md:text-right md:pr-16'}`}>
-                      <span className={`text-lg md:text-2xl font-mono font-bold tracking-tighter transition-all duration-700 opacity-20 group-hover:opacity-100 ${themeColor}`}>
-                        {period}
-                      </span>
-                    </div>
-
-                  </div>
-                );
-              })
-            ) : (
-              <div className="flex flex-col items-center justify-center py-32 text-center animate-in zoom-in duration-700">
-                <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 animate-pulse">
-                   <Binary className="w-8 h-8 text-gray-600" />
-                </div>
-                <h3 className="text-xl font-display font-bold text-gray-500 mb-2 uppercase tracking-widest">System Standby</h3>
-                <p className="text-gray-600 font-mono text-sm">Select one or more data modules to initialize the timeline.</p>
-                <button 
-                  onClick={() => setActiveFilters(['work', 'education', 'certification', 'project'])} 
-                  className="mt-8 text-primary/50 text-xs hover:text-primary transition-all uppercase tracking-[0.3em] font-bold border-b border-primary/20 hover:border-primary pb-1"
-                >
-                  Load All Modules
-                </button>
-              </div>
-            )}
-          </div>
+                 {/* Right Column (Offset start) */}
+                 <div className="pl-12 space-y-16 py-4 mt-32">
+                     {rightItems.map(item => (
+                         <TimelineCard key={item._id} item={item} side="right" />
+                     ))}
+                 </div>
+            </div>
         </div>
       </div>
-
-      {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none opacity-20"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] pointer-events-none opacity-20"></div>
     </section>
   );
 };
