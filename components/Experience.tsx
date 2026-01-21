@@ -70,8 +70,8 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
      const connectorClass = isMobile
         ? "hidden"
         : side === 'left'
-            ? "right-[-48px] w-[48px]" 
-            : "left-[-48px] w-[48px]";
+            ? "right-[-48px] w-[49px]" 
+            : "left-[-48px] w-[49px]";
 
      const alignClass = isMobile 
         ? "text-left pl-0" 
@@ -91,6 +91,12 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
             {!isMobile && (
                  <div className={`absolute top-14 h-px bg-gray-200 dark:bg-white/10 ${connectorClass}`}></div>
             )}
+
+            {/* Glow Effect (Breathing) */}
+            <div 
+                className={`absolute top-8 w-12 h-12 rounded-full z-10 opacity-0 group-hover:opacity-60 transition-all duration-500 blur-[8px] group-hover:scale-125 group-hover:animate-pulse ${dotClass}`}
+                style={{ backgroundColor: style.beamColor }}
+            ></div>
 
             {/* Dot (Clean Version) */}
             <div className={`absolute top-8 w-12 h-12 rounded-full z-20 flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 ${dotClass} bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10`}>
