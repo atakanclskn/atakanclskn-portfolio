@@ -28,12 +28,18 @@
             animation: {
               'infinite-scroll': 'infinite-scroll 25s linear infinite',
               'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+              'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
             },
             keyframes: {
               'infinite-scroll': {
                 from: { transform: 'translateX(0)' },
                 to: { transform: 'translateX(-100%)' },
-              }
+              },
+              'border-beam': {
+                '100%': {
+                  'offset-distance': '100%',
+                },
+              },
             }
           }
         }

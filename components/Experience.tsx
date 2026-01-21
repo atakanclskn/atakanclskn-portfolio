@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { ExperienceItem, Project } from '../types';
 import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
+import { BorderBeam } from './BorderBeam';
 
 interface ExperienceProps {
   experiences: ExperienceItem[];
@@ -17,21 +18,27 @@ const getTypeStyles = (type?: string) => {
             icon: <GraduationCap className="w-5 h-5" />, 
             color: 'text-purple-600 dark:text-purple-400',
             bg: 'bg-purple-100 dark:bg-purple-900/20',
-            border: 'border-purple-200 dark:border-purple-700'
+            border: 'border-purple-200 dark:border-purple-700',
+            hover: 'group-hover:text-purple-600 dark:group-hover:text-purple-400',
+            beamColor: '#a855f7' // Purple-500
         };
       case 'certification': 
         return { 
             icon: <Award className="w-5 h-5" />, 
             color: 'text-yellow-600 dark:text-yellow-400',
             bg: 'bg-yellow-100 dark:bg-yellow-900/20',
-            border: 'border-yellow-200 dark:border-yellow-700'
+            border: 'border-yellow-200 dark:border-yellow-700',
+            hover: 'group-hover:text-yellow-600 dark:group-hover:text-yellow-400',
+            beamColor: '#eab308' // Yellow-500
         };
       case 'project':
         return {
             icon: <FolderGit2 className="w-5 h-5" />,
             color: 'text-emerald-600 dark:text-emerald-400',
             bg: 'bg-emerald-100 dark:bg-emerald-900/20',
-            border: 'border-emerald-200 dark:border-emerald-700'
+            border: 'border-emerald-200 dark:border-emerald-700',
+            hover: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+            beamColor: '#10b981' // Emerald-500
         };
       case 'work': 
       default: 
@@ -39,7 +46,9 @@ const getTypeStyles = (type?: string) => {
             icon: <Briefcase className="w-5 h-5" />, 
             color: 'text-blue-600 dark:text-blue-400',
             bg: 'bg-blue-100 dark:bg-blue-900/20',
-            border: 'border-blue-200 dark:border-blue-700'
+            border: 'border-blue-200 dark:border-blue-700',
+            hover: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
+            beamColor: '#3b82f6' // Blue-500
         };
     }
   };
@@ -91,11 +100,13 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
             <div className={`
                 relative p-8 rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 
                 hover:shadow-xl transition-all duration-300 hover:-translate-y-1
-                flex flex-col gap-4
+                flex flex-col gap-4 overflow-hidden
                 ${isMobile ? 'ml-6' : ''}
                 ${!isMobile && side === 'left' ? 'items-end' : ''}
             `}>
-                <div className={`flex flex-col gap-1 w-full ${alignClass}`}>
+                <BorderBeam duration={8} size={150} colorFrom={style.beamColor} colorTo="transparent" />
+
+                <div className={`flex flex-col gap-1 w-full relative z-10 ${alignClass}`}>
                      <div className={`flex items-center gap-2 mb-1 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
                         <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
                             {type}
@@ -112,7 +123,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                         )}
                      </div>
 
-                     <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
+                     <h3 className={`text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
                         {item.role || item.title}
                      </h3>
 
@@ -121,12 +132,12 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                      </div>
                 </div>
 
-                <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
+                <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
                     {item.description}
                 </p>
 
                 {item.skills && (
-                    <div className={`flex flex-wrap gap-2 ${skillJustify}`}>
+                    <div className={`flex flex-wrap gap-2 relative z-10 ${skillJustify}`}>
                         {item.skills.map((skill: string) => (
                         <span 
                             key={skill} 
@@ -143,7 +154,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                         href={item.link} 
                         target="_blank" 
                         rel="noreferrer" 
-                        className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity ${linkAlign}`}
+                        className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity relative z-10 ${linkAlign}`}
                     >
                         View Project <ArrowUpRight className="w-3 h-3" />
                     </a>

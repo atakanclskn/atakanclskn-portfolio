@@ -2,6 +2,7 @@
 import React from 'react';
 import { ArrowUpRight, Mail, Github, Linkedin, Twitter, Instagram, Send } from 'lucide-react';
 import { Social, Profile } from '../types';
+import { BorderBeam } from './BorderBeam';
 
 interface ConnectProps {
   socials: Social[];
@@ -10,13 +11,13 @@ interface ConnectProps {
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   
-  const getIcon = (platform: string) => {
+  const getSocialStyle = (platform: string) => {
     switch (platform.toLowerCase()) {
-      case 'linkedin': return <Linkedin className="w-5 h-5" />;
-      case 'twitter': return <Twitter className="w-5 h-5" />;
-      case 'github': return <Github className="w-5 h-5" />;
-      case 'instagram': return <Instagram className="w-5 h-5" />;
-      default: return <ArrowUpRight className="w-5 h-5" />;
+      case 'linkedin': return { icon: <Linkedin className="w-5 h-5" />, color: '#0A66C2' };
+      case 'twitter': return { icon: <Twitter className="w-5 h-5" />, color: '#1D9BF0' };
+      case 'github': return { icon: <Github className="w-5 h-5" />, color: '#808080' };
+      case 'instagram': return { icon: <Instagram className="w-5 h-5" />, color: '#E4405F' };
+      default: return { icon: <ArrowUpRight className="w-5 h-5" />, color: '#06b6d4' };
     }
   };
 
@@ -36,7 +37,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                  Have a project in mind or just want to say hi? Fill out the form below or send me an email.
                </p>
 
-               <form className="space-y-6">
+               <form className="space-y-6 relative">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Name</label>
                     <input type="text" className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="John Doe" />
@@ -60,34 +61,44 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                 <div>
                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Find me on</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {socials.map((social) => (
-                        <a 
-                          key={social._id} 
-                          href={social.url} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="group p-6 bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm"
-                        >
-                          <div className="flex items-center justify-between mb-4">
-                             <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
-                               {getIcon(social.platform)}
-                             </div>
-                             <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                          </div>
-                          <p className="font-bold text-gray-900 dark:text-white">{social.platform}</p>
-                          <p className="text-xs text-gray-500">{social.username || 'Follow'}</p>
-                        </a>
-                      ))}
+                      {socials.map((social) => {
+                        const style = getSocialStyle(social.platform);
+                        return (
+                          <a 
+                            key={social._id} 
+                            href={social.url} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="relative group p-6 bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
+                          >
+                            <BorderBeam size={100} duration={6} colorFrom={style.color} colorTo="transparent" />
+                            
+                            <div className="relative z-10">
+                              <div className="flex items-center justify-between mb-4">
+                                <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
+                                  {style.icon}
+                                </div>
+                                <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                              </div>
+                              <p className="font-bold text-gray-900 dark:text-white">{social.platform}</p>
+                              <p className="text-xs text-gray-500">{social.username || 'Follow'}</p>
+                            </div>
+                          </a>
+                        );
+                      })}
                       
-                      <a href="mailto:contact@atakan.dev" className="group p-6 bg-primary/5 border border-primary/20 rounded-2xl hover:bg-primary/10 transition-all hover:-translate-y-1">
-                          <div className="flex items-center justify-between mb-4">
-                             <div className="p-3 bg-primary/10 rounded-full text-primary group-hover:scale-110 transition-transform">
-                               <Mail className="w-5 h-5" />
-                             </div>
-                             <ArrowUpRight className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
+                      <a href="mailto:contact@atakan.dev" className="relative group p-6 bg-primary/5 border border-primary/20 rounded-2xl hover:bg-primary/10 transition-all hover:-translate-y-1 overflow-hidden">
+                          <BorderBeam size={100} duration={6} colorFrom="#06b6d4" colorTo="transparent" />
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="p-3 bg-primary/10 rounded-full text-primary group-hover:scale-110 transition-transform">
+                                <Mail className="w-5 h-5" />
+                              </div>
+                              <ArrowUpRight className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
+                            </div>
+                            <p className="font-bold text-primary">Email</p>
+                            <p className="text-xs text-primary/70">contact@atakan.dev</p>
                           </div>
-                          <p className="font-bold text-primary">Email</p>
-                          <p className="text-xs text-primary/70">contact@atakan.dev</p>
                       </a>
                    </div>
                 </div>
