@@ -7,6 +7,7 @@ export const Navbar: React.FC = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     // Initialize theme based on HTML class
@@ -17,10 +18,17 @@ export const Navbar: React.FC = () => {
     }
 
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 40);
+
+      // Calculate Scroll Progress
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = totalHeight > 0 ? (currentScrollY / totalHeight) * 100 : 0;
+      setScrollProgress(progress);
+
       const sections = ['expertise', 'projects', 'experience', 'contact'];
-      const scrollPosition = window.scrollY + 120;
-      const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
+      const scrollPosition = currentScrollY + 120;
+      const isBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 50;
       
       if (isBottom) {
         setActiveSection('contact');
@@ -160,6 +168,12 @@ export const Navbar: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Scroll Progress Bar */}
+      <div 
+        className={`absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-100 ease-linear ${scrolled ? 'opacity-100' : 'opacity-0'}`}
+        style={{ width: `${scrollProgress}%` }}
+      />
 
       {/* Mobile Menu */}
       <div className={`fixed inset-x-0 top-[100%] bg-white dark:bg-background border-b border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 ease-in-out md:hidden ${
