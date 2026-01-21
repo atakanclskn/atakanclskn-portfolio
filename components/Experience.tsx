@@ -70,8 +70,8 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
      const connectorClass = isMobile
         ? "hidden"
         : side === 'left'
-            ? "right-[-48px] w-12" 
-            : "left-[-48px] w-12";
+            ? "right-[-48px] w-[48px]" 
+            : "left-[-48px] w-[48px]";
 
      const alignClass = isMobile 
         ? "text-left pl-0" 
@@ -89,11 +89,11 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
         >
             {/* Connector Line (Desktop) */}
             {!isMobile && (
-                 <div className={`absolute top-12 h-px bg-gray-200 dark:bg-white/10 ${connectorClass}`}></div>
+                 <div className={`absolute top-14 h-px bg-gray-200 dark:bg-white/10 ${connectorClass}`}></div>
             )}
 
-            {/* Dot */}
-            <div className={`absolute top-8 w-10 h-10 rounded-full bg-white dark:bg-[#050505] border-4 border-gray-100 dark:border-white/10 flex items-center justify-center z-20 shadow-sm transition-transform duration-300 group-hover:scale-110 ${dotClass}`}>
+            {/* Dot (Clean Version) */}
+            <div className={`absolute top-8 w-12 h-12 rounded-full z-20 flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110 ${dotClass} bg-white dark:bg-[#050505] border border-gray-200 dark:border-white/10`}>
                 <div className={`${style.color}`}>
                     {style.icon}
                 </div>
