@@ -3,6 +3,8 @@ import React from 'react';
 import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Project } from '../types';
 import { urlFor } from '../lib/sanity.client';
+import { MagicCard } from './MagicCard';
+import { BorderBeam } from './BorderBeam';
 
 interface SelectedWorkProps {
   projects: Project[];
@@ -25,10 +27,6 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[300px] gap-4">
           
           {projects?.map((project, index) => {
-            // Logic to create a bento feel: 
-            // First item is big (2x2), others vary.
-            // Index 0: col-span-2 row-span-2
-            // Index 3: col-span-2 (wide)
             const isFeatured = index === 0;
             const isWide = index === 3;
             
@@ -40,50 +38,54 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
             }
 
             return (
-              <div 
+              <MagicCard
                 key={project._id}
+                gradientColor="rgba(255, 255, 255, 0.15)"
                 className={`
                     group relative overflow-hidden rounded-3xl bg-white dark:bg-surface border border-gray-200 dark:border-white/10
                     ${isFeatured ? 'md:col-span-2 md:row-span-2' : ''}
                     ${isWide ? 'md:col-span-2' : ''}
                     hover:shadow-2xl transition-all duration-500 cursor-pointer
                 `}
-                onClick={() => project.link && window.open(project.link, '_blank')}
               >
-                {imageUrl ? (
-                   <>
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
-                    <img 
-                      src={imageUrl} 
-                      alt={project.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                   </>
-                ) : (
-                   <div className="absolute inset-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-                      <Terminal className="w-16 h-16 text-gray-300 dark:text-white/10" />
-                   </div>
-                )}
+                <BorderBeam duration={10} size={200} colorFrom="#06b6d4" colorTo="transparent" />
+                
+                <div onClick={() => project.link && window.open(project.link, '_blank')} className="w-full h-full relative z-20">
+                    {imageUrl ? (
+                    <>
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
+                        <img 
+                        src={imageUrl} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                    </>
+                    ) : (
+                    <div className="absolute inset-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+                        <Terminal className="w-16 h-16 text-gray-300 dark:text-white/10" />
+                    </div>
+                    )}
 
-                <div className="absolute top-4 right-4 z-20 bg-white dark:bg-black/80 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
-                    <ArrowUpRight className="w-4 h-4 text-black dark:text-white" />
-                </div>
+                    <div className="absolute top-4 right-4 z-20 bg-white dark:bg-black/80 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+                        <ArrowUpRight className="w-4 h-4 text-black dark:text-white" />
+                    </div>
 
-                {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 w-full p-6 z-20 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-20">
-                   {project.category && (
-                     <span className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 block">
-                      {project.category}
-                    </span>
-                   )}
-                  <h3 className={`font-display font-bold text-white mb-2 leading-tight ${isFeatured ? 'text-3xl' : 'text-xl'}`}>
-                      {project.title}
-                  </h3>
-                  <p className="text-gray-300 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
-                    {project.description}
-                  </p>
+                    {/* Content Overlay */}
+                    <div className="absolute bottom-0 left-0 w-full p-6 z-20 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-20">
+                    {project.category && (
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 block">
+                        {project.category}
+                        </span>
+                    )}
+                    <h3 className={`font-display font-bold text-white mb-2 leading-tight ${isFeatured ? 'text-3xl' : 'text-xl'}`}>
+                        {project.title}
+                    </h3>
+                    <p className="text-gray-300 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
+                        {project.description}
+                    </p>
+                    </div>
                 </div>
-              </div>
+              </MagicCard>
             );
           })}
         </div>

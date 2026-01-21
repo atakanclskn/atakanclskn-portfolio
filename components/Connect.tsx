@@ -3,6 +3,7 @@ import React from 'react';
 import { ArrowUpRight, Mail, Github, Linkedin, Twitter, Instagram, Send } from 'lucide-react';
 import { Social, Profile } from '../types';
 import { BorderBeam } from './BorderBeam';
+import { MagicCard } from './MagicCard';
 
 interface ConnectProps {
   socials: Social[];
@@ -69,39 +70,46 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                             href={social.url} 
                             target="_blank" 
                             rel="noreferrer"
-                            className="relative group p-6 bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
+                            className="block"
                           >
-                            <BorderBeam size={100} duration={6} colorFrom={style.color} colorTo="transparent" />
-                            
-                            <div className="relative z-10">
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
-                                  {style.icon}
+                             <MagicCard 
+                                gradientColor={style.color + '33'}
+                                className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
+                             >
+                                <BorderBeam size={100} duration={6} colorFrom={style.color} colorTo="transparent" />
+                                
+                                <div className="relative z-10 p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
+                                        {style.icon}
+                                        </div>
+                                        <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                                    </div>
+                                    <p className="font-bold text-gray-900 dark:text-white">{social.platform}</p>
+                                    <p className="text-xs text-gray-500">{social.username || 'Follow'}</p>
                                 </div>
-                                <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                              </div>
-                              <p className="font-bold text-gray-900 dark:text-white">{social.platform}</p>
-                              <p className="text-xs text-gray-500">{social.username || 'Follow'}</p>
-                            </div>
+                             </MagicCard>
                           </a>
                         );
                       })}
                       
-                      <a 
-                        href="mailto:contact@atakan.dev" 
-                        className="relative group p-6 bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
-                      >
-                          <BorderBeam size={100} duration={6} colorFrom="#06b6d4" colorTo="transparent" />
-                          <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
-                                <Mail className="w-5 h-5" />
+                      <a href="mailto:contact@atakan.dev" className="block">
+                          <MagicCard 
+                            gradientColor="rgba(6, 182, 212, 0.2)" 
+                            className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
+                          >
+                              <BorderBeam size={100} duration={6} colorFrom="#06b6d4" colorTo="transparent" />
+                              <div className="relative z-10 p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                  <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
+                                    <Mail className="w-5 h-5" />
+                                  </div>
+                                  <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+                                </div>
+                                <p className="font-bold text-gray-900 dark:text-white">Email</p>
+                                <p className="text-xs text-gray-500">contact@atakan.dev</p>
                               </div>
-                              <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-                            </div>
-                            <p className="font-bold text-gray-900 dark:text-white">Email</p>
-                            <p className="text-xs text-gray-500">contact@atakan.dev</p>
-                          </div>
+                          </MagicCard>
                       </a>
                    </div>
                 </div>

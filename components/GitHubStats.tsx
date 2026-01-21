@@ -2,6 +2,8 @@
 import React from 'react';
 import { Star, Code, FolderDot, Zap, Activity, Globe } from 'lucide-react';
 import { Project, Profile } from '../types';
+import { MagicCard } from './MagicCard';
+import { BorderBeam } from './BorderBeam';
 
 interface GitHubStatsProps {
   projects: Project[];
@@ -26,8 +28,6 @@ export const GitHubStats: React.FC<GitHubStatsProps> = ({ projects, profile }) =
     };
   }, [projects]);
 
-  // We render a complete, valid isometric SVG that mimics the "profile-3d-contrib" style
-  // but is optimized for direct browser rendering without truncation.
   return (
     <section className="py-24 relative overflow-hidden bg-[#050505]">
       {/* Background ambient glow */}
@@ -118,24 +118,6 @@ export const GitHubStats: React.FC<GitHubStatsProps> = ({ projects, profile }) =
                         <text x="1240" y="40" textAnchor="end" fill="#555" fontSize="14" fontFamily="monospace">SYNC_TIME: {new Date().toLocaleTimeString()}</text>
                     </svg>
                 </div>
-
-                {/* Footer status bar */}
-                <div className="bg-white/[0.02] border-t border-white/5 p-4 flex justify-around items-center">
-                    <div className="flex items-center gap-2">
-                        <Activity className="w-3 h-3 text-primary" />
-                        <span className="text-[9px] font-mono text-gray-500 uppercase tracking-tighter">Throughput: 1.2GB/s</span>
-                    </div>
-                    <div className="w-px h-4 bg-white/10" />
-                    <div className="flex items-center gap-2">
-                        <Zap className="w-3 h-3 text-yellow-500" />
-                        <span className="text-[9px] font-mono text-gray-500 uppercase tracking-tighter">Efficiency: 98.4%</span>
-                    </div>
-                    <div className="w-px h-4 bg-white/10" />
-                    <div className="flex items-center gap-2 text-emerald-500">
-                        <span className="w-1.5 h-1.5 rounded-full bg-current animate-ping" />
-                        <span className="text-[9px] font-mono uppercase tracking-tighter">Connection: Stable</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -147,15 +129,22 @@ export const GitHubStats: React.FC<GitHubStatsProps> = ({ projects, profile }) =
                 { label: 'Public Repos', value: stats.repoCount, icon: FolderDot, color: 'text-secondary' },
                 { label: 'Followers', value: 42, icon: Globe, color: 'text-white' },
             ].map((item, i) => (
-                <div key={i} className="bg-[#0a0a1a] border border-white/5 p-5 rounded-2xl flex items-center gap-5 group hover:border-primary/40 transition-all hover:-translate-y-1">
-                    <div className={`p-3 bg-white/5 rounded-xl ${item.color} group-hover:scale-110 transition-transform`}>
-                        <item.icon className="w-5 h-5" />
+                <MagicCard 
+                    key={i} 
+                    gradientColor="rgba(255, 255, 255, 0.1)"
+                    className="bg-[#0a0a1a] border border-white/5 rounded-2xl group hover:border-primary/40 transition-all hover:-translate-y-1"
+                >
+                    <BorderBeam duration={8} size={100} colorFrom="#06b6d4" colorTo="transparent" />
+                    <div className="flex items-center gap-5 p-5 relative z-10">
+                        <div className={`p-3 bg-white/5 rounded-xl ${item.color} group-hover:scale-110 transition-transform`}>
+                            <item.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{item.label}</p>
+                            <p className="text-xl font-bold text-white tracking-tight">{item.value}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{item.label}</p>
-                        <p className="text-xl font-bold text-white tracking-tight">{item.value}</p>
-                    </div>
-                </div>
+                </MagicCard>
             ))}
         </div>
       </div>

@@ -28,12 +28,12 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-gray-50 dark:bg-transparent transition-colors duration-300">
       {/* Background ambient glows - Visible mainly in dark mode */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/20 dark:bg-secondary/10 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
+      <div className="absolute top-1/4 left-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-secondary/20 dark:bg-secondary/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center flex flex-col items-center w-full">
         
-        <div className="mb-8 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
+        <div className="mb-6 md:mb-8 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -46,16 +46,16 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
         </div>
 
         {/* Friendly Title */}
-        <div className="mb-8">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+        <div className="mb-6 md:mb-8">
+            <h1 className="text-4xl md:text-7xl lg:text-8xl font-display font-bold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-4 md:mb-6 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
                 Hi, I'm {profile?.name ? profile.name.split(' ')[0] : 'Atakan'}.
             </h1>
-            <h2 className="text-2xl md:text-4xl font-display font-medium text-gray-500 dark:text-gray-400 animate-fade-in-up" style={{animationDelay: '0.3s'}}>
+            <h2 className="text-xl md:text-4xl font-display font-medium text-gray-500 dark:text-gray-400 animate-fade-in-up px-4" style={{animationDelay: '0.3s'}}>
                 Building digital products, brands, and experiences.
             </h2>
         </div>
 
-        <p className="text-gray-600 dark:text-gray-400 text-lg md:text-xl max-w-2xl leading-relaxed font-sans mb-12 animate-fade-in-up px-4" style={{animationDelay: '0.4s'}}>
+        <p className="text-gray-600 dark:text-gray-400 text-base md:text-xl max-w-2xl leading-relaxed font-sans mb-10 md:mb-12 animate-fade-in-up px-4" style={{animationDelay: '0.4s'}}>
           {profile?.bio || 'Software Engineer and Designer specializing in building exceptional digital experiences. Currently focused on accessible, human-centered products.'}
         </p>
 
