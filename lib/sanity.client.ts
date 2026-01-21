@@ -1,3 +1,4 @@
+
 import { createClient } from 'next-sanity';
 import { createImageUrlBuilder } from '@sanity/image-url';
 
@@ -19,8 +20,10 @@ export const urlFor = (source: any) => {
   if (typeof source === 'string') {
     return { url: () => source };
   }
-  // If source is missing, return a dummy object that has a url() method to prevent crashes
-  if (!source || !source.asset) return { url: () => 'https://via.placeholder.com/800x600?text=No+Image' };
+  // If source is missing or invalid (no asset or empty ref), return a dummy object to prevent crashes
+  if (!source || !source.asset || !source.asset._ref) {
+    return { url: () => 'https://via.placeholder.com/800x600?text=No+Image' };
+  }
   
   return builder.image(source);
 };

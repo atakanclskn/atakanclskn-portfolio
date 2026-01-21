@@ -241,6 +241,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
     { label: 'Projects', value: 'project' },
   ];
 
+  // We maintain a global index counter outside the map to ensure continuous Left/Right alternation across years
   let globalIndex = 0;
 
   return (
@@ -283,11 +284,23 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
 
             {sortedYears.map((year) => {
                 const yearItems = groupedItems[year];
-                const currentGlobalIndex = globalIndex;
-                globalIndex += yearItems.length;
+                
+                // Keep track of the start index for this year to handle visual staggering
+                const yearStartIndex = globalIndex;
+                const yearStartsOnLeft = yearStartIndex % 2 === 0;
 
-                const leftItems = yearItems.filter((_, i) => i % 2 === 0);
-                const rightItems = yearItems.filter((_, i) => i % 2 !== 0);
+                const currentYearLeftItems: { item: any, globalIndex: number }[] = [];
+                const currentYearRightItems: { item: any, globalIndex: number }[] = [];
+
+                yearItems.forEach((item) => {
+                    const isLeft = globalIndex % 2 === 0;
+                    if (isLeft) {
+                        currentYearLeftItems.push({ item, globalIndex });
+                    } else {
+                        currentYearRightItems.push({ item, globalIndex });
+                    }
+                    globalIndex++;
+                });
 
                 return (
                     <div key={year} className="mb-8 md:mb-0 relative">
@@ -299,32 +312,29 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                         </div>
 
                         <div className="hidden md:flex flex-row w-full">
-                            <div className="w-1/2 pr-12 pb-16 space-y-16 flex flex-col items-end text-right">
-                                {leftItems.map((item) => {
-                                    const originalIndex = yearItems.indexOf(item);
-                                    return (
-                                        <TimelineCard 
-                                            key={item._id} 
-                                            item={item} 
-                                            side="left" 
-                                            index={currentGlobalIndex + originalIndex}
-                                        />
-                                    );
-                                })}
+                            {/* Left Column */}
+                            {/* If year starts on Left, Right column gets padding to stagger. If year starts on Right, Left column gets padding. */}
+                            <div className={`w-1/2 pr-12 pb-16 space-y-16 flex flex-col items-end text-right ${yearStartsOnLeft ? 'pt-0' : 'pt-32'}`}>
+                                {currentYearLeftItems.map(({ item, globalIndex }) => (
+                                    <TimelineCard 
+                                        key={item._id} 
+                                        item={item} 
+                                        side="left" 
+                                        index={globalIndex}
+                                    />
+                                ))}
                             </div>
 
-                            <div className="w-1/2 pl-12 pb-16 pt-32 space-y-16 flex flex-col items-start text-left">
-                                {rightItems.map((item) => {
-                                    const originalIndex = yearItems.indexOf(item);
-                                    return (
-                                        <TimelineCard 
-                                            key={item._id} 
-                                            item={item} 
-                                            side="right" 
-                                            index={currentGlobalIndex + originalIndex}
-                                        />
-                                    );
-                                })}
+                            {/* Right Column */}
+                            <div className={`w-1/2 pl-12 pb-16 space-y-16 flex flex-col items-start text-left ${yearStartsOnLeft ? 'pt-32' : 'pt-0'}`}>
+                                {currentYearRightItems.map(({ item, globalIndex }) => (
+                                    <TimelineCard 
+                                        key={item._id} 
+                                        item={item} 
+                                        side="right" 
+                                        index={globalIndex}
+                                    />
+                                ))}
                             </div>
                         </div>
 
@@ -333,7 +343,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                                 <TimelineCard 
                                     key={`mobile-${item._id}`} 
                                     item={item} 
-                                    index={index} 
+                                    index={yearStartIndex + index} 
                                     isMobile={true} 
                                 />
                              ))}

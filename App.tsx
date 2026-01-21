@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { AboutMe } from './components/AboutMe';
 import { TechStack } from './components/TechStack';
 import { SelectedWork } from './components/SelectedWork';
 import { Experience } from './components/Experience';
@@ -154,6 +155,9 @@ const App: React.FC = () => {
         titles: ['Software Engineer'],
         bio: 'Software Engineer and Designer specializing in building exceptional digital experiences.',
         status: 'Available',
+        // Using string directly for mock data to avoid sanity asset ref error
+        heroImage: 'https://github.com/atakanclskn.png' as any, 
+        avatarUrl: 'https://github.com/atakanclskn.png' 
     });
   }, []);
 
@@ -165,6 +169,7 @@ const App: React.FC = () => {
       <Navbar />
       <main className="relative z-10">
         <Hero profile={profile} />
+        <AboutMe profile={profile} />
         <TechStack techStack={techStack} />
         <SelectedWork projects={projects} />
         <Experience experiences={experiences} projects={projects} />

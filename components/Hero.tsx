@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowRight, Download, ChevronDown } from 'lucide-react';
+import { ArrowRight, Download } from 'lucide-react';
 import { Profile } from '../types';
 
 interface HeroProps {
@@ -26,10 +26,8 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-gray-50 dark:bg-transparent transition-colors duration-300">
-      {/* Background ambient glows - Visible mainly in dark mode */}
-      <div className="absolute top-1/4 left-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-primary/20 dark:bg-primary/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-secondary/20 dark:bg-secondary/10 rounded-full blur-[80px] md:blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen" />
+    <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-transparent transition-colors duration-300">
+      {/* Background ambient glows removed from here to be placed in InteractiveBackground for continuity */}
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center flex flex-col items-center w-full">
         
@@ -72,10 +70,6 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
             Download Resume <Download className="w-4 h-4" />
           </button>
         </div>
-      </div>
-
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-40 dark:opacity-20 text-black dark:text-white">
-        <ChevronDown className="w-6 h-6" />
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -7,7 +7,9 @@ export const Navbar: React.FC = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  // Use Ref for direct DOM manipulation (Performance optimization for instant 1:1 scroll feel)
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Initialize theme based on HTML class
@@ -19,12 +21,18 @@ export const Navbar: React.FC = () => {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      
+      // Update Scrolled State (React automatically prevents re-render if value is same)
       setScrolled(currentScrollY > 40);
 
       // Calculate Scroll Progress
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = totalHeight > 0 ? (currentScrollY / totalHeight) * 100 : 0;
-      setScrollProgress(progress);
+      
+      // Update Width Directly via Ref (Instantly, without waiting for React Render Cycle)
+      if (progressBarRef.current) {
+        progressBarRef.current.style.width = `${progress}%`;
+      }
 
       const sections = ['expertise', 'projects', 'experience', 'contact'];
       const scrollPosition = currentScrollY + 120;
@@ -50,6 +58,9 @@ export const Navbar: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+    // Initial call to set state correctly on load
+    handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -171,8 +182,9 @@ export const Navbar: React.FC = () => {
 
       {/* Scroll Progress Bar */}
       <div 
-        className={`absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-100 ease-linear ${scrolled ? 'opacity-100' : 'opacity-0'}`}
-        style={{ width: `${scrollProgress}%` }}
+        ref={progressBarRef}
+        className={`absolute bottom-0 left-0 h-[3px] bg-primary z-50 transition-opacity duration-300 ${scrolled ? 'opacity-100' : 'opacity-0'}`}
+        style={{ width: '0%' }}
       />
 
       {/* Mobile Menu */}

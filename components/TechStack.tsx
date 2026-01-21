@@ -1,38 +1,66 @@
 
 import React from 'react';
-import { Box, Database, Cpu, Palette, Code, Terminal, Server, Globe, Layout, Figma, Smartphone, Cloud } from 'lucide-react';
 import { TechItem } from '../types';
 
-const IconMap: Record<string, React.ReactNode> = {
-  Box: <Box className="w-8 h-8" />,
-  Database: <Database className="w-8 h-8" />,
-  Cpu: <Cpu className="w-8 h-8" />,
-  Palette: <Palette className="w-8 h-8" />,
-  Code: <Code className="w-8 h-8" />,
-  Terminal: <Terminal className="w-8 h-8" />,
-  Server: <Server className="w-8 h-8" />,
-  Globe: <Globe className="w-8 h-8" />,
-  Layout: <Layout className="w-8 h-8" />,
-  Figma: <Figma className="w-8 h-8" />,
-  Smartphone: <Smartphone className="w-8 h-8" />,
-  Cloud: <Cloud className="w-8 h-8" />,
-};
+// Custom SVG Logos
+const NextLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 180 180" fill="currentColor" {...props}>
+    <path d="M149.508 157.527L69.143 53H54V125H66.6667V69.7533L139.143 162.72C142.833 161.213 146.293 159.453 149.508 157.527Z" />
+    <path d="M115 54H127V125H115V54Z" />
+    <path fillRule="evenodd" clipRule="evenodd" d="M90 0C40.2944 0 0 40.2944 0 90C0 139.706 40.2944 180 90 180C139.706 180 180 139.706 180 90C180 40.2944 139.706 0 90 0ZM149.508 157.527C135.508 169.608 115.86 177.375 90 177.375C42.8467 177.375 4.5 138.214 4.5 90C4.5 42.8467 42.8467 4.5 90 4.5C138.214 4.5 177.375 42.8467 177.375 90C177.375 111.93 169.608 131.578 157.527 145.578L149.508 157.527Z" fillOpacity="0.1"/>
+  </svg>
+);
+
+const ReactLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="-11.5 -10.23174 23 20.46348" fill="currentColor" {...props}>
+    <circle cx="0" cy="0" r="2.05" fill="currentColor"/>
+    <g stroke="currentColor" strokeWidth="1" fill="none">
+      <ellipse rx="11" ry="4.2"/>
+      <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+      <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+    </g>
+  </svg>
+);
+
+const TSLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 128 128" fill="currentColor" {...props}>
+     <rect x="20" y="20" width="88" height="88" rx="10" stroke="currentColor" strokeWidth="8" fill="none" />
+     <path d="M59.5,60h-8v28h-8V60h-8V54h24V60z M84.5,68c-1.5-1-3.5-1.5-5.5-1.5c-2.5,0-3.5,1-3.5,2.5c0,1.5,1,2,4,3 c4.5,1.5,8.5,3.5,8.5,9c0,5-4,8.5-11,8.5c-3.5,0-7-1-9.5-3l3-5.5c2,1.5,4.5,2.5,6.5,2.5c2,0,3-1,3-2.5c0-1.5-1.5-2-4.5-3 c-4.5-1.5-8-4-8-9c0-5,4-8,10-8c3,0,6,1,8.5,2L84.5,68z" stroke="none" />
+  </svg>
+);
+
+const TailwindLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12.001,4.8c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 C13.666,10.618,15.027,12,18.001,12c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C16.337,6.182,14.976,4.8,12.001,4.8z M6.001,12c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288-1.624 c1.177,1.194,2.538,2.576,5.512,2.576c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C10.337,13.382,8.976,12,6.001,12z" />
+  </svg>
+);
+
+const FramerLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 14 21" fill="currentColor" {...props}>
+    <path d="M0 0h14v7H7L0 0zm0 7h7l7 7H7v7l-7-7V7z"/>
+  </svg>
+);
+
+const ShadcnLogo = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 256 256" fill="none" stroke="currentColor" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <line x1="208" y1="128" x2="128" y2="208"></line>
+    <line x1="192" y1="40" x2="40" y2="192"></line>
+  </svg>
+);
 
 interface TechStackProps {
   techStack: TechItem[];
 }
 
-export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
-  // If no tech stack provided, ensure we have enough items for the marquee to look good
-  const items = techStack.length > 0 ? techStack : [
-    { _id: '1', title: 'React', tech: 'Frontend', iconName: 'Box', color: 'text-cyan-400' },
-    { _id: '2', title: 'TypeScript', tech: 'Language', iconName: 'Code', color: 'text-blue-500' },
-    { _id: '3', title: 'Node.js', tech: 'Backend', iconName: 'Server', color: 'text-green-500' },
-    { _id: '4', title: 'Tailwind', tech: 'Styling', iconName: 'Palette', color: 'text-pink-400' },
-    { _id: '5', title: 'PostgreSQL', tech: 'Database', iconName: 'Database', color: 'text-purple-400' },
-    { _id: '6', title: 'AWS', tech: 'Cloud', iconName: 'Globe', color: 'text-yellow-500' },
-    { _id: '7', title: 'Next.js', tech: 'Framework', iconName: 'Terminal', color: 'text-white' },
-    { _id: '8', title: 'Figma', tech: 'Design', iconName: 'Figma', color: 'text-orange-500' }
+export const TechStack: React.FC<TechStackProps> = () => {
+  // Hardcoded logos to match the specific design request
+  const logos = [
+    { name: 'Next.js', component: <NextLogo className="h-10 w-auto" />, color: 'text-black dark:text-white' },
+    { name: 'React', component: <ReactLogo className="h-10 w-auto" />, color: 'text-cyan-400' },
+    { name: 'TypeScript', component: <TSLogo className="h-10 w-auto" />, color: 'text-blue-500' },
+    { name: 'Tailwind CSS', component: <TailwindLogo className="h-8 w-auto" />, color: 'text-cyan-500' },
+    { name: 'Framer Motion', component: <FramerLogo className="h-8 w-auto" />, color: 'text-pink-500' },
+    { name: 'Shadcn UI', component: <ShadcnLogo className="h-8 w-auto" />, color: 'text-white' },
   ];
 
   return (
@@ -44,19 +72,17 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white dark:from-[#050505] to-transparent z-10"></div>
 
         <div className="flex w-full overflow-hidden group">
-            <div className="flex animate-infinite-scroll group-hover:[animation-play-state:paused] gap-16 py-4">
-                {/* Render items twice to create seamless loop */}
-                {[...items, ...items, ...items].map((item, index) => (
+            <div className="flex animate-infinite-scroll group-hover:[animation-play-state:paused] gap-16 py-4 px-8 items-center">
+                {/* Render items 4 times to create seamless loop for wider screens */}
+                {[...logos, ...logos, ...logos, ...logos].map((item, index) => (
                     <div 
-                        key={`${item._id}-${index}`} 
-                        className="flex items-center gap-3 flex-shrink-0 group/item cursor-default"
+                        key={`${item.name}-${index}`} 
+                        className="flex items-center justify-center flex-shrink-0 group/item cursor-default"
                     >
-                        <div className={`transition-all duration-300 filter grayscale opacity-50 group-hover/item:grayscale-0 group-hover/item:opacity-100 ${item.color}`}>
-                             {IconMap[item.iconName] || <Code className="w-8 h-8" />}
+                        <div className={`transition-all duration-300 filter grayscale opacity-40 group-hover/item:grayscale-0 group-hover/item:opacity-100 transform group-hover/item:scale-110 ${item.color}`}>
+                             {item.component}
                         </div>
-                        <span className="text-xl font-display font-bold text-gray-400 dark:text-gray-600 group-hover/item:text-black dark:group-hover/item:text-white transition-colors">
-                            {item.title}
-                        </span>
+                        {/* Text removed as per request "sadece logolar kaysın" */}
                     </div>
                 ))}
             </div>

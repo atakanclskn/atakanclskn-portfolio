@@ -77,7 +77,7 @@ export const InteractiveBackground: React.FC = () => {
       time += 0.002; 
       ctx.clearRect(0, 0, width, height);
       
-      // Draw Aurora/Fog Effect
+      // Draw Aurora/Fog Effect - subtle global gradient
       const gradient = ctx.createRadialGradient(
         width / 2 + Math.sin(time) * 200, 
         height / 2 + Math.cos(time * 0.5) * 200, 
@@ -144,9 +144,15 @@ export const InteractiveBackground: React.FC = () => {
   }, []);
 
   return (
-    <canvas 
-      ref={canvasRef} 
-      className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"
-    />
+    <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+        {/* CSS Ambient Glows - Fixed background for continuity across sections */}
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-primary/20 dark:bg-primary/10 rounded-full blur-[80px] md:blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse opacity-50 dark:opacity-60" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-secondary/20 dark:bg-secondary/10 rounded-full blur-[80px] md:blur-[120px] mix-blend-multiply dark:mix-blend-screen opacity-50 dark:opacity-60" />
+
+        <canvas 
+            ref={canvasRef} 
+            className="absolute inset-0 w-full h-full"
+        />
+    </div>
   );
 };
