@@ -5,21 +5,24 @@ import { Project } from '../types';
 import { urlFor } from '../lib/sanity.client';
 import { MagicCard } from './MagicCard';
 import { BorderBeam } from './BorderBeam';
+import { useLanguage } from '../lib/i18n';
 
 interface SelectedWorkProps {
   projects: Project[];
 }
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
+  const { t } = useLanguage();
+
   return (
     <section id="projects" className="py-32 relative bg-gray-50 dark:bg-[#050505] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="mb-16">
             <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-              Checkout my latest work
+              {t.work.title}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg">
-               A selection of projects I've worked on, ranging from web applications to open source tools.
+               {t.work.desc}
             </p>
         </div>
 

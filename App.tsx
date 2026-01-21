@@ -11,6 +11,7 @@ import { InteractiveBackground } from './components/InteractiveBackground';
 import { client } from './lib/sanity.client';
 import { groq } from 'next-sanity';
 import { ExperienceItem, Profile, Project, Social, TechItem } from './types';
+import { LanguageProvider } from './lib/i18n';
 
 // Hardcoded Data
 const STATIC_EXPERIENCES: ExperienceItem[] = [
@@ -164,18 +165,20 @@ const App: React.FC = () => {
   if (!profile) return null;
 
   return (
-    <div className="min-h-screen relative transition-colors duration-300">
-      <InteractiveBackground />
-      <Navbar />
-      <main className="relative z-10">
-        <Hero profile={profile} />
-        <AboutMe profile={profile} />
-        <TechStack techStack={techStack} />
-        <SelectedWork projects={projects} />
-        <Experience experiences={experiences} projects={projects} />
-        <Connect socials={socials} profile={profile} />
-      </main>
-    </div>
+    <LanguageProvider>
+      <div className="min-h-screen relative transition-colors duration-300">
+        <InteractiveBackground />
+        <Navbar />
+        <main className="relative z-10">
+          <Hero profile={profile} />
+          <AboutMe profile={profile} />
+          <TechStack techStack={techStack} />
+          <SelectedWork projects={projects} />
+          <Experience experiences={experiences} projects={projects} />
+          <Connect socials={socials} profile={profile} />
+        </main>
+      </div>
+    </LanguageProvider>
   );
 };
 

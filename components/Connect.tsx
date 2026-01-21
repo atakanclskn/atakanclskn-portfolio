@@ -4,6 +4,7 @@ import { ArrowUpRight, Mail, Github, Linkedin, Twitter, Instagram, Send } from '
 import { Social, Profile } from '../types';
 import { BorderBeam } from './BorderBeam';
 import { MagicCard } from './MagicCard';
+import { useLanguage } from '../lib/i18n';
 
 interface ConnectProps {
   socials: Social[];
@@ -11,6 +12,7 @@ interface ConnectProps {
 }
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
+  const { t } = useLanguage();
   
   const getSocialStyle = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -32,27 +34,27 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
             {/* Contact Form */}
             <div>
                <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6">
-                Let's work together.
+                {t.contact.title}
                </h2>
                <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
-                 Have a project in mind or just want to say hi? Fill out the form below or send me an email.
+                 {t.contact.desc}
                </p>
 
                <form className="space-y-6 relative">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Name</label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.name}</label>
                     <input type="text" className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="John Doe" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Email</label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.email}</label>
                     <input type="email" className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="john@example.com" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Message</label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.message}</label>
                     <textarea rows={4} className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="Tell me about your project..."></textarea>
                   </div>
                   <button className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2">
-                    Send Message <Send className="w-4 h-4" />
+                    {t.contact.form.send} <Send className="w-4 h-4" />
                   </button>
                </form>
             </div>
@@ -60,7 +62,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
             {/* Socials Grid */}
             <div className="flex flex-col justify-between">
                 <div>
-                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Find me on</h3>
+                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t.contact.findMe}</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {socials.map((social) => {
                         const style = getSocialStyle(social.platform);

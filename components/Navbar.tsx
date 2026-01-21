@@ -1,14 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon, ChevronDown, Globe } from 'lucide-react';
+import { useLanguage, languages, Language } from '../lib/i18n';
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
   
-  // Use Ref for direct DOM manipulation (Performance optimization for instant 1:1 scroll feel)
+  const { lang, setLang, t } = useLanguage();
   const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,7 +37,8 @@ export const Navbar: React.FC = () => {
         progressBarRef.current.style.width = `${progress}%`;
       }
 
-      const sections = ['expertise', 'projects', 'experience', 'contact'];
+      // Added 'about' to the sections list
+      const sections = ['about', 'expertise', 'projects', 'experience', 'contact'];
       const scrollPosition = currentScrollY + 120;
       const isBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 50;
       
@@ -58,11 +62,21 @@ export const Navbar: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('mousedown', handleClickOutside);
     // Initial call to set state correctly on load
     handleScroll();
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+      setIsLangOpen(false);
+    }
+  };
 
   const toggleTheme = () => {
     const html = document.documentElement;
@@ -76,10 +90,11 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { name: 'Expertise', href: '#expertise' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Contact', href: '#contact' },
+    { name: t.nav.about, href: '#about' },
+    { name: t.nav.expertise, href: '#expertise' },
+    { name: t.nav.projects, href: '#projects' },
+    { name: t.nav.experience, href: '#experience' },
+    { name: t.nav.contact, href: '#contact' },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -100,6 +115,8 @@ export const Navbar: React.FC = () => {
       setMobileMenuOpen(false);
     }
   };
+
+  const currentLangObj = languages.find(l => l.code === lang) || languages[0];
 
   return (
     <nav 
@@ -144,6 +161,45 @@ export const Navbar: React.FC = () => {
           
           <div className="w-px h-6 bg-gray-300 dark:bg-white/10 mx-2"></div>
 
+          {/* Language Switcher */}
+          <div className="relative" ref={langDropdownRef}>
+            <button
+              onClick={() => setIsLangOpen(!isLangOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+            >
+              <span className="text-sm">{currentLangObj.flag}</span>
+              <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{lang}</span>
+              <ChevronDown size={12} className={`text-gray-500 transition-transform duration-300 ${isLangOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Dropdown Menu */}
+            <div className={`absolute top-full right-0 mt-2 w-48 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden transition-all duration-300 origin-top-right z-50 ${isLangOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}>
+              <div className="p-1 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10">
+                {languages.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => {
+                      setLang(l.code);
+                      setIsLangOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                      lang === l.code 
+                        ? 'bg-primary/10 text-primary font-bold' 
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                       <span>{l.flag}</span>
+                       <span>{l.label}</span>
+                    </div>
+                    {lang === l.code && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Theme Toggle */}
           <button 
             onClick={toggleTheme}
             className="p-2 rounded-full bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
@@ -159,12 +215,37 @@ export const Navbar: React.FC = () => {
             }}
             className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
           >
-            Let's Talk
+            {t.nav.letsTalk}
           </button>
         </div>
 
         {/* Mobile Toggle */}
         <div className="flex items-center gap-4 md:hidden">
+           <button
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            className="flex items-center gap-1 text-[10px] font-bold font-mono px-2 py-1 rounded bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-gray-300"
+          >
+            <span>{currentLangObj.flag}</span> {lang}
+          </button>
+          
+          {/* Mobile Language Dropdown (Simple modal-like for mobile) */}
+          {isLangOpen && (
+             <div className="absolute top-20 right-4 w-40 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl z-50 overflow-hidden">
+                {languages.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => {
+                      setLang(l.code);
+                      setIsLangOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-2 px-4 py-3 text-xs font-bold ${lang === l.code ? 'bg-primary/10 text-primary' : 'text-gray-900 dark:text-white'}`}
+                  >
+                    <span>{l.flag}</span> {l.label}
+                  </button>
+                ))}
+             </div>
+          )}
+
           <button 
             onClick={toggleTheme}
             className="p-2 rounded-full bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300"
@@ -212,7 +293,7 @@ export const Navbar: React.FC = () => {
             }}
             className="w-full mt-4 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20"
           >
-            Let's Talk
+            {t.nav.letsTalk}
           </button>
         </div>
       </div>

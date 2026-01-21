@@ -4,6 +4,7 @@ import { AnimatedBeam } from "./AnimatedBeam";
 import { BorderBeam } from "./BorderBeam";
 import { Profile } from "../types";
 import { urlFor } from '../lib/sanity.client';
+import { useLanguage } from '../lib/i18n';
 
 interface AboutMeProps {
   profile: Profile;
@@ -77,6 +78,7 @@ Circle.displayName = "Circle";
 
 export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
   
   // Refs for the 7-node layout
   const div1Ref = useRef<HTMLDivElement>(null); // Top Left
@@ -255,15 +257,15 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
           <div className="space-y-8 text-center lg:text-left">
             <div>
                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white leading-tight mb-6">
-                 Engineering the future, <br className="hidden md:block"/>
-                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">one line of code at a time.</span>
+                 {t.about.title} <br className="hidden md:block"/>
+                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{t.about.highlight}</span>
                </h2>
                <div className="space-y-4 text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
                  <p>
-                    I'm a passionate Software Engineer based in {profile.location || 'Izmir, TR'}, dedicated to building scalable and user-centric digital products. My journey combines deep technical expertise with a keen eye for design.
+                    {t.about.p1}
                  </p>
                  <p>
-                    Whether I'm architecting complex backend systems with <strong>Node.js</strong> and <strong>Python</strong>, or crafting buttery-smooth user interfaces with <strong>React</strong> and <strong>Tailwind</strong>, I always strive for excellence and performance.
+                    {t.about.p2}
                  </p>
                </div>
             </div>
@@ -272,15 +274,15 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
             <div className="grid grid-cols-3 gap-4 border-t border-gray-200 dark:border-white/10 pt-8">
                <div className="text-center lg:text-left">
                   <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">5+</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Years Coding</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{t.about.years}</p>
                </div>
                <div className="text-center lg:text-left">
                   <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">20+</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Projects Shipped</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{t.about.shipped}</p>
                </div>
                <div className="text-center lg:text-left">
                   <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">100%</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Coffee Fueled</p>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{t.about.coffee}</p>
                </div>
             </div>
           </div>

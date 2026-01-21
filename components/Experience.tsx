@@ -4,6 +4,7 @@ import { ExperienceItem, Project } from '../types';
 import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
 import { BorderBeam } from './BorderBeam';
 import { MagicCard } from './MagicCard';
+import { useLanguage } from '../lib/i18n';
 
 interface ExperienceProps {
   experiences: ExperienceItem[];
@@ -55,10 +56,11 @@ const getTypeStyles = (type?: string) => {
   };
 
 const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: boolean, index?: number }> = ({ item, side = 'left', isMobile = false, index = 0 }) => {
+     const { t } = useLanguage();
      const type = item.type || 'work';
      const style = getTypeStyles(type);
      const startYear = new Date(item.startDate).getFullYear();
-     const endYear = item.isCurrent ? 'Present' : (item.endDate ? new Date(item.endDate).getFullYear() : startYear);
+     const endYear = item.isCurrent ? t.experience.present : (item.endDate ? new Date(item.endDate).getFullYear() : startYear);
      const period = `${startYear}${startYear !== endYear ? ` — ${endYear}` : ''}`;
 
      // Position logic
@@ -82,6 +84,17 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
 
      const skillJustify = (!isMobile && side === 'left') ? "justify-end" : "justify-start";
      const linkAlign = (!isMobile && side === 'left') ? "ml-auto" : "mr-auto";
+
+     // Translate the label for the tag
+     const getLabel = () => {
+         switch(type) {
+             case 'work': return t.experience.filters.work;
+             case 'education': return t.experience.filters.education;
+             case 'certification': return t.experience.filters.certification;
+             case 'project': return t.experience.filters.project;
+             default: return type;
+         }
+     }
 
      return (
         <div 
@@ -124,7 +137,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                       <div className={`flex flex-col gap-1 w-full relative z-10 ${alignClass}`}>
                           <div className={`flex items-center gap-2 mb-1 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
                               <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
-                                  {type}
+                                  {getLabel()}
                               </span>
                               {(isMobile || side === 'right') && (
                                   <span className="flex items-center gap-1 text-xs text-gray-400">
@@ -171,7 +184,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               rel="noreferrer" 
                               className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity relative z-10 ${linkAlign}`}
                           >
-                              View Project <ArrowUpRight className="w-3 h-3" />
+                              {t.experience.viewProject} <ArrowUpRight className="w-3 h-3" />
                           </a>
                       )}
                   </div>
@@ -184,6 +197,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
 export const Experience: React.FC<ExperienceProps> = ({ experiences, projects }) => {
   const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'project']);
   const [animationKey, setAnimationKey] = useState(0);
+  const { t } = useLanguage();
 
   const toggleFilter = (filter: FilterType) => {
     setActiveFilters(prev => 
@@ -235,10 +249,10 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
   }, [groupedItems]);
 
   const filters: { label: string; value: FilterType }[] = [
-    { label: 'Work', value: 'work' },
-    { label: 'Education', value: 'education' },
-    { label: 'Certifications', value: 'certification' },
-    { label: 'Projects', value: 'project' },
+    { label: t.experience.filters.work, value: 'work' },
+    { label: t.experience.filters.education, value: 'education' },
+    { label: t.experience.filters.certification, value: 'certification' },
+    { label: t.experience.filters.project, value: 'project' },
   ];
 
   // We maintain a global index counter outside the map to ensure continuous Left/Right alternation across years
@@ -250,10 +264,10 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
         <div className="flex flex-col items-center justify-center text-center mb-16 md:mb-24 gap-6">
             <div>
                 <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-                  Timeline
+                  {t.experience.title}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-sm md:text-base">
-                  My professional journey, educational background, and key project milestones.
+                  {t.experience.desc}
                 </p>
             </div>
             
