@@ -37,13 +37,13 @@ export const Navbar: React.FC = () => {
         progressBarRef.current.style.width = `${progress}%`;
       }
 
-      // Added 'about' to the sections list
-      const sections = ['about', 'expertise', 'projects', 'experience', 'contact'];
+      // Updated sections list: Removed 'expertise' and 'contact' from scroll spy to match nav links
+      const sections = ['about', 'projects', 'experience'];
       const scrollPosition = currentScrollY + 120;
       const isBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 50;
       
       if (isBottom) {
-        setActiveSection('contact');
+        setActiveSection('contact'); // Keep tracking bottom, but no link will highlight
         return;
       }
 
@@ -89,12 +89,11 @@ export const Navbar: React.FC = () => {
     }
   };
 
+  // Removed Expertise and Contact from nav links
   const navLinks = [
     { name: t.nav.about, href: '#about' },
-    { name: t.nav.expertise, href: '#expertise' },
     { name: t.nav.projects, href: '#projects' },
     { name: t.nav.experience, href: '#experience' },
-    { name: t.nav.contact, href: '#contact' },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -126,10 +125,10 @@ export const Navbar: React.FC = () => {
           : 'bg-transparent border-transparent py-8'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-8 flex items-center justify-between relative">
         {/* Logo Section */}
         <div 
-          className="flex items-center gap-2 group cursor-pointer"
+          className="flex items-center gap-2 group cursor-pointer z-20"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
           <div className="flex items-center">
@@ -140,9 +139,8 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
-          <div className="flex items-center gap-8">
+        {/* Centered Desktop Nav Links */}
+        <div className="hidden md:flex items-center gap-8 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
@@ -157,10 +155,10 @@ export const Navbar: React.FC = () => {
                 {link.name}
               </a>
             ))}
-          </div>
-          
-          <div className="w-px h-6 bg-gray-300 dark:bg-white/10 mx-2"></div>
+        </div>
 
+        {/* Right Side Controls */}
+        <div className="hidden md:flex items-center gap-4">
           {/* Language Switcher */}
           <div className="relative" ref={langDropdownRef}>
             <button
