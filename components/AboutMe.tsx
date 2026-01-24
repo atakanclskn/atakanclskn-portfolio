@@ -1,9 +1,7 @@
 
 import React, { forwardRef, useRef, useState, useEffect } from "react";
 import { AnimatedBeam } from "./AnimatedBeam";
-import { BorderBeam } from "./BorderBeam";
 import { Profile } from "../types";
-import { urlFor } from '../lib/sanity.client';
 import { useLanguage } from '../lib/i18n';
 
 interface AboutMeProps {
@@ -117,14 +115,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
     return () => clearInterval(interval);
   }, []);
 
-  let imageUrl = '';
-  if (profile.heroImage) {
-      if (typeof profile.heroImage === 'string') {
-          imageUrl = profile.heroImage;
-      } else {
-          imageUrl = urlFor(profile.heroImage).url();
-      }
-  }
+  const imageUrl = profile.avatarUrl || 'https://github.com/atakanclskn.png';
 
   // Beam Colors mapped to Icons
   const beamColors = [
@@ -216,11 +207,6 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                 
                 {/* CENTER IMAGE (div4) */}
                 <div ref={div4Ref} className="relative z-30 size-24 md:size-28 rounded-full bg-white dark:bg-black border border-gray-200 dark:border-white/10 shadow-2xl overflow-hidden">
-                    {/* BorderBeam on the profile circle - z-40 to be visible */}
-                    <div className="absolute inset-0 z-40">
-                         <BorderBeam size={80} duration={4} delay={0} colorFrom="#06b6d4" colorTo="transparent" borderWidth={2} />
-                    </div>
-                    
                     <div className="w-full h-full rounded-full overflow-hidden relative p-2 z-30">
                          <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 animate-pulse rounded-full"></div>
                          {imageUrl ? (

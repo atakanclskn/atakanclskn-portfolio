@@ -2,9 +2,7 @@
 import React from 'react';
 import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Project } from '../types';
-import { urlFor } from '../lib/sanity.client';
 import { MagicCard } from './MagicCard';
-import { BorderBeam } from './BorderBeam';
 import { useLanguage } from '../lib/i18n';
 
 interface SelectedWorkProps {
@@ -33,12 +31,10 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
             const isFeatured = index === 0;
             const isWide = index === 3;
             
-            let imageUrl = '';
-            if (typeof project.mainImage === 'string') {
-                imageUrl = project.mainImage;
-            } else if (project.mainImage) {
-                imageUrl = urlFor(project.mainImage).url();
-            }
+            // Handle both string URLs and Sanity image objects
+            const imageUrl = typeof project.mainImage === 'string' 
+              ? project.mainImage 
+              : 'https://via.placeholder.com/800x600?text=Project+Image';
 
             return (
               <MagicCard
@@ -51,8 +47,6 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                     hover:shadow-2xl transition-all duration-500 cursor-pointer
                 `}
               >
-                <BorderBeam duration={10} size={200} colorFrom="#06b6d4" colorTo="transparent" />
-                
                 <div onClick={() => project.link && window.open(project.link, '_blank')} className="w-full h-full relative z-20">
                     {imageUrl ? (
                     <>

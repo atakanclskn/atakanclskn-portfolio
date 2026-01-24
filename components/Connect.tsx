@@ -2,7 +2,6 @@
 import React from 'react';
 import { ArrowUpRight, Mail, Github, Linkedin, Twitter, Instagram, Send } from 'lucide-react';
 import { Social, Profile } from '../types';
-import { BorderBeam } from './BorderBeam';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 
@@ -78,8 +77,6 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                                 gradientColor={style.color + '33'}
                                 className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
                              >
-                                <BorderBeam size={100} duration={6} colorFrom={style.color} colorTo="transparent" />
-                                
                                 <div className="relative z-10 p-6">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
@@ -100,7 +97,6 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                             gradientColor="rgba(6, 182, 212, 0.2)" 
                             className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
                           >
-                              <BorderBeam size={100} duration={6} colorFrom="#06b6d4" colorTo="transparent" />
                               <div className="relative z-10 p-6">
                                 <div className="flex items-center justify-between mb-4">
                                   <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">

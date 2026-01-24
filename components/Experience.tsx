@@ -2,7 +2,6 @@
 import React, { useState, useMemo } from 'react';
 import { ExperienceItem, Project } from '../types';
 import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
-import { BorderBeam } from './BorderBeam';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 
@@ -130,8 +129,6 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                     ${!isMobile && side === 'left' ? 'items-end' : ''}
                 `}
                >
-                  <BorderBeam duration={8} size={150} colorFrom={style.beamColor} colorTo="transparent" />
-
                   {/* Inner Content Div with Padding */}
                   <div className={`p-6 md:p-8 w-full flex flex-col gap-4 ${!isMobile && side === 'left' ? 'items-end' : ''}`}>
                       <div className={`flex flex-col gap-1 w-full relative z-10 ${alignClass}`}>
