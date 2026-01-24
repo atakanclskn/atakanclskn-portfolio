@@ -3,69 +3,21 @@ import React, { forwardRef, useRef, useState, useEffect } from "react";
 import { AnimatedBeam } from "./AnimatedBeam";
 import { Profile } from "../types";
 import { useLanguage } from '../lib/i18n';
+import { CSharpLogo, TSLogo, HTMLLogo, TailwindLogo, PythonLogo, ReactLogo } from './TechLogos';
 
 interface AboutMeProps {
   profile: Profile;
 }
 
-// Custom SVG Logos
-const ReactLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="-11.5 -10.23174 23 20.46348" className={className} xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-    <circle cx="0" cy="0" r="2.05" fill="currentColor"/>
-    <g stroke="currentColor" strokeWidth="1" fill="none">
-      <ellipse rx="11" ry="4.2"/>
-      <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
-      <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
-    </g>
-  </svg>
-);
-
-const TSLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 128 128" className={className} xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-     <rect x="20" y="20" width="88" height="88" rx="10" stroke="currentColor" strokeWidth="8" fill="none" />
-     <path d="M59.5,60h-8v28h-8V60h-8V54h24V60z M84.5,68c-1.5-1-3.5-1.5-5.5-1.5c-2.5,0-3.5,1-3.5,2.5c0,1.5,1,2,4,3 c4.5,1.5,8.5,3.5,8.5,9c0,5-4,8.5-11,8.5c-3.5,0-7-1-9.5-3l3-5.5c2,1.5,4.5,2.5,6.5,2.5c2,0,3-1,3-2.5c0-1.5-1.5-2-4.5-3 c-4.5-1.5-8-4-8-9c0-5,4-8,10-8c3,0,6,1,8.5,2L84.5,68z" fill="currentColor" stroke="none" />
-  </svg>
-);
-
-const FigmaLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 38 57" className={className} xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-    <path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z" fillOpacity="0.8"/>
-    <path d="M0 47.5a9.5 9.5 0 0 0 9.5 9.5h0A9.5 9.5 0 0 0 19 47.5V28.5H9.5A9.5 9.5 0 0 0 0 38v9.5z" fillOpacity="0.8"/>
-    <path d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z" fillOpacity="0.8"/>
-    <path d="M0 9.5a9.5 9.5 0 0 0 9.5 9.5H19V0H9.5A9.5 9.5 0 0 0 0 9.5z" fillOpacity="0.8"/>
-    <path d="M0 28.5a9.5 9.5 0 0 0 9.5 9.5H19V19H9.5A9.5 9.5 0 0 0 0 28.5z" fillOpacity="0.8"/>
-  </svg>
-);
-
-const NodeLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 128 128" className={className} xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-    <path d="M64,16 L108,40 L108,88 L64,112 L20,88 L20,40 L64,16 Z" stroke="currentColor" strokeWidth="8" fill="none" />
-    <path d="M64,30 L64,98 M28,50 L100,50" stroke="currentColor" strokeWidth="6" strokeLinecap="round" opacity="0.6" />
-  </svg>
-);
-
-const PostgresLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-    <path d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z M12,18c-2.05,0-3.89-1.12-4.9-2.82 c1.63-0.5,3.46-0.78,5.4-0.78c1.38,0,2.71,0.14,3.97,0.4C15.82,16.89,14.02,18,12,18z M17.65,13.7c-1.63-0.41-3.41-0.65-5.25-0.65 c-2.28,0-4.43,0.36-6.31,1.01C5.64,13.43,5.4,12.73,5.4,12c0-3.64,2.96-6.6,6.6-6.6s6.6,2.96,6.6,6.6 C18.6,12.6,18.23,13.18,17.65,13.7z"/>
-  </svg>
-);
-
-const PythonLogo = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 128 128" className={className} xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-     <path d="M64 12c-15 0-14 6.5-14 6.5v6.5h28v4h-38c-15 0-21 9-21 21s6 22 18 22h3v-13c0-10 8-12 12-12h18c10 0 12-8 12-12v-11c0-13-10-12-18-12z m8 9a3 3 0 1 1-3 3 3 3 0 0 1 3-3z" />
-     <path d="M64 116c15 0 14-6.5 14-6.5v-6.5h-28v-4h38c15 0 21-9 21-21s-6-22-18-22h-3v13c0 10-8 12-12 12h-18c-10 0-12 8-12 12v11c0 13 10 12 18 12z m-8-9a3 3 0 1 1 3-3 3 3 0 0 1-3 3z" opacity="0.8"/>
-  </svg>
-);
-
 // Reusable Circle Component for Icons
 const Circle = forwardRef<
   HTMLDivElement,
-  { className?: string; children?: React.ReactNode; color?: string }
->(({ className, children, color = "bg-white dark:bg-black" }, ref) => {
+  { className?: string; children?: React.ReactNode }
+>(({ className, children }, ref) => {
   return (
     <div
       ref={ref}
-      className={`z-20 flex size-12 items-center justify-center rounded-full border border-gray-200 dark:border-white/10 shadow-[0_0_20px_-12px_rgba(0,0,0,0.8)] ${color} ${className}`}
+      className={`z-20 flex size-14 items-center justify-center rounded-full border border-gray-300/50 dark:border-white/20 shadow-xl backdrop-blur-sm bg-white/90 dark:bg-white/10 ${className}`}
     >
       {children}
     </div>
@@ -87,15 +39,14 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const div6Ref = useRef<HTMLDivElement>(null); // Mid Right
   const div7Ref = useRef<HTMLDivElement>(null); // Bot Right
 
-  // State to manage dynamic beam directions and speeds
-  // Initial state: Mixed directions
+  // State to manage dynamic beam directions and speeds (slower)
   const [beams, setBeams] = useState([
-    { reverse: false, duration: 3 }, // 1 -> 4
-    { reverse: false, duration: 4 }, // 2 -> 4
-    { reverse: false, duration: 3.5 }, // 3 -> 4
-    { reverse: true, duration: 3.2 },  // 5 -> 4
-    { reverse: true, duration: 4.1 },  // 6 -> 4
-    { reverse: true, duration: 3.8 },  // 7 -> 4
+    { reverse: false, duration: 10 }, // 1 -> 4
+    { reverse: false, duration: 11 }, // 2 -> 4
+    { reverse: false, duration: 10.5 }, // 3 -> 4
+    { reverse: true, duration: 10.2 },  // 5 -> 4
+    { reverse: true, duration: 11.1 },  // 6 -> 4
+    { reverse: true, duration: 10.8 },  // 7 -> 4
   ]);
 
   // Effect to randomly toggle directions to create "living" data flow effect
@@ -188,21 +139,18 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
               
               {/* Row 1: Top Left & Top Right */}
               <div className="flex flex-row items-center justify-between pointer-events-auto">
-                {/* React - Cyan */}
-                <Circle ref={div1Ref} className="text-cyan-500 bg-cyan-50 dark:bg-cyan-900/20 dark:border-cyan-500/30">
-                  <ReactLogo className="w-6 h-6" />
+                <Circle ref={div1Ref}>
+                  <CSharpLogo className="w-8 h-8" />
                 </Circle>
-                {/* Node.js - Green */}
-                <Circle ref={div5Ref} className="text-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-500/30">
-                  <NodeLogo className="w-6 h-6" />
+                <Circle ref={div5Ref}>
+                  <HTMLLogo className="w-8 h-8" />
                 </Circle>
               </div>
 
               {/* Row 2: Mid Left, Center, Mid Right */}
               <div className="flex flex-row items-center justify-between pointer-events-auto">
-                {/* TypeScript - Blue */}
-                <Circle ref={div2Ref} className="text-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-500/30">
-                  <TSLogo className="w-6 h-6" />
+                <Circle ref={div2Ref}>
+                  <TSLogo className="w-8 h-8" />
                 </Circle>
                 
                 {/* CENTER IMAGE (div4) */}
@@ -219,21 +167,18 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                     </div>
                 </div>
 
-                {/* PostgreSQL - Purple */}
-                <Circle ref={div6Ref} className="text-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-500/30">
-                  <PostgresLogo className="w-6 h-6" />
+                <Circle ref={div6Ref}>
+                  <TailwindLogo className="w-8 h-8" />
                 </Circle>
               </div>
 
               {/* Row 3: Bot Left & Bot Right */}
               <div className="flex flex-row items-center justify-between pointer-events-auto">
-                {/* Figma - Pink */}
-                <Circle ref={div3Ref} className="text-pink-500 bg-pink-50 dark:bg-pink-900/20 dark:border-pink-500/30">
-                  <FigmaLogo className="w-5 h-5" />
+                <Circle ref={div3Ref}>
+                  <PythonLogo className="w-8 h-8" />
                 </Circle>
-                {/* Python - Yellow */}
-                <Circle ref={div7Ref} className="text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-500/30">
-                  <PythonLogo className="w-6 h-6" />
+                <Circle ref={div7Ref}>
+                  <ReactLogo className="w-8 h-8" />
                 </Circle>
               </div>
             </div>

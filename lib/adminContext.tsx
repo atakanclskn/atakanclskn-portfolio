@@ -52,10 +52,13 @@ const DEFAULT_PROJECTS: Project[] = [
 const DEFAULT_TECH_STACK: TechItem[] = [
     { _id: '1', title: 'Next.js', tech: 'Framework', iconName: 'NextLogo', color: 'text-black dark:text-white' },
     { _id: '2', title: 'React', tech: 'Library', iconName: 'ReactLogo', color: 'text-cyan-400' },
-    { _id: '3', title: 'TypeScript', tech: 'Language', iconName: 'TSLogo', color: 'text-blue-500' },
+    { _id: '3', title: 'TypeScript', tech: 'Language', iconName: 'TypeScriptLogo', color: 'text-blue-600' },
     { _id: '4', title: 'Tailwind CSS', tech: 'Styling', iconName: 'TailwindLogo', color: 'text-cyan-500' },
     { _id: '5', title: 'Framer Motion', tech: 'Animation', iconName: 'FramerLogo', color: 'text-pink-500' },
-    { _id: '6', title: 'Shadcn UI', tech: 'UI Lib', iconName: 'ShadcnLogo', color: 'text-white' },
+    { _id: '6', title: 'Vite', tech: 'Build Tool', iconName: 'ViteLogo', color: 'text-purple-500' },
+    { _id: '7', title: 'Sanity CMS', tech: 'Headless CMS', iconName: 'SanityCMSLogo', color: 'text-red-500' },
+    { _id: '8', title: 'Python', tech: 'Language', iconName: 'PythonLogo', color: 'text-yellow-500' },
+    { _id: '9', title: 'Node.js', tech: 'Runtime', iconName: 'NodeJSLogo', color: 'text-green-600' },
 ];
 
 const DEFAULT_SOCIALS: Social[] = [

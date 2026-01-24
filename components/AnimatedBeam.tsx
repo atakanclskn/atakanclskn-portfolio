@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useId } from 'react';
 
 export interface AnimatedBeamProps {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -23,23 +23,23 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
   containerRef,
   fromRef,
   toRef,
-  curvature = 0,
+  curvature = 1,
   reverse = false,
-  duration = 3,
+  duration = Math.random() * 2 + 10,
   delay = 0,
   pathColor = 'gray',
   pathWidth = 2,
   pathOpacity = 0.2,
-  gradientStartColor = '#6366f1',
-  gradientStopColor = '#8b5cf6',
+  gradientStartColor = '#ffaa40',
+  gradientStopColor = '#9c40ff',
   startXOffset = 0,
   startYOffset = 0,
   endXOffset = 0,
   endYOffset = 0,
 }) => {
+  const id = useId();
   const [pathD, setPathD] = useState('');
   const [svgDimensions, setSvgDimensions] = useState({ width: 0, height: 0 });
-  const pathRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const updatePath = () => {
@@ -49,33 +49,35 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
       const fromRect = fromRef.current.getBoundingClientRect();
       const toRect = toRef.current.getBoundingClientRect();
 
+      const svgWidth = containerRect.width;
+      const svgHeight = containerRect.height;
+      setSvgDimensions({ width: svgWidth, height: svgHeight });
+
       const startX = fromRect.left - containerRect.left + fromRect.width / 2 + startXOffset;
       const startY = fromRect.top - containerRect.top + fromRect.height / 2 + startYOffset;
       const endX = toRect.left - containerRect.left + toRect.width / 2 + endXOffset;
       const endY = toRect.top - containerRect.top + toRect.height / 2 + endYOffset;
 
-      const controlPointX = (startX + endX) / 2;
-      const controlPointY = (startY + endY) / 2 + curvature;
-
-      const d = `M ${startX},${startY} Q ${controlPointX},${controlPointY} ${endX},${endY}`;
+      const controlY = startY - curvature;
+      const d = `M ${startX},${startY} Q ${(startX + endX) / 2},${controlY} ${endX},${endY}`;
+      
       setPathD(d);
-      setSvgDimensions({
-        width: containerRect.width,
-        height: containerRect.height,
-      });
     };
 
     updatePath();
-
+    
     const resizeObserver = new ResizeObserver(updatePath);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
 
-    return () => resizeObserver.disconnect();
+    window.addEventListener('resize', updatePath);
+    
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updatePath);
+    };
   }, [containerRef, fromRef, toRef, curvature, startXOffset, startYOffset, endXOffset, endYOffset]);
-
-  const gradientId = `gradient-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <svg
@@ -83,51 +85,71 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
       width={svgDimensions.width}
       height={svgDimensions.height}
       xmlns="http://www.w3.org/2000/svg"
-      className="pointer-events-none absolute inset-0"
+      className="pointer-events-none absolute left-0 top-0"
       viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
     >
-      <defs>
-        <linearGradient id={gradientId} gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor={gradientStartColor} stopOpacity="0" />
-          <stop offset="50%" stopColor={gradientStartColor} />
-          <stop offset="100%" stopColor={gradientStopColor} stopOpacity="0" />
-        </linearGradient>
-      </defs>
       <path
         d={pathD}
         stroke={pathColor}
         strokeWidth={pathWidth}
         strokeOpacity={pathOpacity}
+        strokeLinecap="round"
         fill="none"
       />
       <path
-        ref={pathRef}
         d={pathD}
-        stroke={`url(#${gradientId})`}
         strokeWidth={pathWidth}
-        fill="none"
+        stroke={`url(#${id})`}
         strokeLinecap="round"
-        strokeDasharray="0 1"
-        style={{
-          strokeDashoffset: reverse ? 1 : 0,
-          animation: `beam ${duration}s linear ${delay}s infinite`,
-        }}
+        fill="none"
       />
-      <style>{`
-        @keyframes beam {
-          0% {
-            stroke-dashoffset: ${reverse ? 1 : 0};
-            stroke-dasharray: 0 1;
-          }
-          50% {
-            stroke-dasharray: 0.8 0.2;
-          }
-          100% {
-            stroke-dashoffset: ${reverse ? 0 : 1};
-            stroke-dasharray: 0 1;
-          }
-        }
-      `}</style>
+      <defs>
+        <linearGradient
+          id={id}
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor={gradientStartColor} stopOpacity="0">
+            <animate
+              attributeName="offset"
+              values={reverse ? "1;-0.5;-0.5;1" : "-0.5;1;1;-0.5"}
+              keyTimes="0;0.4;0.7;1"
+              dur={`${duration}s`}
+              repeatCount="indefinite"
+              begin={`${delay}s`}
+            />
+          </stop>
+          <stop stopColor={gradientStartColor}>
+            <animate
+              attributeName="offset"
+              values={reverse ? "1.1;-0.4;-0.4;1.1" : "-0.4;1.1;1.1;-0.4"}
+              keyTimes="0;0.4;0.7;1"
+              dur={`${duration}s`}
+              repeatCount="indefinite"
+              begin={`${delay}s`}
+            />
+          </stop>
+          <stop stopColor={gradientStopColor}>
+            <animate
+              attributeName="offset"
+              values={reverse ? "1.2;-0.3;-0.3;1.2" : "-0.3;1.2;1.2;-0.3"}
+              keyTimes="0;0.4;0.7;1"
+              dur={`${duration}s`}
+              repeatCount="indefinite"
+              begin={`${delay}s`}
+            />
+          </stop>
+          <stop stopColor={gradientStopColor} stopOpacity="0">
+            <animate
+              attributeName="offset"
+              values={reverse ? "1.3;-0.2;-0.2;1.3" : "-0.2;1.3;1.3;-0.2"}
+              keyTimes="0;0.4;0.7;1"
+              dur={`${duration}s`}
+              repeatCount="indefinite"
+              begin={`${delay}s`}
+            />
+          </stop>
+        </linearGradient>
+      </defs>
     </svg>
   );
 };
