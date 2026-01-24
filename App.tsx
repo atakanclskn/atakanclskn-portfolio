@@ -16,7 +16,12 @@ import { AdminPanel } from './components/AdminPanel';
 const AppContent: React.FC = () => {
   const { profile, techStack, projects, experiences, socials } = useAdmin();
 
-  if (!profile) return null;
+  console.log('Profile data:', profile);
+  
+  if (!profile) {
+    console.error('Profile is missing!');
+    return <div style={{color: 'white', padding: '20px'}}>Profile yükleniyor...</div>;
+  }
 
   return (
     <div className="min-h-screen relative transition-colors duration-300">
