@@ -30,6 +30,10 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   
+  // Counter animation state
+  const [yearsCount, setYearsCount] = useState(0);
+  const [clientsCount, setClientsCount] = useState(0);
+  
   // Refs for the 7-node layout
   const div1Ref = useRef<HTMLDivElement>(null); // Top Left
   const div2Ref = useRef<HTMLDivElement>(null); // Mid Left
@@ -48,6 +52,29 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
     { reverse: true, duration: 11.1 },  // 6 -> 4
     { reverse: true, duration: 10.8 },  // 7 -> 4
   ]);
+
+  // Counter animation effect
+  useEffect(() => {
+    const yearsTarget = 5;
+    const clientsTarget = 10;
+    const duration = 2000; // 2 seconds
+    const steps = 50;
+    const yearsIncrement = yearsTarget / steps;
+    const clientsIncrement = clientsTarget / steps;
+    let currentStep = 0;
+
+    const timer = setInterval(() => {
+      currentStep++;
+      setYearsCount(Math.min(Math.floor(yearsIncrement * currentStep), yearsTarget));
+      setClientsCount(Math.min(Math.floor(clientsIncrement * currentStep), clientsTarget));
+      
+      if (currentStep >= steps) {
+        clearInterval(timer);
+      }
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Effect to randomly toggle directions to create "living" data flow effect
   useEffect(() => {
@@ -82,11 +109,11 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
     <section id="about" className="py-20 md:py-32 bg-transparent overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-7 gap-12 lg:gap-10 items-start">
           
           {/* LEFT SIDE: Visual Animation */}
           <div 
-            className="relative flex h-[400px] w-full items-center justify-center overflow-hidden p-10 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-[3rem] border border-gray-200 dark:border-white/5 shadow-xl"
+            className="relative flex h-[500px] lg:h-[600px] w-full items-center justify-center overflow-hidden p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-[3rem] border border-gray-200 dark:border-white/5 shadow-xl lg:col-span-3"
             ref={containerRef}
           >
              {/* Background Grid */}
@@ -135,7 +162,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
             />
 
             {/* Content Container (Icons & Profile) - z-20 to sit above beams */}
-            <div className="flex size-full flex-col items-stretch justify-between gap-10 max-w-lg relative z-20 pointer-events-none">
+            <div className="flex size-full flex-col items-stretch justify-between gap-12 max-w-lg relative z-20 pointer-events-none">
               
               {/* Row 1: Top Left & Top Right */}
               <div className="flex flex-row items-center justify-between pointer-events-auto">
@@ -154,7 +181,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                 </Circle>
                 
                 {/* CENTER IMAGE (div4) */}
-                <div ref={div4Ref} className="relative z-30 size-24 md:size-28 rounded-full bg-white dark:bg-black border border-gray-200 dark:border-white/10 shadow-2xl overflow-hidden">
+                <div ref={div4Ref} className="relative z-30 size-32 md:size-36 rounded-full bg-white dark:bg-black border border-gray-200 dark:border-white/10 shadow-2xl overflow-hidden">
                     <div className="w-full h-full rounded-full overflow-hidden relative p-2 z-30">
                          <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 animate-pulse rounded-full"></div>
                          {imageUrl ? (
@@ -185,7 +212,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
           </div>
 
           {/* RIGHT SIDE: Text Content */}
-          <div className="space-y-8 text-center lg:text-left">
+          <div className="space-y-8 text-center lg:text-left lg:col-span-4">
             <div>
                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white leading-tight mb-6">
                  Who Am I? <br className="hidden md:block"/>
@@ -211,31 +238,55 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Beyond the Code</h3>
                <div className="flex flex-wrap gap-2">
                   <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎮 Gaming</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎾 Tennis</span>
                   <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">📚 Tech Blogs</span>
                   <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">☕ Coffee Enthusiast</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🏍️ Motorcycling</span>
                   <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🚀 Space Tech</span>
                   <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎵 Lo-fi Beats</span>
                   <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🌍 Open Source</span>
                </div>
             </div>
-
-            {/* Core Values */}
-            <div className="grid grid-cols-3 gap-4 border-t border-gray-200 dark:border-white/10 pt-8">
-               <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Clean</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Code Quality</p>
-               </div>
-               <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Fast</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Performance</p>
-               </div>
-               <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">User</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">First Design</p>
-               </div>
-            </div>
           </div>
 
+        </div>
+
+        {/* Stats & Core Values Section - Below both columns */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-center">
+          
+          {/* Years of Experience */}
+          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+            <h4 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
+              {yearsCount}+
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Years Coding</p>
+          </div>
+
+          {/* Happy Clients */}
+          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+            <h4 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
+              {clientsCount}+
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Happy Clients</p>
+          </div>
+
+          {/* Clean Code */}
+          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Clean</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">Code Quality</p>
+          </div>
+
+          {/* Fast Performance */}
+          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Fast</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">Performance</p>
+          </div>
+
+          {/* User First Design */}
+          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">User</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">First Design</p>
+          </div>
         </div>
       </div>
     </section>
