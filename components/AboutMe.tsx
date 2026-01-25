@@ -30,9 +30,11 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
   
-  // Counter animation state
+  // Counter animation state with visibility tracking
   const [yearsCount, setYearsCount] = useState(0);
   const [clientsCount, setClientsCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
   
   // Refs for the 7-node layout
   const div1Ref = useRef<HTMLDivElement>(null); // Top Left
@@ -53,28 +55,56 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
     { reverse: true, duration: 10.8 },  // 7 -> 4
   ]);
 
-  // Counter animation effect
+  // Intersection Observer to trigger animation when in view
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isVisible) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => {
+      if (statsRef.current) {
+        observer.unobserve(statsRef.current);
+      }
+    };
+  }, [isVisible]);
+
+  // Counter animation effect with easing
+  useEffect(() => {
+    if (!isVisible) return;
+
     const yearsTarget = 5;
     const clientsTarget = 10;
     const duration = 2000; // 2 seconds
-    const steps = 50;
-    const yearsIncrement = yearsTarget / steps;
-    const clientsIncrement = clientsTarget / steps;
-    let currentStep = 0;
+    const startTime = Date.now();
 
-    const timer = setInterval(() => {
-      currentStep++;
-      setYearsCount(Math.min(Math.floor(yearsIncrement * currentStep), yearsTarget));
-      setClientsCount(Math.min(Math.floor(clientsIncrement * currentStep), clientsTarget));
-      
-      if (currentStep >= steps) {
-        clearInterval(timer);
+    const easeOutQuad = (t: number) => t * (2 - t); // Ease out quadratic
+
+    const animateCount = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutQuad(progress);
+
+      setYearsCount(Math.floor(easedProgress * yearsTarget));
+      setClientsCount(Math.floor(easedProgress * clientsTarget));
+
+      if (progress < 1) {
+        requestAnimationFrame(animateCount);
       }
-    }, duration / steps);
+    };
 
-    return () => clearInterval(timer);
-  }, []);
+    requestAnimationFrame(animateCount);
+  }, [isVisible]);
 
   // Effect to randomly toggle directions to create "living" data flow effect
   useEffect(() => {
@@ -252,38 +282,73 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
         </div>
 
         {/* Stats & Core Values Section - Below both columns */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-center">
+        <div ref={statsRef} className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-stretch">
           
           {/* Years of Experience */}
-          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
-            <h4 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
+          <div 
+            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
+            style={{ 
+              opacity: isVisible ? 1 : 0, 
+              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
+              transitionDelay: '0ms'
+            }}
+          >
+            <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
               {yearsCount}+
             </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Years Coding</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Years Coding</p>
           </div>
 
           {/* Happy Clients */}
-          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
-            <h4 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
+          <div 
+            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
+            style={{ 
+              opacity: isVisible ? 1 : 0, 
+              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
+              transitionDelay: '150ms'
+            }}
+          >
+            <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
               {clientsCount}+
             </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Happy Clients</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Happy Clients</p>
           </div>
 
           {/* Clean Code */}
-          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+          <div 
+            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
+            style={{ 
+              opacity: isVisible ? 1 : 0, 
+              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
+              transitionDelay: '300ms'
+            }}
+          >
             <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Clean</h4>
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">Code Quality</p>
           </div>
 
           {/* Fast Performance */}
-          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+          <div 
+            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
+            style={{ 
+              opacity: isVisible ? 1 : 0, 
+              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
+              transitionDelay: '450ms'
+            }}
+          >
             <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Fast</h4>
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">Performance</p>
           </div>
 
           {/* User First Design */}
-          <div className="text-center p-8 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10">
+          <div 
+            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
+            style={{ 
+              opacity: isVisible ? 1 : 0, 
+              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
+              transitionDelay: '600ms'
+            }}
+          >
             <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">User</h4>
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">First Design</p>
           </div>
