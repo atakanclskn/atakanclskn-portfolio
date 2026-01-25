@@ -192,16 +192,33 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
   };
 
 export const Experience: React.FC<ExperienceProps> = ({ experiences, projects }) => {
-  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'project']);
+  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'certification', 'project']);
   const [animationKey, setAnimationKey] = useState(0);
+  const [shakeFilters, setShakeFilters] = useState(false);
   const { t } = useLanguage();
 
   const toggleFilter = (filter: FilterType) => {
-    setActiveFilters(prev => 
-      prev.includes(filter) 
+    setActiveFilters(prev => {
+      const newFilters = prev.includes(filter) 
         ? prev.filter(f => f !== filter) 
-        : [...prev, filter]
-    );
+        : [...prev, filter];
+      
+      // If user tries to disable all filters, prevent it and reset with animation
+      if (newFilters.length === 0) {
+        // Trigger shake animation
+        setShakeFilters(true);
+        setTimeout(() => setShakeFilters(false), 500);
+        
+        // Reset all filters with bounce animation after shake
+        setTimeout(() => {
+          setActiveFilters(['work', 'education', 'certification', 'project']);
+          setAnimationKey(k => k + 1);
+        }, 300);
+        return prev; // Keep current state momentarily
+      }
+      
+      return newFilters;
+    });
     setAnimationKey(prev => prev + 1);
   };
 
@@ -268,7 +285,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                 </p>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+            <div className={`flex flex-wrap justify-center gap-2 md:gap-3 ${shakeFilters ? 'animate-shake' : ''}`}>
               {filters.map((f) => {
                 const isActive = activeFilters.includes(f.value);
                 const styles = getTypeStyles(f.value);
@@ -278,7 +295,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                     onClick={() => toggleFilter(f.value)}
                     className={`px-4 py-2 md:px-6 md:py-2 rounded-full text-[10px] md:text-xs font-bold transition-all duration-300 border flex items-center justify-center ${
                       isActive 
-                        ? `${styles.bg} ${styles.color} ${styles.border}`
+                        ? `${styles.bg} ${styles.color} ${styles.border} ${shakeFilters ? 'animate-bounce-in' : ''}`
                         : 'bg-transparent text-gray-500 border-gray-200 dark:border-white/10 hover:border-gray-400'
                     }`}
                   >

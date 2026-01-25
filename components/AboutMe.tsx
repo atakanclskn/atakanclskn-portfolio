@@ -188,32 +188,50 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
           <div className="space-y-8 text-center lg:text-left">
             <div>
                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white leading-tight mb-6">
-                 {t.about.title} <br className="hidden md:block"/>
-                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{t.about.highlight}</span>
+                 Who Am I? <br className="hidden md:block"/>
+                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">More Than Just Code</span>
                </h2>
                <div className="space-y-4 text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
                  <p>
-                    {t.about.p1}
+                   Beyond the terminal and IDE, I'm a curious mind who finds beauty in solving complex problems. 
+                   I believe technology should serve humanity, not the other way around.
                  </p>
                  <p>
-                    {t.about.p2}
+                   When I'm not pushing pixels or debugging code, you'll find me exploring new technologies, 
+                   contributing to open-source projects, or diving deep into system architecture discussions.
+                 </p>
+                 <p className="text-base italic border-l-4 border-primary/50 pl-4">
+                   "I'm passionate about creating elegant solutions that make a real difference in people's lives."
                  </p>
                </div>
             </div>
 
-            {/* Stats / Fun Facts */}
+            {/* Hobbies & Interests */}
+            <div className="space-y-3 border-t border-gray-200 dark:border-white/10 pt-8">
+               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Beyond the Code</h3>
+               <div className="flex flex-wrap gap-2">
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎮 Gaming</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">📚 Tech Blogs</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">☕ Coffee Enthusiast</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🚀 Space Tech</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎵 Lo-fi Beats</span>
+                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🌍 Open Source</span>
+               </div>
+            </div>
+
+            {/* Core Values */}
             <div className="grid grid-cols-3 gap-4 border-t border-gray-200 dark:border-white/10 pt-8">
                <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">5+</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{t.about.years}</p>
+                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Clean</h4>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Code Quality</p>
                </div>
                <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">20+</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{t.about.shipped}</p>
+                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Fast</h4>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">Performance</p>
                </div>
                <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">100%</h4>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">{t.about.coffee}</p>
+                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">User</h4>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">First Design</p>
                </div>
             </div>
           </div>

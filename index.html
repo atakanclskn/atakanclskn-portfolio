@@ -30,6 +30,8 @@
               'infinite-scroll': 'infinite-scroll 25s linear infinite',
               'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
               'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+              'bounce-in': 'bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
             },
             keyframes: {
               'infinite-scroll': {
@@ -40,6 +42,24 @@
                 '100%': {
                   'offset-distance': '100%',
                 },
+              },
+              'shake': {
+                '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                '40%, 60%': { transform: 'translate3d(4px, 0, 0)' },
+              },
+              'bounce-in': {
+                '0%': { 
+                  opacity: '0',
+                  transform: 'scale(0.3)',
+                },
+                '50%': { 
+                  opacity: '1',
+                  transform: 'scale(1.05)',
+                },
+                '70%': { transform: 'scale(0.9)' },
+                '100%': { transform: 'scale(1)' },
               },
             }
           }
