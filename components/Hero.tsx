@@ -4,13 +4,14 @@ import { ArrowRight, Download } from 'lucide-react';
 import { Profile } from '../types';
 import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
+import { getText } from '../lib/multiLangHelper';
 
 interface HeroProps {
   profile: Profile;
 }
 
 export const Hero: React.FC<HeroProps> = ({ profile }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { heroContent } = useAdmin();
 
   const scrollToProjects = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -41,22 +42,22 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
             <span className="text-xs font-medium tracking-wide text-gray-600 dark:text-gray-300">
-              {heroContent.status}
+              {getText(heroContent.status, lang)}
             </span>
           </div>
         </div>
 
         <div className="mb-6 md:mb-8">
           <h1 className="text-4xl md:text-7xl lg:text-8xl font-display font-bold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-4 md:mb-6 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
-            {heroContent.greeting} {heroContent.name.split(' ')[0]}.
+            {getText(heroContent.greeting, lang)} {heroContent.name.split(' ')[0]}.
           </h1>
           <h2 className="text-xl md:text-4xl font-display font-medium text-gray-500 dark:text-gray-400 animate-fade-in-up px-4" style={{animationDelay: '0.3s'}}>
-            {heroContent.role}
+            {getText(heroContent.role, lang)}
           </h2>
         </div>
 
         <p className="text-gray-600 dark:text-gray-400 text-base md:text-xl max-w-2xl leading-relaxed font-sans mb-10 md:mb-12 animate-fade-in-up px-4" style={{animationDelay: '0.4s'}}>
-          {heroContent.bio}
+          {getText(heroContent.bio, lang)}
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full px-6 animate-fade-in-up" style={{animationDelay: '0.5s'}}>
@@ -65,7 +66,7 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
             onClick={scrollToProjects}
             className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black rounded-full font-bold text-sm transition-transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
           >
-            {heroContent.ctaText} <ArrowRight className="w-4 h-4" />
+            {getText(heroContent.ctaText, lang)} <ArrowRight className="w-4 h-4" />
           </a>
           
           <a 

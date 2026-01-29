@@ -10,6 +10,7 @@ export const AdminPanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('general');
+  const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
   const { isLoggedIn, login, logout, primaryColor, setPrimaryColor, profile, updateProfile, techStack, setTechStack, projects, setProjects, experiences, setExperiences, socials, setSocials, heroContent, setHeroContent, aboutContent, setAboutContent, statsContent, setStatsContent, hobbies, setHobbies, navbarSettings, setNavbarSettings, siteSettings, setSiteSettings } = useAdmin();
 
   // Scroll Detection to show button only at bottom
@@ -79,9 +80,36 @@ export const AdminPanel: React.FC = () => {
                         <p className="text-xs text-gray-500">Site Configuration & Content Management</p>
                     </div>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors">
-                    <X size={24} />
-                </button>
+                <div className="flex items-center gap-4">
+                    {/* Language Switch for Editing */}
+                    {isLoggedIn && (
+                        <div className="flex items-center gap-2 bg-white/5 rounded-lg p-1">
+                            <button
+                                onClick={() => setEditLang('EN')}
+                                className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                                    editLang === 'EN' 
+                                    ? 'bg-primary text-black' 
+                                    : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                EN
+                            </button>
+                            <button
+                                onClick={() => setEditLang('TR')}
+                                className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${
+                                    editLang === 'TR' 
+                                    ? 'bg-primary text-black' 
+                                    : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                TR
+                            </button>
+                        </div>
+                    )}
+                    <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                        <X size={24} />
+                    </button>
+                </div>
             </div>
 
             {/* Content Area */}

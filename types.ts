@@ -8,6 +8,12 @@ export interface SanityImage {
   };
 }
 
+// Multi-language support
+export interface MultiLangText {
+  EN: string;
+  TR: string;
+}
+
 export interface Profile {
   _id: string;
   name: string;
@@ -15,19 +21,18 @@ export interface Profile {
   bio: string;
   status: string;
   heroImage?: SanityImage;
-  avatarUrl?: string; // Added for GitHub avatar
+  avatarUrl?: string;
   location?: string;
 }
 
 export interface Project {
   _id: string;
-  title: string;
+  title: MultiLangText;
   category: string;
-  description: string;
-  mainImage: SanityImage | string; // Allow string URL for GitHub OG images
+  description: MultiLangText;
+  mainImage: SanityImage | string;
   size: 'large' | 'small';
   link?: string;
-  // GitHub specific
   githubUrl?: string;
   stars?: number;
   language?: string;
@@ -36,21 +41,21 @@ export interface Project {
 
 export interface ExperienceItem {
   _id: string;
-  role: string;
+  role: MultiLangText;
   company: string;
   startDate: string;
   endDate?: string;
   isCurrent: boolean;
-  description: string;
-  skills?: string[]; // Added for skills list
-  type?: 'work' | 'education' | 'certification'; // Added for LinkedIn data types
+  description: MultiLangText;
+  skills?: string[];
+  type?: 'work' | 'education' | 'certification' | 'project';
 }
 
 export interface TechItem {
   _id: string;
   title: string;
   tech: string;
-  iconName: string; // Stored as string in Sanity (e.g., "Box", "Database")
+  iconName: string;
   color: string;
 }
 
@@ -59,61 +64,66 @@ export interface Social {
   platform: string;
   url: string;
   username?: string;
-  iconName: string; // Lucide icon name like "Github", "Linkedin", "Twitter", etc.
+  iconName: string;
 }
 
-// Admin-controlled content structures
+// Admin-controlled content structures with multi-language support
+export interface MultiLangText {
+  EN: string;
+  TR: string;
+}
+
 export interface HeroContent {
-  greeting: string;
+  greeting: MultiLangText;
   name: string;
-  role: string;
-  bio: string;
-  status: string;
-  ctaText: string;
+  role: MultiLangText;
+  bio: MultiLangText;
+  status: MultiLangText;
+  ctaText: MultiLangText;
   resumeLink: string;
   backgroundImage?: string;
 }
 
 export interface AboutContent {
-  whoAmI: string;
-  subtitle: string;
+  whoAmI: MultiLangText;
+  subtitle: MultiLangText;
   paragraphs: {
-    beyondTerminal: string;
-    exploring: string;
-    quote: string;
-    beyondCode: string;
+    beyondTerminal: MultiLangText;
+    exploring: MultiLangText;
+    quote: MultiLangText;
+    beyondCode: MultiLangText;
   };
 }
 
 export interface StatsContent {
   yearsCount: number;
-  yearsLabel: string;
+  yearsLabel: MultiLangText;
   clientsCount: number;
-  clientsLabel: string;
-  qualityLabel: string;
-  qualityDescription: string;
-  performanceLabel: string;
-  performanceDescription: string;
-  designLabel: string;
-  designDescription: string;
+  clientsLabel: MultiLangText;
+  qualityLabel: MultiLangText;
+  qualityDescription: MultiLangText;
+  performanceLabel: MultiLangText;
+  performanceDescription: MultiLangText;
+  designLabel: MultiLangText;
+  designDescription: MultiLangText;
 }
 
 export interface HobbyItem {
   _id: string;
   icon: string; // Lucide icon name
-  label: string;
+  label: MultiLangText;
 }
 
 export interface NavbarSettings {
   logoText: string;
   showLogo: boolean;
-  ctaText: string;
+  ctaText: MultiLangText;
   ctaLink: string;
 }
 
 export interface SiteSettings {
   favicon?: string;
-  metaTitle: string;
-  metaDescription: string;
+  metaTitle: MultiLangText;
+  metaDescription: MultiLangText;
   defaultTheme: 'light' | 'dark' | 'system';
 }

@@ -6,6 +6,7 @@ import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
 import { CSharpLogo, TSLogo, HTMLLogo, TailwindLogo, PythonLogo, ReactLogo } from './TechLogos';
 import * as LucideIcons from 'lucide-react';
+import { getText } from '../lib/multiLangHelper';
 
 interface AboutMeProps {
   profile: Profile;
@@ -30,7 +31,7 @@ Circle.displayName = "Circle";
 
 export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { aboutContent, statsContent, hobbies } = useAdmin();
   
   // Counter animation state with visibility tracking
