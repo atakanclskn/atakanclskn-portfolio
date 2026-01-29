@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { ArrowUpRight, Mail, Github, Linkedin, Twitter, Instagram, Send } from 'lucide-react';
+import { ArrowUpRight, Mail, Send } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Social, Profile } from '../types';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
@@ -13,14 +14,17 @@ interface ConnectProps {
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   const { t } = useLanguage();
   
-  const getSocialStyle = (platform: string) => {
-    switch (platform.toLowerCase()) {
-      case 'linkedin': return { icon: <Linkedin className="w-5 h-5" />, color: '#0A66C2' };
-      case 'twitter': return { icon: <Twitter className="w-5 h-5" />, color: '#1D9BF0' };
-      case 'github': return { icon: <Github className="w-5 h-5" />, color: '#808080' };
-      case 'instagram': return { icon: <Instagram className="w-5 h-5" />, color: '#E4405F' };
-      default: return { icon: <ArrowUpRight className="w-5 h-5" />, color: '#06b6d4' };
-    }
+  const getSocialColor = (platform: string) => {
+    const lowerPlatform = platform.toLowerCase();
+    if (lowerPlatform.includes('linkedin')) return '#0A66C2';
+    if (lowerPlatform.includes('twitter') || lowerPlatform.includes('x')) return '#1D9BF0';
+    if (lowerPlatform.includes('github')) return '#808080';
+    if (lowerPlatform.includes('instagram')) return '#E4405F';
+    if (lowerPlatform.includes('facebook')) return '#1877F2';
+    if (lowerPlatform.includes('youtube')) return '#FF0000';
+    if (lowerPlatform.includes('discord')) return '#5865F2';
+    if (lowerPlatform.includes('telegram')) return '#0088CC';
+    return '#06b6d4'; // Default cyan
   };
 
   return (
@@ -64,7 +68,9 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t.contact.findMe}</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {socials.map((social) => {
-                        const style = getSocialStyle(social.platform);
+                        const color = getSocialColor(social.platform);
+                        const IconComponent = (LucideIcons as any)[social.iconName] || LucideIcons.Link;
+                        
                         return (
                           <a 
                             key={social._id} 
@@ -74,13 +80,13 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                             className="block"
                           >
                              <MagicCard 
-                                gradientColor={style.color + '33'}
+                                gradientColor={color + '33'}
                                 className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
                              >
                                 <div className="relative z-10 p-6">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="p-3 bg-gray-50 dark:bg-white/5 rounded-full text-gray-900 dark:text-white group-hover:scale-110 transition-transform">
-                                        {style.icon}
+                                          <IconComponent className="w-5 h-5" />
                                         </div>
                                         <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
                                     </div>

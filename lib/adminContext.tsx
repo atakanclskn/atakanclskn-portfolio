@@ -1,6 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Project, ExperienceItem, Social, Profile, TechItem } from '../types';
+import { 
+  Project, ExperienceItem, Social, Profile, TechItem,
+  HeroContent, AboutContent, StatsContent, HobbyItem, NavbarSettings, SiteSettings
+} from '../types';
 
 // Default Data Constants (Moved from App.tsx)
 const DEFAULT_EXPERIENCES: ExperienceItem[] = [
@@ -62,8 +65,8 @@ const DEFAULT_TECH_STACK: TechItem[] = [
 ];
 
 const DEFAULT_SOCIALS: Social[] = [
-  { _id: '1', platform: 'GitHub', url: 'https://github.com/atakanclskn', username: 'atakanclskn' },
-  { _id: '2', platform: 'LinkedIn', url: 'https://linkedin.com/in/atakanclskn', username: 'Atakan Çalışkan' },
+  { _id: '1', platform: 'GitHub', url: 'https://github.com/atakanclskn', username: 'atakanclskn', iconName: 'Github' },
+  { _id: '2', platform: 'LinkedIn', url: 'https://linkedin.com/in/atakanclskn', username: 'Atakan Çalışkan', iconName: 'Linkedin' },
 ];
 
 const DEFAULT_PROFILE: Profile = {
@@ -74,6 +77,66 @@ const DEFAULT_PROFILE: Profile = {
     status: 'Available for new projects',
     heroImage: 'https://github.com/atakanclskn.png' as any,
     avatarUrl: 'https://github.com/atakanclskn.png'
+};
+
+const DEFAULT_HERO: HeroContent = {
+  greeting: "Hey, I'm",
+  name: 'Atakan Çalışkan',
+  role: 'Software Engineer & Designer',
+  bio: 'I build exceptional digital experiences with modern technologies.',
+  status: 'Available for new projects',
+  ctaText: 'View My Work',
+  resumeLink: '/resume.pdf',
+  backgroundImage: undefined
+};
+
+const DEFAULT_ABOUT: AboutContent = {
+  whoAmI: 'Who Am I?',
+  subtitle: 'More Than Just Code',
+  paragraphs: {
+    beyondTerminal: "Beyond the terminal, I'm someone who finds elegance in simplicity and power in thoughtful design. Every line of code I write serves a purpose—whether it's crafting seamless user experiences or architecting scalable systems.",
+    exploring: "When I'm not deep in a codebase, you'll find me exploring new frameworks, contributing to open source, or experimenting with the latest tech trends. I believe in continuous learning and sharing knowledge with the community.",
+    quote: "\"The best code is the code that doesn't need to be written—but when it does, it should be beautiful.\"",
+    beyondCode: "Beyond code, I'm driven by curiosity and creativity. Whether it's designing pixel-perfect interfaces, optimizing performance, or solving complex problems—I approach every challenge with passion and precision."
+  }
+};
+
+const DEFAULT_STATS: StatsContent = {
+  yearsCount: 5,
+  yearsLabel: 'Years Coding',
+  clientsCount: 10,
+  clientsLabel: 'Happy Clients',
+  qualityLabel: 'Clean',
+  qualityDescription: 'Code Quality',
+  performanceLabel: 'Fast',
+  performanceDescription: 'Performance',
+  designLabel: 'User',
+  designDescription: 'First Design'
+};
+
+const DEFAULT_HOBBIES: HobbyItem[] = [
+  { _id: 'h1', icon: 'Gamepad2', label: 'Gaming' },
+  { _id: 'h2', icon: 'Tennis', label: 'Tennis' },
+  { _id: 'h3', icon: 'BookOpen', label: 'Tech Blogs' },
+  { _id: 'h4', icon: 'Coffee', label: 'Coffee Enthusiast' },
+  { _id: 'h5', icon: 'Bike', label: 'Motorcycling' },
+  { _id: 'h6', icon: 'Rocket', label: 'Space Tech' },
+  { _id: 'h7', icon: 'Music', label: 'Lo-fi Beats' },
+  { _id: 'h8', icon: 'Code2', label: 'Open Source' },
+];
+
+const DEFAULT_NAVBAR: NavbarSettings = {
+  logoText: 'AC',
+  showLogo: true,
+  ctaText: 'Get in Touch',
+  ctaLink: '#connect'
+};
+
+const DEFAULT_SETTINGS: SiteSettings = {
+  favicon: undefined,
+  metaTitle: 'Atakan Çalışkan - Software Engineer & Designer',
+  metaDescription: 'Portfolio of Atakan Çalışkan - Software Engineer and Designer specializing in building exceptional digital experiences.',
+  defaultTheme: 'system'
 };
 
 interface AdminContextType {
@@ -99,6 +162,25 @@ interface AdminContextType {
   
   socials: Social[];
   setSocials: (s: Social[]) => void;
+
+  // New Content Management
+  heroContent: HeroContent;
+  setHeroContent: (h: HeroContent) => void;
+
+  aboutContent: AboutContent;
+  setAboutContent: (a: AboutContent) => void;
+
+  statsContent: StatsContent;
+  setStatsContent: (s: StatsContent) => void;
+
+  hobbies: HobbyItem[];
+  setHobbies: (h: HobbyItem[]) => void;
+
+  navbarSettings: NavbarSettings;
+  setNavbarSettings: (n: NavbarSettings) => void;
+
+  siteSettings: SiteSettings;
+  setSiteSettings: (s: SiteSettings) => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -113,6 +195,12 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [experiences, setExperiencesState] = useState<ExperienceItem[]>(DEFAULT_EXPERIENCES);
   const [techStack, setTechStackState] = useState<TechItem[]>(DEFAULT_TECH_STACK);
   const [socials, setSocialsState] = useState<Social[]>(DEFAULT_SOCIALS);
+  const [heroContent, setHeroContentState] = useState<HeroContent>(DEFAULT_HERO);
+  const [aboutContent, setAboutContentState] = useState<AboutContent>(DEFAULT_ABOUT);
+  const [statsContent, setStatsContentState] = useState<StatsContent>(DEFAULT_STATS);
+  const [hobbies, setHobbiesState] = useState<HobbyItem[]>(DEFAULT_HOBBIES);
+  const [navbarSettings, setNavbarSettingsState] = useState<NavbarSettings>(DEFAULT_NAVBAR);
+  const [siteSettings, setSiteSettingsState] = useState<SiteSettings>(DEFAULT_SETTINGS);
 
   // Load from LocalStorage on mount
   useEffect(() => {
@@ -133,6 +221,24 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const savedSocials = localStorage.getItem('site_socials');
     if (savedSocials) setSocialsState(JSON.parse(savedSocials));
+
+    const savedHero = localStorage.getItem('site_heroContent');
+    if (savedHero) setHeroContentState(JSON.parse(savedHero));
+
+    const savedAbout = localStorage.getItem('site_aboutContent');
+    if (savedAbout) setAboutContentState(JSON.parse(savedAbout));
+
+    const savedStats = localStorage.getItem('site_statsContent');
+    if (savedStats) setStatsContentState(JSON.parse(savedStats));
+
+    const savedHobbies = localStorage.getItem('site_hobbies');
+    if (savedHobbies) setHobbiesState(JSON.parse(savedHobbies));
+
+    const savedNavbar = localStorage.getItem('site_navbarSettings');
+    if (savedNavbar) setNavbarSettingsState(JSON.parse(savedNavbar));
+
+    const savedSettings = localStorage.getItem('site_siteSettings');
+    if (savedSettings) setSiteSettingsState(JSON.parse(savedSettings));
   }, []);
 
   // Update CSS Variable whenever primaryColor changes
@@ -167,6 +273,36 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     localStorage.setItem('site_socials', JSON.stringify(s));
   };
 
+  const setHeroContent = (h: HeroContent) => {
+    setHeroContentState(h);
+    localStorage.setItem('site_heroContent', JSON.stringify(h));
+  };
+
+  const setAboutContent = (a: AboutContent) => {
+    setAboutContentState(a);
+    localStorage.setItem('site_aboutContent', JSON.stringify(a));
+  };
+
+  const setStatsContent = (s: StatsContent) => {
+    setStatsContentState(s);
+    localStorage.setItem('site_statsContent', JSON.stringify(s));
+  };
+
+  const setHobbies = (h: HobbyItem[]) => {
+    setHobbiesState(h);
+    localStorage.setItem('site_hobbies', JSON.stringify(h));
+  };
+
+  const setNavbarSettings = (n: NavbarSettings) => {
+    setNavbarSettingsState(n);
+    localStorage.setItem('site_navbarSettings', JSON.stringify(n));
+  };
+
+  const setSiteSettings = (s: SiteSettings) => {
+    setSiteSettingsState(s);
+    localStorage.setItem('site_siteSettings', JSON.stringify(s));
+  };
+
   const login = (password: string) => {
     if (password === 'admin123') {
       setIsLoggedIn(true);
@@ -186,7 +322,13 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       projects, setProjects,
       experiences, setExperiences,
       techStack, setTechStack,
-      socials, setSocials
+      socials, setSocials,
+      heroContent, setHeroContent,
+      aboutContent, setAboutContent,
+      statsContent, setStatsContent,
+      hobbies, setHobbies,
+      navbarSettings, setNavbarSettings,
+      siteSettings, setSiteSettings
     }}>
       {children}
     </AdminContext.Provider>

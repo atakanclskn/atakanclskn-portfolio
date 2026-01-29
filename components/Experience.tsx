@@ -226,7 +226,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
     const projectItems = projects.map(p => ({
         _id: p._id,
         role: p.title,
-        company: 'Project',
+        company: p.category || 'Personal Project',
         startDate: '2024-01-01',
         isCurrent: false,
         description: p.description,

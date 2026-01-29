@@ -3,7 +3,9 @@ import React, { forwardRef, useRef, useState, useEffect } from "react";
 import { AnimatedBeam } from "./AnimatedBeam";
 import { Profile } from "../types";
 import { useLanguage } from '../lib/i18n';
+import { useAdmin } from '../lib/adminContext';
 import { CSharpLogo, TSLogo, HTMLLogo, TailwindLogo, PythonLogo, ReactLogo } from './TechLogos';
+import * as LucideIcons from 'lucide-react';
 
 interface AboutMeProps {
   profile: Profile;
@@ -29,6 +31,7 @@ Circle.displayName = "Circle";
 export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+  const { aboutContent, statsContent, hobbies } = useAdmin();
   
   // Counter animation state with visibility tracking
   const [yearsCount, setYearsCount] = useState(0);
@@ -83,8 +86,8 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   useEffect(() => {
     if (!isVisible) return;
 
-    const yearsTarget = 5;
-    const clientsTarget = 10;
+    const yearsTarget = statsContent.yearsCount;
+    const clientsTarget = statsContent.clientsCount;
     const duration = 2000; // 2 seconds
     const startTime = Date.now();
 
@@ -104,7 +107,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
     };
 
     requestAnimationFrame(animateCount);
-  }, [isVisible]);
+  }, [isVisible, statsContent.yearsCount, statsContent.clientsCount]);
 
   // Effect to randomly toggle directions to create "living" data flow effect
   useEffect(() => {
@@ -245,36 +248,37 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
           <div className="space-y-8 text-center lg:text-left lg:col-span-4">
             <div>
                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white leading-tight mb-6">
-                 Who Am I? <br className="hidden md:block"/>
-                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">More Than Just Code</span>
+                 {aboutContent.whoAmI} <br className="hidden md:block"/>
+                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{aboutContent.subtitle}</span>
                </h2>
                <div className="space-y-4 text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
                  <p>
-                   Beyond the terminal and IDE, I'm a curious mind who finds beauty in solving complex problems. 
-                   I believe technology should serve humanity, not the other way around.
+                   {aboutContent.paragraphs.beyondTerminal}
                  </p>
                  <p>
-                   When I'm not pushing pixels or debugging code, you'll find me exploring new technologies, 
-                   contributing to open-source projects, or diving deep into system architecture discussions.
+                   {aboutContent.paragraphs.exploring}
                  </p>
                  <p className="text-base italic border-l-4 border-primary/50 pl-4">
-                   "I'm passionate about creating elegant solutions that make a real difference in people's lives."
+                   "{aboutContent.paragraphs.quote}"
+                 </p>
+                 <p>
+                   {aboutContent.paragraphs.beyondCode}
                  </p>
                </div>
             </div>
 
             {/* Hobbies & Interests */}
             <div className="space-y-3 border-t border-gray-200 dark:border-white/10 pt-8">
-               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Beyond the Code</h3>
                <div className="flex flex-wrap gap-2">
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎮 Gaming</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎾 Tennis</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">📚 Tech Blogs</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">☕ Coffee Enthusiast</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🏍️ Motorcycling</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🚀 Space Tech</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🎵 Lo-fi Beats</span>
-                  <span className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300">🌍 Open Source</span>
+                  {hobbies.map((hobby) => {
+                    const IconComponent = (LucideIcons as any)[hobby.icon];
+                    return (
+                      <span key={hobby._id} className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        {IconComponent && <IconComponent className="w-4 h-4" />}
+                        {hobby.label}
+                      </span>
+                    );
+                  })}
                </div>
             </div>
           </div>
@@ -296,7 +300,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
             <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
               {yearsCount}+
             </h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Years Coding</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.yearsLabel}</p>
           </div>
 
           {/* Happy Clients */}
@@ -311,7 +315,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
             <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
               {clientsCount}+
             </h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">Happy Clients</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.clientsLabel}</p>
           </div>
 
           {/* Clean Code */}
@@ -323,8 +327,8 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
               transitionDelay: '300ms'
             }}
           >
-            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Clean</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">Code Quality</p>
+            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">{statsContent.qualityLabel}</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.qualityDescription}</p>
           </div>
 
           {/* Fast Performance */}
@@ -336,8 +340,8 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
               transitionDelay: '450ms'
             }}
           >
-            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">Fast</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">Performance</p>
+            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">{statsContent.performanceLabel}</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.performanceDescription}</p>
           </div>
 
           {/* User First Design */}
@@ -349,8 +353,8 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
               transitionDelay: '600ms'
             }}
           >
-            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">User</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">First Design</p>
+            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">{statsContent.designLabel}</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.designDescription}</p>
           </div>
         </div>
       </div>

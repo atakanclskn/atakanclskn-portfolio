@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { Settings, X, Save, Trash2, Plus, User, Briefcase, Code, Share2, Palette, Layers, LogOut } from 'lucide-react';
+import { Settings, X, Save, Trash2, Plus, User, Briefcase, Code, Share2, Palette, Layers, LogOut, Home, FileText, BarChart3, Heart, Navigation } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { MagicCard } from './MagicCard';
-import { TechItem } from '../types';
+import { TechItem, HobbyItem } from '../types';
 
 export const AdminPanel: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('general');
-  const { isLoggedIn, login, logout, primaryColor, setPrimaryColor, profile, updateProfile, techStack, setTechStack, projects, setProjects, experiences, setExperiences, socials, setSocials } = useAdmin();
+  const { isLoggedIn, login, logout, primaryColor, setPrimaryColor, profile, updateProfile, techStack, setTechStack, projects, setProjects, experiences, setExperiences, socials, setSocials, heroContent, setHeroContent, aboutContent, setAboutContent, statsContent, setStatsContent, hobbies, setHobbies, navbarSettings, setNavbarSettings, siteSettings, setSiteSettings } = useAdmin();
 
   // Scroll Detection to show button only at bottom
   useEffect(() => {
@@ -116,10 +116,14 @@ export const AdminPanel: React.FC = () => {
                         <div className="w-64 border-r border-white/10 bg-black/40 p-4 flex flex-col gap-2 overflow-y-auto">
                             {[
                                 { id: 'general', label: 'General & Colors', icon: Palette },
+                                { id: 'hero', label: 'Hero Section', icon: Home },
+                                { id: 'about', label: 'About & Stats', icon: FileText },
+                                { id: 'hobbies', label: 'Hobbies', icon: Heart },
                                 { id: 'tech', label: 'Tech Stack', icon: Layers },
                                 { id: 'projects', label: 'Projects', icon: Code },
                                 { id: 'experience', label: 'Experience', icon: Briefcase },
                                 { id: 'socials', label: 'Contact & Socials', icon: Share2 },
+                                { id: 'navbar', label: 'Navbar Settings', icon: Navigation },
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
@@ -164,17 +168,85 @@ export const AdminPanel: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Default Theme</label>
+                                            <select 
+                                                value={siteSettings.defaultTheme}
+                                                onChange={(e) => setSiteSettings({...siteSettings, defaultTheme: e.target.value as 'light' | 'dark' | 'system'})}
+                                                className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                            >
+                                                <option value="system">System</option>
+                                                <option value="light">Light</option>
+                                                <option value="dark">Dark</option>
+                                            </select>
+                                        </div>
                                     </div>
 
+                                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                                        <h3 className="text-lg font-bold text-white mb-4">Site Metadata</h3>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Meta Title</label>
+                                            <input 
+                                                type="text" 
+                                                value={siteSettings.metaTitle} 
+                                                onChange={(e) => setSiteSettings({...siteSettings, metaTitle: e.target.value})}
+                                                className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Meta Description</label>
+                                            <textarea 
+                                                rows={3}
+                                                value={siteSettings.metaDescription} 
+                                                onChange={(e) => setSiteSettings({...siteSettings, metaDescription: e.target.value})}
+                                                className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* HERO TAB */}
+                            {activeTab === 'hero' && (
+                                <div className="space-y-8 animate-fade-in-up">
                                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                                         <h3 className="text-lg font-bold text-white mb-4">Hero Section Content</h3>
                                         <div className="grid grid-cols-1 gap-4">
                                             <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Greeting Text</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={heroContent.greeting} 
+                                                    onChange={(e) => setHeroContent({...heroContent, greeting: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                    placeholder="Hey, I'm"
+                                                />
+                                            </div>
+                                            <div>
                                                 <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Name</label>
                                                 <input 
                                                     type="text" 
-                                                    value={profile.name} 
-                                                    onChange={(e) => updateProfile({...profile, name: e.target.value})}
+                                                    value={heroContent.name} 
+                                                    onChange={(e) => setHeroContent({...heroContent, name: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Role/Title</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={heroContent.role} 
+                                                    onChange={(e) => setHeroContent({...heroContent, role: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                    placeholder="Software Engineer & Designer"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Bio</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={heroContent.bio} 
+                                                    onChange={(e) => setHeroContent({...heroContent, bio: e.target.value})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
@@ -182,19 +254,318 @@ export const AdminPanel: React.FC = () => {
                                                 <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Status</label>
                                                 <input 
                                                     type="text" 
-                                                    value={profile.status} 
-                                                    onChange={(e) => updateProfile({...profile, status: e.target.value})}
+                                                    value={heroContent.status} 
+                                                    onChange={(e) => setHeroContent({...heroContent, status: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                    placeholder="Available for new projects"
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Button Text</label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={heroContent.ctaText} 
+                                                        onChange={(e) => setHeroContent({...heroContent, ctaText: e.target.value})}
+                                                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Resume Link</label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={heroContent.resumeLink} 
+                                                        onChange={(e) => setHeroContent({...heroContent, resumeLink: e.target.value})}
+                                                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                        placeholder="/resume.pdf"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Background Image URL (optional)</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={heroContent.backgroundImage || ''} 
+                                                    onChange={(e) => setHeroContent({...heroContent, backgroundImage: e.target.value || undefined})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                    placeholder="https://..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ABOUT TAB */}
+                            {activeTab === 'about' && (
+                                <div className="space-y-8 animate-fade-in-up">
+                                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                                        <h3 className="text-lg font-bold text-white mb-4">About Section Text</h3>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Section Title</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={aboutContent.whoAmI} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, whoAmI: e.target.value})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Bio</label>
-                                                <textarea 
-                                                    rows={3}
-                                                    value={profile.bio} 
-                                                    onChange={(e) => updateProfile({...profile, bio: e.target.value})}
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Subtitle</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={aboutContent.subtitle} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, subtitle: e.target.value})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 1 (Beyond Terminal)</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={aboutContent.paragraphs.beyondTerminal} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, beyondTerminal: e.target.value}})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 2 (Exploring)</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={aboutContent.paragraphs.exploring} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, exploring: e.target.value}})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quote</label>
+                                                <textarea 
+                                                    rows={2}
+                                                    value={aboutContent.paragraphs.quote} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, quote: e.target.value}})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none italic"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 3 (Beyond Code)</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={aboutContent.paragraphs.beyondCode} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, beyondCode: e.target.value}})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                                        <h3 className="text-lg font-bold text-white mb-4">Stats Section</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Years Count</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={statsContent.yearsCount} 
+                                                    onChange={(e) => setStatsContent({...statsContent, yearsCount: parseInt(e.target.value)})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Years Label</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.yearsLabel} 
+                                                    onChange={(e) => setStatsContent({...statsContent, yearsLabel: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Clients Count</label>
+                                                <input 
+                                                    type="number" 
+                                                    value={statsContent.clientsCount} 
+                                                    onChange={(e) => setStatsContent({...statsContent, clientsCount: parseInt(e.target.value)})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Clients Label</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.clientsLabel} 
+                                                    onChange={(e) => setStatsContent({...statsContent, clientsLabel: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Label</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.qualityLabel} 
+                                                    onChange={(e) => setStatsContent({...statsContent, qualityLabel: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Description</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.qualityDescription} 
+                                                    onChange={(e) => setStatsContent({...statsContent, qualityDescription: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Label</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.performanceLabel} 
+                                                    onChange={(e) => setStatsContent({...statsContent, performanceLabel: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Description</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.performanceDescription} 
+                                                    onChange={(e) => setStatsContent({...statsContent, performanceDescription: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Label</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.designLabel} 
+                                                    onChange={(e) => setStatsContent({...statsContent, designLabel: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Description</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={statsContent.designDescription} 
+                                                    onChange={(e) => setStatsContent({...statsContent, designDescription: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* HOBBIES TAB */}
+                            {activeTab === 'hobbies' && (
+                                <div className="space-y-6 animate-fade-in-up">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-bold text-white">Manage Hobbies</h3>
+                                        <button 
+                                            onClick={() => setHobbies([...hobbies, { _id: Date.now().toString(), icon: 'Heart', label: 'New Hobby' }])}
+                                            className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold flex items-center gap-2"
+                                        >
+                                            <Plus size={16} /> Add Hobby
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {hobbies.map((hobby, idx) => (
+                                            <div key={hobby._id} className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4">
+                                                <div className="flex-1 space-y-2">
+                                                    <input 
+                                                        value={hobby.label}
+                                                        onChange={(e) => {
+                                                            const newHobbies = [...hobbies];
+                                                            newHobbies[idx].label = e.target.value;
+                                                            setHobbies(newHobbies);
+                                                        }}
+                                                        className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white"
+                                                        placeholder="Hobby Name"
+                                                    />
+                                                    <select 
+                                                        value={hobby.icon}
+                                                        onChange={(e) => {
+                                                            const newHobbies = [...hobbies];
+                                                            newHobbies[idx].icon = e.target.value;
+                                                            setHobbies(newHobbies);
+                                                        }}
+                                                        className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-gray-300"
+                                                    >
+                                                        <option value="Gamepad2">Gamepad (Gaming)</option>
+                                                        <option value="Tennis">Tennis</option>
+                                                        <option value="BookOpen">Book (Reading)</option>
+                                                        <option value="Coffee">Coffee</option>
+                                                        <option value="Bike">Bike (Motorcycling)</option>
+                                                        <option value="Rocket">Rocket (Space)</option>
+                                                        <option value="Music">Music</option>
+                                                        <option value="Code2">Code (Open Source)</option>
+                                                        <option value="Camera">Camera</option>
+                                                        <option value="Palette">Art/Design</option>
+                                                        <option value="Dumbbell">Fitness</option>
+                                                        <option value="Plane">Travel</option>
+                                                        <option value="Heart">Heart</option>
+                                                    </select>
+                                                </div>
+                                                <button 
+                                                    onClick={() => setHobbies(hobbies.filter((_, i) => i !== idx))}
+                                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* NAVBAR TAB */}
+                            {activeTab === 'navbar' && (
+                                <div className="space-y-8 animate-fade-in-up">
+                                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                                        <h3 className="text-lg font-bold text-white mb-4">Navbar Settings</h3>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Logo Text</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={navbarSettings.logoText} 
+                                                    onChange={(e) => setNavbarSettings({...navbarSettings, logoText: e.target.value})}
+                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                />
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="showLogo"
+                                                    checked={navbarSettings.showLogo} 
+                                                    onChange={(e) => setNavbarSettings({...navbarSettings, showLogo: e.target.checked})}
+                                                    className="w-5 h-5"
+                                                />
+                                                <label htmlFor="showLogo" className="text-sm text-white">Show Logo</label>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Button Text</label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={navbarSettings.ctaText} 
+                                                        onChange={(e) => setNavbarSettings({...navbarSettings, ctaText: e.target.value})}
+                                                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Link</label>
+                                                    <input 
+                                                        type="text" 
+                                                        value={navbarSettings.ctaLink} 
+                                                        onChange={(e) => setNavbarSettings({...navbarSettings, ctaLink: e.target.value})}
+                                                        className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
+                                                        placeholder="#connect"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -355,7 +726,7 @@ export const AdminPanel: React.FC = () => {
                                                 _id: Date.now().toString(),
                                                 role: 'New Role',
                                                 company: 'Company',
-                                                startDate: '2024-01-01',
+                                                startDate: new Date().toISOString().split('T')[0],
                                                 isCurrent: true,
                                                 description: 'Description...',
                                                 skills: [],
@@ -369,10 +740,22 @@ export const AdminPanel: React.FC = () => {
 
                                     <div className="space-y-4">
                                         {experiences.map((exp, idx) => (
-                                            <div key={exp._id} className="p-6 bg-white/5 border border-white/10 rounded-xl space-y-4">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex-1 space-y-4 mr-8">
-                                                        <div className="grid grid-cols-2 gap-4">
+                                            <div key={exp._id} className="p-6 bg-white/5 border border-white/10 rounded-xl space-y-4 relative group">
+                                                <button 
+                                                    onClick={() => {
+                                                        const newExp = experiences.filter((_, i) => i !== idx);
+                                                        setExperiences(newExp);
+                                                    }}
+                                                    className="absolute top-4 right-4 p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+
+                                                <div className="space-y-4">
+                                                    {/* Role and Company */}
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Role / Position</label>
                                                             <input 
                                                                 value={exp.role}
                                                                 onChange={(e) => {
@@ -380,9 +763,12 @@ export const AdminPanel: React.FC = () => {
                                                                     newExp[idx].role = e.target.value;
                                                                     setExperiences(newExp);
                                                                 }}
-                                                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-bold"
-                                                                placeholder="Role"
+                                                                className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white"
+                                                                placeholder="Software Engineer"
                                                             />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Company / Institution</label>
                                                             <input 
                                                                 value={exp.company}
                                                                 onChange={(e) => {
@@ -390,11 +776,16 @@ export const AdminPanel: React.FC = () => {
                                                                     newExp[idx].company = e.target.value;
                                                                     setExperiences(newExp);
                                                                 }}
-                                                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-white"
-                                                                placeholder="Company"
+                                                                className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white"
+                                                                placeholder="Tech Company"
                                                             />
                                                         </div>
-                                                        <div className="grid grid-cols-3 gap-4">
+                                                    </div>
+
+                                                    {/* Type and Dates */}
+                                                    <div className="grid grid-cols-3 gap-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Type</label>
                                                             <select 
                                                                 value={exp.type || 'work'}
                                                                 onChange={(e) => {
@@ -402,13 +793,16 @@ export const AdminPanel: React.FC = () => {
                                                                     newExp[idx].type = e.target.value as any;
                                                                     setExperiences(newExp);
                                                                 }}
-                                                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
+                                                                className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
                                                             >
                                                                 <option value="work">Work</option>
                                                                 <option value="education">Education</option>
                                                                 <option value="certification">Certification</option>
                                                                 <option value="project">Project</option>
                                                             </select>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Start Date</label>
                                                             <input 
                                                                 type="date"
                                                                 value={exp.startDate}
@@ -417,9 +811,49 @@ export const AdminPanel: React.FC = () => {
                                                                     newExp[idx].startDate = e.target.value;
                                                                     setExperiences(newExp);
                                                                 }}
-                                                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
+                                                                className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
                                                             />
                                                         </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">End Date</label>
+                                                            <input 
+                                                                type="date"
+                                                                value={exp.endDate || ''}
+                                                                onChange={(e) => {
+                                                                    const newExp = [...experiences];
+                                                                    newExp[idx].endDate = e.target.value || undefined;
+                                                                    setExperiences(newExp);
+                                                                }}
+                                                                disabled={exp.isCurrent}
+                                                                className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Current Job Checkbox */}
+                                                    <div className="flex items-center gap-3">
+                                                        <input 
+                                                            type="checkbox"
+                                                            id={`current-${exp._id}`}
+                                                            checked={exp.isCurrent}
+                                                            onChange={(e) => {
+                                                                const newExp = [...experiences];
+                                                                newExp[idx].isCurrent = e.target.checked;
+                                                                if (e.target.checked) {
+                                                                    newExp[idx].endDate = undefined;
+                                                                }
+                                                                setExperiences(newExp);
+                                                            }}
+                                                            className="w-4 h-4 accent-primary"
+                                                        />
+                                                        <label htmlFor={`current-${exp._id}`} className="text-sm text-gray-300 cursor-pointer">
+                                                            Currently working here / Present
+                                                        </label>
+                                                    </div>
+
+                                                    {/* Description */}
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Description</label>
                                                         <textarea 
                                                             value={exp.description}
                                                             onChange={(e) => {
@@ -428,19 +862,35 @@ export const AdminPanel: React.FC = () => {
                                                                 setExperiences(newExp);
                                                             }}
                                                             className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
-                                                            rows={2}
-                                                            placeholder="Description"
+                                                            rows={3}
+                                                            placeholder="Brief description of your role and responsibilities..."
                                                         />
                                                     </div>
-                                                    <button 
-                                                        onClick={() => {
-                                                            const newExp = experiences.filter((_, i) => i !== idx);
-                                                            setExperiences(newExp);
-                                                        }}
-                                                        className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
+
+                                                    {/* Skills/Tags */}
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Skills / Technologies (comma separated)</label>
+                                                        <input 
+                                                            value={(exp.skills || []).join(', ')}
+                                                            onChange={(e) => {
+                                                                const newExp = [...experiences];
+                                                                newExp[idx].skills = e.target.value.split(',').map(s => s.trim()).filter(s => s);
+                                                                setExperiences(newExp);
+                                                            }}
+                                                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
+                                                            placeholder="React, TypeScript, Node.js, PostgreSQL"
+                                                        />
+                                                        <div className="flex flex-wrap gap-2 mt-3">
+                                                            {(exp.skills || []).map((skill, skillIdx) => (
+                                                                <span 
+                                                                    key={skillIdx}
+                                                                    className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium border border-primary/20"
+                                                                >
+                                                                    {skill}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -454,7 +904,7 @@ export const AdminPanel: React.FC = () => {
                                     <div className="flex items-center justify-between">
                                         <h3 className="text-lg font-bold text-white">Social Media Links</h3>
                                         <button 
-                                            onClick={() => setSocials([...socials, { _id: Date.now().toString(), platform: 'New Platform', url: '#', username: '' }])}
+                                            onClick={() => setSocials([...socials, { _id: Date.now().toString(), platform: 'New Platform', url: '#', username: '', iconName: 'Link' }])}
                                             className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold flex items-center gap-2"
                                         >
                                             <Plus size={16} /> Add Social
@@ -484,6 +934,30 @@ export const AdminPanel: React.FC = () => {
                                                     className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-white font-bold"
                                                     placeholder="Platform (GitHub, LinkedIn...)"
                                                 />
+                                                <select 
+                                                    value={social.iconName}
+                                                    onChange={(e) => {
+                                                        const newSoc = [...socials];
+                                                        newSoc[idx].iconName = e.target.value;
+                                                        setSocials(newSoc);
+                                                    }}
+                                                    className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-gray-300"
+                                                >
+                                                    <option value="Github">GitHub</option>
+                                                    <option value="Linkedin">LinkedIn</option>
+                                                    <option value="Twitter">Twitter/X</option>
+                                                    <option value="Facebook">Facebook</option>
+                                                    <option value="Instagram">Instagram</option>
+                                                    <option value="Youtube">YouTube</option>
+                                                    <option value="Mail">Email</option>
+                                                    <option value="Globe">Website</option>
+                                                    <option value="Link">Link</option>
+                                                    <option value="MessageCircle">Discord</option>
+                                                    <option value="Send">Telegram</option>
+                                                    <option value="Code">Stack Overflow</option>
+                                                    <option value="Coffee">Buy Me Coffee</option>
+                                                    <option value="DollarSign">Patreon</option>
+                                                </select>
                                                 <input 
                                                     value={social.username}
                                                     onChange={(e) => {

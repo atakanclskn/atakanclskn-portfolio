@@ -59,4 +59,61 @@ export interface Social {
   platform: string;
   url: string;
   username?: string;
+  iconName: string; // Lucide icon name like "Github", "Linkedin", "Twitter", etc.
+}
+
+// Admin-controlled content structures
+export interface HeroContent {
+  greeting: string;
+  name: string;
+  role: string;
+  bio: string;
+  status: string;
+  ctaText: string;
+  resumeLink: string;
+  backgroundImage?: string;
+}
+
+export interface AboutContent {
+  whoAmI: string;
+  subtitle: string;
+  paragraphs: {
+    beyondTerminal: string;
+    exploring: string;
+    quote: string;
+    beyondCode: string;
+  };
+}
+
+export interface StatsContent {
+  yearsCount: number;
+  yearsLabel: string;
+  clientsCount: number;
+  clientsLabel: string;
+  qualityLabel: string;
+  qualityDescription: string;
+  performanceLabel: string;
+  performanceDescription: string;
+  designLabel: string;
+  designDescription: string;
+}
+
+export interface HobbyItem {
+  _id: string;
+  icon: string; // Lucide icon name
+  label: string;
+}
+
+export interface NavbarSettings {
+  logoText: string;
+  showLogo: boolean;
+  ctaText: string;
+  ctaLink: string;
+}
+
+export interface SiteSettings {
+  favicon?: string;
+  metaTitle: string;
+  metaDescription: string;
+  defaultTheme: 'light' | 'dark' | 'system';
 }
