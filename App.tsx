@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutMe } from './components/AboutMe';
@@ -11,16 +11,28 @@ import { InteractiveBackground } from './components/InteractiveBackground';
 import { LanguageProvider } from './lib/i18n';
 import { AdminProvider, useAdmin } from './lib/adminContext';
 import { AdminPanel } from './components/AdminPanelNew';
+import { PageSkeleton } from './components/Skeleton';
 
 // Separate inner component to use the context
 const AppContent: React.FC = () => {
   const { profile, techStack, projects, experiences, socials } = useAdmin();
+  const [isLoading, setIsLoading] = useState(true);
 
-  console.log('Profile data:', profile);
-  
-  if (!profile) {
-    console.error('Profile is missing!');
-    return <div style={{color: 'white', padding: '20px'}}>Profile yükleniyor...</div>;
+  // Simulate initial data loading (or can be replaced with actual async fetch)
+  useEffect(() => {
+    // Small delay to show skeleton effect, remove in production with real async
+    const timer = setTimeout(() => {
+      if (profile) {
+        setIsLoading(false);
+      }
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, [profile]);
+
+  // Show skeleton while loading
+  if (isLoading || !profile) {
+    return <PageSkeleton />;
   }
 
   return (
