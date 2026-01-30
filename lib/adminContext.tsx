@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { 
   Project, ExperienceItem, Social, Profile, TechItem,
   HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings,
-  ContactMessage, MessageReply
+  ContactMessage
 } from '../types';
 
 // Default Data Constants (Moved from App.tsx)
@@ -240,7 +240,6 @@ interface AdminContextType {
   toggleStar: (id: string) => void;
   archiveMessage: (id: string) => void;
   deleteMessage: (id: string) => void;
-  addReply: (messageId: string, content: string) => void;
   unreadCount: number;
 }
 
@@ -405,20 +404,6 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setMessages(messages.filter(m => m._id !== id));
   };
 
-  const addReply = (messageId: string, content: string) => {
-    const reply: MessageReply = {
-      _id: `reply_${Date.now()}`,
-      content,
-      createdAt: new Date().toISOString(),
-      isFromAdmin: true
-    };
-    setMessages(messages.map(m => 
-      m._id === messageId 
-        ? { ...m, replies: [...(m.replies || []), reply] }
-        : m
-    ));
-  };
-
   const unreadCount = messages.filter(m => !m.isRead && !m.isArchived).length;
 
   const login = (email: string, password: string) => {
@@ -449,7 +434,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       hobbies, setHobbies,
       navbarSettings, setNavbarSettings,
       siteSettings, setSiteSettings,
-      messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, addReply, unreadCount
+      messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount
     }}>
       {children}
     </AdminContext.Provider>

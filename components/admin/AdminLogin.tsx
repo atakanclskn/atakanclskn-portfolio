@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { Lock, Mail } from 'lucide-react';
+import { adminTranslations, getTranslation } from '../../lib/adminTranslations';
 
 interface AdminLoginProps {
   onLogin: (email: string, password: string) => boolean;
   theme: 'light' | 'dark';
+  editLang: 'EN' | 'TR';
 }
 
-export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
+export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme, editLang }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+
+  const t = adminTranslations.login;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,12 +45,12 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
           <h2 className={`text-2xl font-bold mb-2 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
-            Admin Login
+            {getTranslation(t.title, editLang)}
           </h2>
           <p className={`text-sm ${
             theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
           }`}>
-            Sign in with your credentials
+            {editLang === 'TR' ? 'Kimlik bilgilerinizle giriş yapın' : 'Sign in with your credentials'}
           </p>
         </div>
 
@@ -55,7 +59,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
             <label className={`block text-xs font-medium mb-2 ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
             }`}>
-              Email Address
+              {getTranslation(t.email, editLang)}
             </label>
             <div className="relative">
               <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
@@ -82,7 +86,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
             <label className={`block text-xs font-medium mb-2 ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
             }`}>
-              Password
+              {getTranslation(t.password, editLang)}
             </label>
             <div className="relative">
               <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${
@@ -92,7 +96,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={editLang === 'TR' ? 'Şifrenizi girin' : 'Enter your password'}
                 className={`w-full pl-11 pr-4 py-3 rounded-lg border transition-colors ${
                   error ? 'border-red-500' : ''
                 } ${
@@ -104,7 +108,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
             </div>
             {error && (
               <p className="text-red-500 text-xs mt-2 animate-fade-in">
-                Invalid credentials. Please try again.
+                {editLang === 'TR' ? 'Geçersiz kimlik bilgileri. Tekrar deneyin.' : 'Invalid credentials. Please try again.'}
               </p>
             )}
           </div>
@@ -113,14 +117,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, theme }) => {
             type="submit"
             className="w-full px-6 py-3 bg-gradient-to-r from-primary to-secondary text-black font-bold rounded-lg hover:shadow-lg hover:shadow-primary/30 transition-all transform hover:scale-[1.02]"
           >
-            Sign In
+            {getTranslation(t.submit, editLang)}
           </button>
         </form>
 
         <div className={`mt-6 text-center text-xs ${
           theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
         }`}>
-          Protected by Firebase Authentication
+          {editLang === 'TR' ? 'Firebase Authentication ile korunmaktadır' : 'Protected by Firebase Authentication'}
         </div>
       </div>
     </div>

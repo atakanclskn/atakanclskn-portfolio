@@ -124,12 +124,4 @@ export interface ContactMessage {
   isRead: boolean;
   isStarred: boolean;
   isArchived: boolean;
-  replies?: MessageReply[];
-}
-
-export interface MessageReply {
-  _id: string;
-  content: string;
-  createdAt: string;
-  isFromAdmin: boolean;
 }

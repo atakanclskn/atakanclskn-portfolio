@@ -2,29 +2,29 @@ import React, { useState } from 'react';
 import { useAdmin } from '../../../lib/adminContext';
 import { ContactMessage } from '../../../types';
 import { 
-  Mail, MailOpen, Star, Archive, Trash2, Reply, Send, 
-  Inbox, StarIcon, ArchiveIcon, Clock, User, ArrowLeft,
-  Search, MoreVertical, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Menu
+  Mail, Star, Archive, Trash2, Inbox, Clock, Search, ChevronLeft, ChevronRight, Copy, ExternalLink
 } from 'lucide-react';
+import { adminTranslations, getTranslation } from '../../../lib/adminTranslations';
 
 interface MessagesTabProps {
   theme: 'light' | 'dark';
+  editLang: 'EN' | 'TR';
 }
 
 type MailboxView = 'inbox' | 'starred' | 'archived' | 'all';
 
-export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
+export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => {
   const { 
-    messages, markAsRead, toggleStar, archiveMessage, deleteMessage, addReply, unreadCount 
+    messages, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount 
   } = useAdmin();
+  
+  const t = adminTranslations.messages;
   
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [activeView, setActiveView] = useState<MailboxView>('inbox');
-  const [replyText, setReplyText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [mailSidebarCollapsed, setMailSidebarCollapsed] = useState(false);
-  const [messageListCollapsed, setMessageListCollapsed] = useState(false);
 
   // Filter messages based on view
   const getFilteredMessages = () => {
@@ -67,14 +67,14 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
     } else if (diffDays === 1) {
       return 'Dün';
     } else if (diffDays < 7) {
-      return date.toLocaleDateString('tr-TR', { weekday: 'short' });
+      return date.toLocaleDateString(editLang === 'TR' ? 'tr-TR' : 'en-US', { weekday: 'short' });
     } else {
-      return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+      return date.toLocaleDateString(editLang === 'TR' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'short' });
     }
   };
 
   const formatFullDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR', {
+    return new Date(dateString).toLocaleDateString(editLang === 'TR' ? 'tr-TR' : 'en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -91,33 +91,47 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
     }
   };
 
-  // Handle reply
-  const handleSendReply = () => {
-    if (selectedMessage && replyText.trim()) {
-      addReply(selectedMessage._id, replyText.trim());
-      setReplyText('');
-    }
+  // Copy email to clipboard
+  const copyEmail = (email: string) => {
+    navigator.clipboard.writeText(email);
   };
 
   // Sidebar navigation items
   const navItems = [
-    { id: 'inbox' as MailboxView, label: 'Gelen Kutusu', icon: Inbox, count: unreadCount },
-    { id: 'starred' as MailboxView, label: 'Yıldızlı', icon: Star, count: messages.filter(m => m.isStarred && !m.isArchived).length },
-    { id: 'archived' as MailboxView, label: 'Arşiv', icon: Archive, count: messages.filter(m => m.isArchived).length },
-    { id: 'all' as MailboxView, label: 'Tümü', icon: Mail, count: messages.length },
+    { id: 'inbox' as MailboxView, label: getTranslation(t.inbox, editLang), icon: Inbox, count: unreadCount },
+    { id: 'starred' as MailboxView, label: getTranslation(t.starred, editLang), icon: Star, count: messages.filter(m => m.isStarred && !m.isArchived).length },
+    { id: 'archived' as MailboxView, label: getTranslation(t.archived, editLang), icon: Archive, count: messages.filter(m => m.isArchived).length },
+    { id: 'all' as MailboxView, label: getTranslation(t.all, editLang), icon: Mail, count: messages.length },
   ];
 
   return (
-    <div className="h-[calc(100vh-140px)] flex animate-fade-in-up">
+    <div className={`h-[calc(100vh-120px)] flex animate-fade-in-up rounded-xl overflow-hidden border ${
+      theme === 'dark' ? 'border-gray-800' : 'border-gray-200'
+    }`}>
       
-      {/* Mail Sidebar */}
-      <div className={`w-56 flex-shrink-0 border-r ${
+      {/* Mail Sidebar - Collapsible */}
+      <div className={`${mailSidebarCollapsed ? 'w-14' : 'w-48'} flex-shrink-0 border-r transition-all duration-300 ${
         theme === 'dark' ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
       }`}>
-        <div className="p-4">
-          <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            Mesajlar
-          </h3>
+        <div className="p-2">
+          {/* Collapse Toggle */}
+          <button
+            onClick={() => setMailSidebarCollapsed(!mailSidebarCollapsed)}
+            className={`w-full flex items-center justify-center p-2 mb-2 rounded-lg transition-colors ${
+              theme === 'dark' 
+                ? 'hover:bg-gray-800 text-gray-400 hover:text-white' 
+                : 'hover:bg-gray-200 text-gray-500 hover:text-gray-900'
+            }`}
+            title={mailSidebarCollapsed ? (editLang === 'TR' ? 'Genişlet' : 'Expand') : (editLang === 'TR' ? 'Daralt' : 'Collapse')}
+          >
+            {mailSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
+
+          {!mailSidebarCollapsed && (
+            <h3 className={`text-lg font-bold mb-4 px-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              {getTranslation(t.title, editLang)}
+            </h3>
+          )}
           
           <nav className="space-y-1">
             {navItems.map((item) => {
@@ -127,7 +141,8 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                 <button
                   key={item.id}
                   onClick={() => { setActiveView(item.id); setSelectedMessage(null); }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  title={mailSidebarCollapsed ? item.label : undefined}
+                  className={`relative w-full flex items-center ${mailSidebarCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
                       ? theme === 'dark'
                         ? 'bg-primary/20 text-primary'
@@ -137,11 +152,11 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                         : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className={`flex items-center ${mailSidebarCollapsed ? '' : 'gap-3'}`}>
                     <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
+                    {!mailSidebarCollapsed && <span>{item.label}</span>}
                   </div>
-                  {item.count > 0 && (
+                  {item.count > 0 && !mailSidebarCollapsed && (
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       isActive
                         ? 'bg-primary text-black'
@@ -149,6 +164,9 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                     }`}>
                       {item.count}
                     </span>
+                  )}
+                  {item.count > 0 && mailSidebarCollapsed && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
                   )}
                 </button>
               );
@@ -158,24 +176,26 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
       </div>
 
       {/* Message List */}
-      <div className={`w-80 flex-shrink-0 border-r flex flex-col ${
+      <div className={`w-72 lg:w-80 flex-shrink-0 border-r flex flex-col transition-all duration-300 ${
         theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-200 bg-white'
       }`}>
         {/* Search Bar */}
         <div className={`p-3 border-b ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}>
-          <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-            theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
-          }`}>
-            <Search className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
-            <input
-              type="text"
-              placeholder="Mesajlarda ara..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`flex-1 bg-transparent text-sm outline-none ${
-                theme === 'dark' ? 'text-white placeholder:text-gray-500' : 'text-gray-900 placeholder:text-gray-400'
-              }`}
-            />
+          <div className="flex items-center gap-2">
+            <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg ${
+              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
+            }`}>
+              <Search className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+              <input
+                type="text"
+                placeholder={getTranslation(t.search, editLang)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`flex-1 bg-transparent text-sm outline-none ${
+                  theme === 'dark' ? 'text-white placeholder:text-gray-500' : 'text-gray-900 placeholder:text-gray-400'
+                }`}
+              />
+            </div>
           </div>
         </div>
 
@@ -186,7 +206,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
               theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
             }`}>
               <Mail className="w-12 h-12 mb-3 opacity-50" />
-              <p className="text-sm">Mesaj bulunamadı</p>
+              <p className="text-sm">{getTranslation(t.noMessages, editLang)}</p>
             </div>
           ) : (
             filteredMessages.map((message) => (
@@ -244,13 +264,6 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                       {message.isStarred && (
                         <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                       )}
-                      {message.replies && message.replies.length > 0 && (
-                        <span className={`text-xs px-1.5 py-0.5 rounded ${
-                          theme === 'dark' ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-600'
-                        }`}>
-                          Yanıtlandı
-                        </span>
-                      )}
                       {!message.isRead && (
                         <span className="w-2 h-2 rounded-full bg-primary" />
                       )}
@@ -264,7 +277,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
       </div>
 
       {/* Message Detail / Preview */}
-      <div className={`flex-1 flex flex-col ${theme === 'dark' ? 'bg-gray-900/20' : 'bg-gray-50'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 ${theme === 'dark' ? 'bg-gray-900/20' : 'bg-gray-50'}`}>
         {selectedMessage ? (
           <>
             {/* Message Header */}
@@ -272,14 +285,6 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
               theme === 'dark' ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'
             }`}>
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedMessage(null)}
-                  className={`p-2 rounded-lg transition-colors md:hidden ${
-                    theme === 'dark' ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
                 
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold bg-primary text-black`}>
                   {selectedMessage.name.charAt(0).toUpperCase()}
@@ -304,7 +309,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                       ? 'text-yellow-500'
                       : theme === 'dark' ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'
                   }`}
-                  title={selectedMessage.isStarred ? 'Yıldızı kaldır' : 'Yıldızla'}
+                  title={selectedMessage.isStarred ? getTranslation(t.unstar, editLang) : getTranslation(t.star, editLang)}
                 >
                   <Star className={`w-5 h-5 ${selectedMessage.isStarred ? 'fill-yellow-500' : ''}`} />
                 </button>
@@ -314,7 +319,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                   className={`p-2 rounded-lg transition-colors ${
                     theme === 'dark' ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'
                   }`}
-                  title={selectedMessage.isArchived ? 'Arşivden çıkar' : 'Arşivle'}
+                  title={selectedMessage.isArchived ? getTranslation(t.unarchive, editLang) : getTranslation(t.archive, editLang)}
                 >
                   <Archive className="w-5 h-5" />
                 </button>
@@ -324,7 +329,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                   className={`p-2 rounded-lg transition-colors ${
                     theme === 'dark' ? 'text-red-400 hover:bg-red-900/30' : 'text-red-500 hover:bg-red-50'
                   }`}
-                  title="Sil"
+                  title={getTranslation(adminTranslations.actions.delete, editLang)}
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -333,8 +338,42 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
 
             {/* Message Content */}
             <div className="flex-1 overflow-y-auto p-6">
-              {/* Original Message */}
-              <div className={`p-6 rounded-2xl mb-6 ${
+              {/* Contact Info Card */}
+              <div className={`p-4 rounded-xl mb-6 ${
+                theme === 'dark' ? 'bg-gray-800/50' : 'bg-white shadow-sm'
+              }`}>
+                <h4 className={`text-sm font-semibold mb-3 ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  {getTranslation(t.contactInfo, editLang)}
+                </h4>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {selectedMessage.email}
+                  </span>
+                  <button
+                    onClick={() => copyEmail(selectedMessage.email)}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      theme === 'dark' ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
+                    }`}
+                    title={getTranslation(t.copyEmail, editLang)}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                  <a
+                    href={`mailto:${selectedMessage.email}`}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      theme === 'dark' ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
+                    }`}
+                    title={getTranslation(t.sendEmail, editLang)}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Message Content */}
+              <div className={`p-6 rounded-2xl ${
                 theme === 'dark' ? 'bg-gray-800/50' : 'bg-white shadow-sm'
               }`}>
                 <div className="flex items-center gap-2 mb-4">
@@ -350,70 +389,6 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                   {selectedMessage.message}
                 </p>
               </div>
-
-              {/* Replies */}
-              {selectedMessage.replies && selectedMessage.replies.length > 0 && (
-                <div className="space-y-4">
-                  <h4 className={`text-sm font-bold uppercase tracking-wider ${
-                    theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                  }`}>
-                    Yanıtlar
-                  </h4>
-                  
-                  {selectedMessage.replies.map((reply) => (
-                    <div
-                      key={reply._id}
-                      className={`p-4 rounded-xl ml-8 border-l-4 border-primary ${
-                        theme === 'dark' ? 'bg-primary/10' : 'bg-primary/5'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-xs font-bold ${theme === 'dark' ? 'text-primary' : 'text-primary'}`}>
-                          Siz
-                        </span>
-                        <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
-                          • {formatFullDate(reply.createdAt)}
-                        </span>
-                      </div>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                        {reply.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Reply Input */}
-            <div className={`p-4 border-t ${theme === 'dark' ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'}`}>
-              <div className={`flex items-start gap-3 p-3 rounded-xl ${
-                theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
-              }`}>
-                <Reply className={`w-5 h-5 mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
-                <textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Yanıt yaz..."
-                  rows={2}
-                  className={`flex-1 bg-transparent resize-none outline-none text-sm ${
-                    theme === 'dark' ? 'text-white placeholder:text-gray-500' : 'text-gray-900 placeholder:text-gray-400'
-                  }`}
-                />
-                <button
-                  onClick={handleSendReply}
-                  disabled={!replyText.trim()}
-                  className={`p-2 rounded-lg transition-all ${
-                    replyText.trim()
-                      ? 'bg-primary text-black hover:opacity-80'
-                      : theme === 'dark' ? 'bg-gray-700 text-gray-500' : 'bg-gray-200 text-gray-400'
-                  }`}
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-              <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`}>
-                Not: Bu yanıt şu an sadece admin panelinde görünür. E-posta entegrasyonu sonra eklenecek.
-              </p>
             </div>
           </>
         ) : (
@@ -421,13 +396,13 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
           <div className={`flex-1 flex flex-col items-center justify-center ${
             theme === 'dark' ? 'text-gray-600' : 'text-gray-400'
           }`}>
-            <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-4 ${
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${
               theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
             }`}>
-              <Mail className="w-10 h-10" />
+              <Mail className="w-8 h-8" />
             </div>
-            <p className="text-lg font-medium mb-1">Mesaj seçin</p>
-            <p className="text-sm">Okumak için bir mesaj seçin</p>
+            <p className="text-lg font-medium mb-1">{getTranslation(t.selectMessage, editLang)}</p>
+            <p className="text-sm">{getTranslation(t.selectToRead, editLang)}</p>
           </div>
         )}
       </div>
@@ -439,10 +414,10 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
             theme === 'dark' ? 'bg-gray-900' : 'bg-white'
           }`}>
             <h3 className={`text-lg font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Mesajı Sil
+              {getTranslation(t.deleteMessage, editLang)}
             </h3>
             <p className={`text-sm mb-6 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              Bu mesajı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+              {getTranslation(t.deleteConfirm, editLang)}
             </p>
             <div className="flex gap-3">
               <button
@@ -453,7 +428,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                İptal
+                {getTranslation(adminTranslations.actions.cancel, editLang)}
               </button>
               <button
                 onClick={() => {
@@ -463,7 +438,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme }) => {
                 }}
                 className="flex-1 py-2 rounded-lg font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
               >
-                Sil
+                {getTranslation(adminTranslations.actions.delete, editLang)}
               </button>
             </div>
           </div>

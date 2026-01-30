@@ -11,6 +11,7 @@ import {
   TechTab, ProjectsTab, ExperienceTab, SocialsTab, NavbarTab 
 } from './admin/tabs';
 import { MessagesTab } from './admin/tabs/MessagesTab';
+import { adminTranslations, getTranslation } from '../lib/adminTranslations';
 
 export const AdminPanel: React.FC = () => {
   const [visible, setVisible] = useState(false);
@@ -59,16 +60,16 @@ export const AdminPanel: React.FC = () => {
   }, []);
 
   const tabs: TabItem[] = [
-    { id: 'messages', label: 'Messages', icon: Mail, badge: unreadCount },
-    { id: 'general', label: 'General & Colors', icon: Settings },
-    { id: 'hero', label: 'Hero Section', icon: Home },
-    { id: 'about', label: 'About & Stats', icon: FileText },
-    { id: 'hobbies', label: 'Hobbies', icon: Heart },
-    { id: 'tech', label: 'Tech Stack', icon: Layers },
-    { id: 'projects', label: 'Projects', icon: Code },
-    { id: 'experience', label: 'Experience', icon: Briefcase },
-    { id: 'socials', label: 'Contact & Socials', icon: Share2 },
-    { id: 'navbar', label: 'Navbar Settings', icon: Navigation },
+    { id: 'messages', label: getTranslation(adminTranslations.tabs.messages, editLang), icon: Mail, badge: unreadCount },
+    { id: 'general', label: getTranslation(adminTranslations.tabs.general, editLang), icon: Settings },
+    { id: 'hero', label: getTranslation(adminTranslations.tabs.hero, editLang), icon: Home },
+    { id: 'about', label: getTranslation(adminTranslations.tabs.about, editLang), icon: FileText },
+    { id: 'hobbies', label: getTranslation(adminTranslations.tabs.hobbies, editLang), icon: Heart },
+    { id: 'tech', label: getTranslation(adminTranslations.tabs.tech, editLang), icon: Layers },
+    { id: 'projects', label: getTranslation(adminTranslations.tabs.projects, editLang), icon: Code },
+    { id: 'experience', label: getTranslation(adminTranslations.tabs.experience, editLang), icon: Briefcase },
+    { id: 'socials', label: getTranslation(adminTranslations.tabs.socials, editLang), icon: Share2 },
+    { id: 'navbar', label: getTranslation(adminTranslations.tabs.navbar, editLang), icon: Navigation },
   ];
 
   const handleApplyColor = () => {
@@ -78,7 +79,7 @@ export const AdminPanel: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'messages':
-        return <MessagesTab theme={adminTheme} />;
+        return <MessagesTab theme={adminTheme} editLang={editLang} />;
       case 'general':
         return (
           <GeneralTab 
@@ -140,12 +141,12 @@ export const AdminPanel: React.FC = () => {
                 <h1 className={`text-lg font-bold ${
                   adminTheme === 'dark' ? 'text-white' : 'text-gray-900'
                 }`}>
-                  Admin Panel
+                  {getTranslation(adminTranslations.adminPanel, editLang)}
                 </h1>
                 <p className={`text-xs ${
                   adminTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'
                 }`}>
-                  Site Configuration & Content Management
+                  {getTranslation(adminTranslations.siteConfig, editLang)}
                 </p>
               </div>
             </div>
@@ -212,7 +213,7 @@ export const AdminPanel: React.FC = () => {
             {/* Login Screen */}
             {!isLoggedIn ? (
               <div className="flex-1 flex items-center justify-center">
-                <AdminLogin onLogin={login} theme={adminTheme} />
+                <AdminLogin onLogin={login} theme={adminTheme} editLang={editLang} />
               </div>
             ) : (
               <>
@@ -226,6 +227,7 @@ export const AdminPanel: React.FC = () => {
                     setIsOpen(false);
                   }}
                   theme={adminTheme}
+                  editLang={editLang}
                   isCollapsed={sidebarCollapsed}
                   onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
                 />
@@ -234,9 +236,15 @@ export const AdminPanel: React.FC = () => {
                 <div className={`flex-1 overflow-y-auto ${
                   adminTheme === 'dark' ? 'bg-gray-950' : 'bg-gray-50'
                 }`}>
-                  <div className="max-w-6xl mx-auto p-8">
-                    {renderTabContent()}
-                  </div>
+                  {activeTab === 'messages' ? (
+                    <div className="h-full p-6">
+                      {renderTabContent()}
+                    </div>
+                  ) : (
+                    <div className="max-w-6xl mx-auto p-8">
+                      {renderTabContent()}
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -246,3 +254,4 @@ export const AdminPanel: React.FC = () => {
     </>
   );
 };
+

@@ -1,5 +1,6 @@
 import React from 'react';
 import { LucideIcon, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { adminTranslations, getTranslation } from '../../lib/adminTranslations';
 
 export interface TabItem {
   id: string;
@@ -14,6 +15,7 @@ interface AdminSidebarProps {
   onTabChange: (tabId: string) => void;
   onLogout: () => void;
   theme: 'light' | 'dark';
+  editLang: 'EN' | 'TR';
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
@@ -24,9 +26,14 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   onTabChange,
   onLogout,
   theme,
+  editLang,
   isCollapsed = false,
   onToggleCollapse
 }) => {
+  const expandLabel = editLang === 'TR' ? 'Genişlet' : 'Expand';
+  const collapseLabel = editLang === 'TR' ? 'Daralt' : 'Collapse';
+  const logoutLabel = getTranslation(adminTranslations.actions.logout, editLang);
+  
   return (
     <div className={`${isCollapsed ? 'w-16' : 'w-72'} border-r flex flex-col transition-all duration-300 relative ${
       theme === 'dark' 
@@ -42,7 +49,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               ? 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white hover:bg-gray-700'
               : 'bg-white border-gray-300 text-gray-500 hover:text-gray-900 hover:bg-gray-100'
           }`}
-          title={isCollapsed ? 'Genişlet' : 'Daralt'}
+          title={isCollapsed ? expandLabel : collapseLabel}
         >
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
@@ -90,10 +97,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               ? 'text-red-400 hover:bg-red-500/10'
               : 'text-red-600 hover:bg-red-50'
           }`}
-          title={isCollapsed ? 'Logout' : undefined}
+          title={isCollapsed ? logoutLabel : undefined}
         >
           <LogOut size={18} />
-          {!isCollapsed && <span className="flex-1 text-left">Logout</span>}
+          {!isCollapsed && <span className="flex-1 text-left">{logoutLabel}</span>}
         </button>
       </div>
     </div>
