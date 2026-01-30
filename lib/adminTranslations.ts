@@ -8,7 +8,7 @@ export const adminTranslations = {
   // Tabs
   tabs: {
     messages: { EN: 'Messages', TR: 'Mesajlar' },
-    general: { EN: 'General & Colors', TR: 'Genel ve Renkler' },
+    general: { EN: 'Settings', TR: 'Ayarlar' },
     hero: { EN: 'Hero Section', TR: 'Hero Bölümü' },
     about: { EN: 'About & Stats', TR: 'Hakkımda ve İstatistikler' },
     hobbies: { EN: 'Hobbies', TR: 'Hobiler' },
@@ -16,7 +16,6 @@ export const adminTranslations = {
     projects: { EN: 'Projects', TR: 'Projeler' },
     experience: { EN: 'Experience', TR: 'Deneyim' },
     socials: { EN: 'Contact & Socials', TR: 'İletişim ve Sosyal Medya' },
-    navbar: { EN: 'Navbar Settings', TR: 'Navbar Ayarları' },
   },
   
   // Common Actions
