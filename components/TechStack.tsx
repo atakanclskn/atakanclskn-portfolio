@@ -1,217 +1,87 @@
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TechItem } from '../types';
 
-// Tech Logos from CDN
-interface LogoProps {
+// Dynamic icon component that uses Devicon CDN (original colored logos)
+interface DynamicIconProps {
+  iconName: string;
   className?: string;
-  color?: string;
 }
 
-const NextLogo = ({ className, color = '000000' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/nextdotjs/${color}`}
-    alt="Next.js"
-    className={className}
-  />
-);
+const DynamicIcon: React.FC<DynamicIconProps> = ({ iconName, className }) => {
+  // Map icon names to Devicon format
+  const iconMap: Record<string, string> = {
+    // Legacy names
+    'NextLogo': 'nextjs',
+    'ReactLogo': 'react',
+    'TypeScriptLogo': 'typescript',
+    'TailwindLogo': 'tailwindcss',
+    'FramerLogo': 'framer',
+    'ViteLogo': 'vitejs',
+    'SanityCMSLogo': 'sanity',
+    'PythonLogo': 'python',
+    'NodeJSLogo': 'nodejs',
+    'VueLogo': 'vuejs',
+    'AngularLogo': 'angularjs',
+    'SvelteLogo': 'svelte',
+    'JavaScriptLogo': 'javascript',
+    'GoLogo': 'go',
+    'RustLogo': 'rust',
+    'JavaLogo': 'java',
+    'CSSLogo': 'css3',
+    'SassLogo': 'sass',
+    'StyledComponentsLogo': 'css3',
+    'NodeLogo': 'nodejs',
+    'ExpressLogo': 'express',
+    'MongoDBLogo': 'mongodb',
+    'PostgreSQLLogo': 'postgresql',
+    'MySQLLogo': 'mysql',
+    'RedisLogo': 'redis',
+    'SupabaseLogo': 'supabase',
+    'FirebaseLogo': 'firebase',
+    'GitLogo': 'git',
+    'DockerLogo': 'docker',
+    'VercelLogo': 'vercel',
+    'FigmaLogo': 'figma',
+    'SanityLogo': 'sanity',
+    'GraphQLLogo': 'graphql',
+    // SimpleIcons format to Devicon
+    'nextdotjs': 'nextjs',
+    'nodedotjs': 'nodejs',
+    'vuedotjs': 'vuejs',
+    'tailwindcss': 'tailwindcss',
+    'openjdk': 'java',
+    'cplusplus': 'cplusplus',
+    'csharp': 'csharp',
+    'vite': 'vitejs',
+    'amazonaws': 'amazonwebservices',
+    'googlecloud': 'googlecloud',
+    'microsoftazure': 'azure',
+    'rubyonrails': 'rails',
+  };
 
-const ReactLogo = ({ className, color = '61DAFB' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/react/${color}`}
-    alt="React"
-    className={className}
-  />
-);
-
-const TypeScriptLogo = ({ className, color = '3178C6' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/typescript/${color}`}
-    alt="TypeScript"
-    className={className}
-  />
-);
-
-const TailwindLogo = ({ className, color = '06B6D4' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/tailwindcss/${color}`}
-    alt="Tailwind CSS"
-    className={className}
-  />
-);
-
-const FramerLogo = ({ className, color = '0055FF' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/framer/${color}`}
-    alt="Framer"
-    className={className}
-  />
-);
-
-const ViteLogo = ({ className, color = '646CFF' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/vite/${color}`}
-    alt="Vite"
-    className={className}
-  />
-);
-
-const SanityCMSLogo = ({ className, color = 'F03E2F' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/sanity/${color}`}
-    alt="Sanity CMS"
-    className={className}
-  />
-);
-
-const PythonLogo = ({ className, color = '3776AB' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/python/${color}`}
-    alt="Python"
-    className={className}
-  />
-);
-
-const NodeJSLogo = ({ className, color = '5FA04E' }: LogoProps) => (
-  <img 
-    src={`https://cdn.simpleicons.org/nodedotjs/${color}`}
-    alt="Node.js"
-    className={className}
-  />
-);
-
-// Additional Logos
-const VueLogo = ({ className, color = '4FC08D' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/vuedotjs/${color}`} alt="Vue.js" className={className} />
-);
-
-const AngularLogo = ({ className, color = 'DD0031' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/angular/${color}`} alt="Angular" className={className} />
-);
-
-const SvelteLogo = ({ className, color = 'FF3E00' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/svelte/${color}`} alt="Svelte" className={className} />
-);
-
-const JavaScriptLogo = ({ className, color = 'F7DF1E' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/javascript/${color}`} alt="JavaScript" className={className} />
-);
-
-const GoLogo = ({ className, color = '00ADD8' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/go/${color}`} alt="Go" className={className} />
-);
-
-const RustLogo = ({ className, color = '000000' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/rust/${color}`} alt="Rust" className={className} />
-);
-
-const JavaLogo = ({ className, color = '007396' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/openjdk/${color}`} alt="Java" className={className} />
-);
-
-const CSSLogo = ({ className, color = '1572B6' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/css3/${color}`} alt="CSS" className={className} />
-);
-
-const SassLogo = ({ className, color = 'CC6699' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/sass/${color}`} alt="Sass" className={className} />
-);
-
-const StyledComponentsLogo = ({ className, color = 'DB7093' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/styledcomponents/${color}`} alt="Styled Components" className={className} />
-);
-
-const NodeLogo = ({ className, color = '339933' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/nodedotjs/${color}`} alt="Node.js" className={className} />
-);
-
-const ExpressLogo = ({ className, color = '000000' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/express/${color}`} alt="Express" className={className} />
-);
-
-const MongoDBLogo = ({ className, color = '47A248' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/mongodb/${color}`} alt="MongoDB" className={className} />
-);
-
-const PostgreSQLLogo = ({ className, color = '4169E1' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/postgresql/${color}`} alt="PostgreSQL" className={className} />
-);
-
-const MySQLLogo = ({ className, color = '4479A1' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/mysql/${color}`} alt="MySQL" className={className} />
-);
-
-const RedisLogo = ({ className, color = 'DC382D' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/redis/${color}`} alt="Redis" className={className} />
-);
-
-const SupabaseLogo = ({ className, color = '3FCF8E' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/supabase/${color}`} alt="Supabase" className={className} />
-);
-
-const FirebaseLogo = ({ className, color = 'FFCA28' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/firebase/${color}`} alt="Firebase" className={className} />
-);
-
-const GitLogo = ({ className, color = 'F05032' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/git/${color}`} alt="Git" className={className} />
-);
-
-const DockerLogo = ({ className, color = '2496ED' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/docker/${color}`} alt="Docker" className={className} />
-);
-
-const VercelLogo = ({ className, color = '000000' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/vercel/${color}`} alt="Vercel" className={className} />
-);
-
-const FigmaLogo = ({ className, color = 'F24E1E' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/figma/${color}`} alt="Figma" className={className} />
-);
-
-const SanityLogo = ({ className, color = 'F03E2F' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/sanity/${color}`} alt="Sanity" className={className} />
-);
-
-const GraphQLLogo = ({ className, color = 'E10098' }: LogoProps) => (
-  <img src={`https://cdn.simpleicons.org/graphql/${color}`} alt="GraphQL" className={className} />
-);
-
-const LogoMap: Record<string, React.FC<LogoProps>> = {
-    'NextLogo': NextLogo,
-    'ReactLogo': ReactLogo,
-    'TypeScriptLogo': TypeScriptLogo,
-    'TailwindLogo': TailwindLogo,
-    'FramerLogo': FramerLogo,
-    'ViteLogo': ViteLogo,
-    'SanityCMSLogo': SanityCMSLogo,
-    'PythonLogo': PythonLogo,
-    'NodeJSLogo': NodeJSLogo,
-    // New additions
-    'VueLogo': VueLogo,
-    'AngularLogo': AngularLogo,
-    'SvelteLogo': SvelteLogo,
-    'JavaScriptLogo': JavaScriptLogo,
-    'GoLogo': GoLogo,
-    'RustLogo': RustLogo,
-    'JavaLogo': JavaLogo,
-    'CSSLogo': CSSLogo,
-    'SassLogo': SassLogo,
-    'StyledComponentsLogo': StyledComponentsLogo,
-    'NodeLogo': NodeLogo,
-    'ExpressLogo': ExpressLogo,
-    'MongoDBLogo': MongoDBLogo,
-    'PostgreSQLLogo': PostgreSQLLogo,
-    'MySQLLogo': MySQLLogo,
-    'RedisLogo': RedisLogo,
-    'SupabaseLogo': SupabaseLogo,
-    'FirebaseLogo': FirebaseLogo,
-    'GitLogo': GitLogo,
-    'DockerLogo': DockerLogo,
-    'VercelLogo': VercelLogo,
-    'FigmaLogo': FigmaLogo,
-    'SanityLogo': SanityLogo,
-    'GraphQLLogo': GraphQLLogo,
+  // Use mapped name or the iconName directly
+  const resolvedIcon = iconMap[iconName] || iconName;
+  
+  // Devicon CDN URL with original colors
+  const iconUrl = `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${resolvedIcon}/${resolvedIcon}-original.svg`;
+  
+  return (
+    <img 
+      src={iconUrl}
+      alt={iconName}
+      className={className}
+      onError={(e) => {
+        // Try plain version as fallback
+        const target = e.target as HTMLImageElement;
+        if (!target.src.includes('-plain')) {
+          target.src = `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${resolvedIcon}/${resolvedIcon}-plain.svg`;
+        } else {
+          target.style.display = 'none';
+        }
+      }}
+    />
+  );
 };
 
 interface TechStackProps {
@@ -219,6 +89,60 @@ interface TechStackProps {
 }
 
 export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef(0); // Keep scroll position persistent
+  const [isHovered, setIsHovered] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  
+  // Check for dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDarkMode();
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+  
+  // Create enough duplicates for seamless infinite scroll
+  const items = techStack.length > 0 ? techStack : [];
+  const duplicatedItems = [...items, ...items, ...items, ...items];
+
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer || items.length === 0) return;
+
+    let animationId: number;
+    const speed = 0.5; // pixels per frame
+    const itemWidth = 160; // approximate width per item
+    const resetPoint = items.length * itemWidth;
+
+    const animate = () => {
+      if (!isHovered) {
+        scrollPositionRef.current += speed;
+        
+        // Reset position seamlessly when we've scrolled through one set
+        if (scrollPositionRef.current >= resetPoint) {
+          scrollPositionRef.current = 0;
+        }
+        
+        scrollContainer.style.transform = `translateX(-${scrollPositionRef.current}px)`;
+      }
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [items.length, isHovered]);
+
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <section id="tech-stack" className="relative py-20 overflow-hidden bg-gradient-to-b from-white via-gray-50/50 to-white dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505]">
       {/* Gradient Masks - Full section height */}
@@ -238,56 +162,61 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
       </div>
 
       {/* Tech Stack Carousel - Full Width */}
-      <div className="relative w-full">
+      <div 
+        className="relative w-full overflow-hidden"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         {/* Scrolling Container */}
-        <div className="overflow-hidden w-full flex items-center">
-          <div className="flex animate-infinite-scroll hover:[animation-play-state:paused] items-center">
-            {/* Duplicate items for seamless loop */}
-            {[...techStack, ...techStack, ...techStack].map((item, index) => {
-              const LogoComponent = LogoMap[item.iconName] || null;
-              return (
+        <div 
+          ref={scrollRef}
+          className="flex items-center will-change-transform"
+          style={{ width: 'max-content' }}
+        >
+          {duplicatedItems.map((item, index) => (
+            <div 
+              key={`${item._id}-${index}`} 
+              className="flex-shrink-0 px-8 py-6 group cursor-default"
+              style={{ width: '160px' }}
+            >
+              <div className="flex flex-col items-center gap-4 transition-all duration-300">
+                {/* Logo Container */}
                 <div 
-                  key={`${item._id}-${index}`} 
-                  className="flex-shrink-0 px-8 py-6 group cursor-default"
+                  className={`
+                    relative w-16 h-16 flex items-center justify-center
+                    rounded-2xl
+                    border border-gray-200/50 dark:border-white/10
+                    shadow-md hover:shadow-xl
+                    backdrop-blur-sm
+                    transition-all duration-300 ease-out
+                    group-hover:scale-110 group-hover:-translate-y-1
+                    group-hover:border-gray-300 dark:group-hover:border-white/20
+                    group-hover:shadow-primary/20 dark:group-hover:shadow-primary/10
+                  `}
+                  style={{
+                    background: isDark 
+                      ? 'radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 50%, transparent 100%)'
+                      : 'radial-gradient(circle, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 50%, transparent 100%)'
+                  }}
                 >
-                  <div className="flex flex-col items-center gap-4 transition-all duration-300">
-                    {/* Logo Container */}
-                    <div className={`
-                      relative w-16 h-16 flex items-center justify-center
-                      rounded-2xl
-                      bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50
-                      border border-gray-200 dark:border-white/10
-                      shadow-md hover:shadow-xl
-                      backdrop-blur-sm
-                      transition-all duration-300 ease-out
-                      group-hover:scale-110 group-hover:-translate-y-1
-                      group-hover:border-gray-300 dark:group-hover:border-white/20
-                      group-hover:shadow-primary/20 dark:group-hover:shadow-primary/10
-                    `}>
-                      {/* Inner glow effect */}
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      {LogoComponent ? (
-                        <LogoComponent className="w-9 h-9 transition-all duration-300 opacity-80 group-hover:opacity-100 relative z-10" />
-                      ) : (
-                        <span className="text-2xl font-bold opacity-70 group-hover:opacity-100 relative z-10">{item.title[0]}</span>
-                      )}
-                    </div>
-                    
-                    {/* Tech Name */}
-                    <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">
-                        {item.title}
-                      </span>
-                      <span className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
-                        {item.tech}
-                      </span>
-                    </div>
-                  </div>
+                  <DynamicIcon 
+                    iconName={item.iconName} 
+                    className="w-9 h-9 transition-all duration-300 relative z-10" 
+                  />
                 </div>
-              );
-            })}
-          </div>
+                
+                {/* Tech Name - Always visible */}
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+                    {item.title}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                    {item.tech}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
