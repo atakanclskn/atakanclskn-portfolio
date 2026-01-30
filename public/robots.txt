@@ -1,0 +1,12 @@
+# Robots.txt for atakan.dev
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://atakan.dev/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin paths
+Disallow: /admin

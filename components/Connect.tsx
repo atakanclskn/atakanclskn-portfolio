@@ -1,10 +1,11 @@
 
-import React from 'react';
-import { ArrowUpRight, Mail, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowUpRight, Mail, Send, CheckCircle, Loader2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Social, Profile } from '../types';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
+import { useAdmin } from '../lib/adminContext';
 
 interface ConnectProps {
   socials: Social[];
@@ -13,6 +14,13 @@ interface ConnectProps {
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   const { t } = useLanguage();
+  const { addMessage } = useAdmin();
+  
+  // Form state
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
   
   const getSocialColor = (platform: string) => {
     const lowerPlatform = platform.toLowerCase();
@@ -43,23 +51,108 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                  {t.contact.desc}
                </p>
 
-               <form className="space-y-6 relative">
+               {isSubmitted ? (
+                 <div className="flex flex-col items-center justify-center py-12 text-center">
+                   <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                     <CheckCircle className="w-8 h-8 text-green-500" />
+                   </div>
+                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                     Mesajınız Gönderildi!
+                   </h3>
+                   <p className="text-gray-600 dark:text-gray-400 mb-6">
+                     En kısa sürede size geri dönüş yapacağım.
+                   </p>
+                   <button
+                     onClick={() => {
+                       setIsSubmitted(false);
+                       setFormData({ name: '', email: '', message: '' });
+                     }}
+                     className="text-primary font-bold hover:underline"
+                   >
+                     Yeni mesaj gönder
+                   </button>
+                 </div>
+               ) : (
+               <form 
+                 className="space-y-6 relative"
+                 onSubmit={(e) => {
+                   e.preventDefault();
+                   setError('');
+                   
+                   // Validation
+                   if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+                     setError('Lütfen tüm alanları doldurun.');
+                     return;
+                   }
+                   
+                   if (!formData.email.includes('@')) {
+                     setError('Geçerli bir e-posta adresi girin.');
+                     return;
+                   }
+                   
+                   setIsSubmitting(true);
+                   
+                   // Simulate network delay for better UX
+                   setTimeout(() => {
+                     addMessage(formData.name, formData.email, formData.message);
+                     setIsSubmitting(false);
+                     setIsSubmitted(true);
+                   }, 800);
+                 }}
+               >
+                  {error && (
+                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+                      {error}
+                    </div>
+                  )}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.name}</label>
-                    <input type="text" className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="John Doe" />
+                    <input 
+                      type="text" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" 
+                      placeholder="John Doe" 
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.email}</label>
-                    <input type="email" className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="john@example.com" />
+                    <input 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" 
+                      placeholder="john@example.com" 
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.message}</label>
-                    <textarea rows={4} className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" placeholder="Tell me about your project..."></textarea>
+                    <textarea 
+                      rows={4} 
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" 
+                      placeholder="Tell me about your project..."
+                    ></textarea>
                   </div>
-                  <button className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2">
-                    {t.contact.form.send} <Send className="w-4 h-4" />
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Gönderiliyor...
+                      </>
+                    ) : (
+                      <>
+                        {t.contact.form.send} <Send className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
                </form>
+               )}
             </div>
 
             {/* Socials Grid */}

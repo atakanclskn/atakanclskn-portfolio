@@ -113,3 +113,23 @@ export interface SiteSettings {
   metaDescription: MultiLangText;
   defaultTheme: 'light' | 'dark' | 'system';
 }
+
+// Contact Form Messages
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: string; // ISO date string
+  isRead: boolean;
+  isStarred: boolean;
+  isArchived: boolean;
+  replies?: MessageReply[];
+}
+
+export interface MessageReply {
+  _id: string;
+  content: string;
+  createdAt: string;
+  isFromAdmin: boolean;
+}

@@ -2,7 +2,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
   Project, ExperienceItem, Social, Profile, TechItem,
-  HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings
+  HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings,
+  ContactMessage, MessageReply
 } from '../types';
 
 // Default Data Constants (Moved from App.tsx)
@@ -231,6 +232,16 @@ interface AdminContextType {
 
   siteSettings: SiteSettings;
   setSiteSettings: (s: SiteSettings) => void;
+
+  // Messages System
+  messages: ContactMessage[];
+  addMessage: (name: string, email: string, message: string) => void;
+  markAsRead: (id: string) => void;
+  toggleStar: (id: string) => void;
+  archiveMessage: (id: string) => void;
+  deleteMessage: (id: string) => void;
+  addReply: (messageId: string, content: string) => void;
+  unreadCount: number;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -251,6 +262,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [hobbies, setHobbiesState] = useState<HobbyItem[]>(DEFAULT_HOBBIES);
   const [navbarSettings, setNavbarSettingsState] = useState<NavbarSettings>(DEFAULT_NAVBAR);
   const [siteSettings, setSiteSettingsState] = useState<SiteSettings>(DEFAULT_SETTINGS);
+  const [messages, setMessagesState] = useState<ContactMessage[]>([]);
 
   // Load from LocalStorage on mount
   useEffect(() => {
@@ -289,6 +301,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const savedSettings = localStorage.getItem('site_siteSettings');
     if (savedSettings) setSiteSettingsState(JSON.parse(savedSettings));
+
+    const savedMessages = localStorage.getItem('site_messages');
+    if (savedMessages) setMessagesState(JSON.parse(savedMessages));
   }, []);
 
   // Update CSS Variable whenever primaryColor changes
@@ -353,6 +368,59 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     localStorage.setItem('site_siteSettings', JSON.stringify(s));
   };
 
+  // Messages Functions
+  const setMessages = (m: ContactMessage[]) => {
+    setMessagesState(m);
+    localStorage.setItem('site_messages', JSON.stringify(m));
+  };
+
+  const addMessage = (name: string, email: string, message: string) => {
+    const newMessage: ContactMessage = {
+      _id: `msg_${Date.now()}`,
+      name,
+      email,
+      message,
+      createdAt: new Date().toISOString(),
+      isRead: false,
+      isStarred: false,
+      isArchived: false,
+      replies: []
+    };
+    setMessages([newMessage, ...messages]);
+  };
+
+  const markAsRead = (id: string) => {
+    setMessages(messages.map(m => m._id === id ? { ...m, isRead: true } : m));
+  };
+
+  const toggleStar = (id: string) => {
+    setMessages(messages.map(m => m._id === id ? { ...m, isStarred: !m.isStarred } : m));
+  };
+
+  const archiveMessage = (id: string) => {
+    setMessages(messages.map(m => m._id === id ? { ...m, isArchived: !m.isArchived } : m));
+  };
+
+  const deleteMessage = (id: string) => {
+    setMessages(messages.filter(m => m._id !== id));
+  };
+
+  const addReply = (messageId: string, content: string) => {
+    const reply: MessageReply = {
+      _id: `reply_${Date.now()}`,
+      content,
+      createdAt: new Date().toISOString(),
+      isFromAdmin: true
+    };
+    setMessages(messages.map(m => 
+      m._id === messageId 
+        ? { ...m, replies: [...(m.replies || []), reply] }
+        : m
+    ));
+  };
+
+  const unreadCount = messages.filter(m => !m.isRead && !m.isArchived).length;
+
   const login = (email: string, password: string) => {
     // Şimdilik her şeyi kabul et (Firebase bağlandığında değişecek)
     // TODO: Firebase Authentication eklenecek
@@ -380,7 +448,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       statsContent, setStatsContent,
       hobbies, setHobbies,
       navbarSettings, setNavbarSettings,
-      siteSettings, setSiteSettings
+      siteSettings, setSiteSettings,
+      messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, addReply, unreadCount
     }}>
       {children}
     </AdminContext.Provider>

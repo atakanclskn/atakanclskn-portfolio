@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Briefcase, Code, Share2,
-  Layers, Home, FileText, Heart, Navigation, Moon, Sun, X 
+  Layers, Home, FileText, Heart, Navigation, Moon, Sun, X, Mail 
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { AdminSidebar, TabItem } from './admin/AdminSidebar';
@@ -10,6 +10,7 @@ import {
   GeneralTab, HeroTab, AboutTab, HobbiesTab, 
   TechTab, ProjectsTab, ExperienceTab, SocialsTab, NavbarTab 
 } from './admin/tabs';
+import { MessagesTab } from './admin/tabs/MessagesTab';
 
 export const AdminPanel: React.FC = () => {
   const [visible, setVisible] = useState(false);
@@ -17,7 +18,8 @@ export const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
   const [adminTheme, setAdminTheme] = useState<'light' | 'dark'>('dark');
-  const { isLoggedIn, login, logout, primaryColor, setPrimaryColor } = useAdmin();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { isLoggedIn, login, logout, primaryColor, setPrimaryColor, unreadCount } = useAdmin();
   
   const [tempColor, setTempColor] = useState<string>(primaryColor);
 
@@ -57,6 +59,7 @@ export const AdminPanel: React.FC = () => {
   }, []);
 
   const tabs: TabItem[] = [
+    { id: 'messages', label: 'Messages', icon: Mail, badge: unreadCount },
     { id: 'general', label: 'General & Colors', icon: Settings },
     { id: 'hero', label: 'Hero Section', icon: Home },
     { id: 'about', label: 'About & Stats', icon: FileText },
@@ -74,6 +77,8 @@ export const AdminPanel: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'messages':
+        return <MessagesTab theme={adminTheme} />;
       case 'general':
         return (
           <GeneralTab 
@@ -221,6 +226,8 @@ export const AdminPanel: React.FC = () => {
                     setIsOpen(false);
                   }}
                   theme={adminTheme}
+                  isCollapsed={sidebarCollapsed}
+                  onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
                 />
 
                 {/* Content Area */}
