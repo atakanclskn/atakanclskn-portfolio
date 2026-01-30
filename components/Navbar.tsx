@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Sun, Moon, ChevronDown, Globe } from 'lucide-react';
 import { useLanguage, languages, Language } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
+import { getText } from '../lib/multiLangHelper';
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -222,7 +223,7 @@ export const Navbar: React.FC = () => {
             }}
             className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
           >
-            {navbarSettings.ctaText}
+            {getText(navbarSettings.ctaText, lang)}
           </button>
         </div>
 

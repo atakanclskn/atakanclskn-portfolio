@@ -253,18 +253,18 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
           <div className="space-y-8 text-center lg:text-left lg:col-span-4">
             <div>
                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white leading-tight mb-6">
-                 {getText(aboutContent.whoAmI, language)} <br className="hidden md:block"/>
-                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{getText(aboutContent.subtitle, language)}</span>
+                 {getText(aboutContent.whoAmI, lang)} <br className="hidden md:block"/>
+                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{getText(aboutContent.subtitle, lang)}</span>
                </h2>
                <div className="space-y-4 text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
                  {aboutContent.paragraphs.map((paragraph) => (
                    paragraph.type === 'quote' ? (
                      <p key={paragraph._id} className="text-base italic border-l-4 border-primary/50 pl-4">
-                       "{getText(paragraph.content, language)}"
+                       "{getText(paragraph.content, lang)}"
                      </p>
                    ) : (
                      <p key={paragraph._id}>
-                       {getText(paragraph.content, language)}
+                       {getText(paragraph.content, lang)}
                      </p>
                    )
                  ))}
@@ -279,7 +279,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                     return (
                       <span key={hobby._id} className="px-4 py-2 bg-gray-100 dark:bg-white/5 rounded-full text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
                         {IconComponent && <IconComponent className="w-4 h-4" />}
-                        {hobby.label}
+                        {getText(hobby.label, lang)}
                       </span>
                     );
                   })}

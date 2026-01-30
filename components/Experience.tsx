@@ -4,6 +4,7 @@ import { ExperienceItem, Project } from '../types';
 import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
+import { getText } from '../lib/multiLangHelper';
 
 interface ExperienceProps {
   experiences: ExperienceItem[];
@@ -55,7 +56,7 @@ const getTypeStyles = (type?: string) => {
   };
 
 const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: boolean, index?: number }> = ({ item, side = 'left', isMobile = false, index = 0 }) => {
-     const { t } = useLanguage();
+     const { t, lang } = useLanguage();
      const type = item.type || 'work';
      const style = getTypeStyles(type);
      const startYear = new Date(item.startDate).getFullYear();
@@ -149,7 +150,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                           </div>
 
                           <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
-                              {item.role || item.title}
+                              {getText(item.role, lang) || getText(item.title, lang)}
                           </h3>
 
                           <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
@@ -158,7 +159,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                       </div>
 
                       <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
-                          {item.description}
+                          {getText(item.description, lang)}
                       </p>
 
                       {item.skills && (

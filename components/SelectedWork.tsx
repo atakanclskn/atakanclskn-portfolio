@@ -4,13 +4,14 @@ import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Project } from '../types';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
+import { getText } from '../lib/multiLangHelper';
 
 interface SelectedWorkProps {
   projects: Project[];
 }
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <section id="projects" className="py-32 relative bg-gray-50 dark:bg-[#050505] transition-colors duration-300">
@@ -53,7 +54,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
                         <img 
                         src={imageUrl} 
-                        alt={project.title} 
+                        alt={getText(project.title, lang)} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                     </>
@@ -75,10 +76,10 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         </span>
                     )}
                     <h3 className={`font-display font-bold text-white mb-2 leading-tight ${isFeatured ? 'text-3xl' : 'text-xl'}`}>
-                        {project.title}
+                        {getText(project.title, lang)}
                     </h3>
                     <p className="text-gray-300 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
-                        {project.description}
+                        {getText(project.description, lang)}
                     </p>
                     </div>
                 </div>
