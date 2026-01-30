@@ -80,6 +80,103 @@ const NodeJSLogo = ({ className, color = '5FA04E' }: LogoProps) => (
   />
 );
 
+// Additional Logos
+const VueLogo = ({ className, color = '4FC08D' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/vuedotjs/${color}`} alt="Vue.js" className={className} />
+);
+
+const AngularLogo = ({ className, color = 'DD0031' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/angular/${color}`} alt="Angular" className={className} />
+);
+
+const SvelteLogo = ({ className, color = 'FF3E00' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/svelte/${color}`} alt="Svelte" className={className} />
+);
+
+const JavaScriptLogo = ({ className, color = 'F7DF1E' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/javascript/${color}`} alt="JavaScript" className={className} />
+);
+
+const GoLogo = ({ className, color = '00ADD8' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/go/${color}`} alt="Go" className={className} />
+);
+
+const RustLogo = ({ className, color = '000000' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/rust/${color}`} alt="Rust" className={className} />
+);
+
+const JavaLogo = ({ className, color = '007396' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/openjdk/${color}`} alt="Java" className={className} />
+);
+
+const CSSLogo = ({ className, color = '1572B6' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/css3/${color}`} alt="CSS" className={className} />
+);
+
+const SassLogo = ({ className, color = 'CC6699' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/sass/${color}`} alt="Sass" className={className} />
+);
+
+const StyledComponentsLogo = ({ className, color = 'DB7093' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/styledcomponents/${color}`} alt="Styled Components" className={className} />
+);
+
+const NodeLogo = ({ className, color = '339933' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/nodedotjs/${color}`} alt="Node.js" className={className} />
+);
+
+const ExpressLogo = ({ className, color = '000000' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/express/${color}`} alt="Express" className={className} />
+);
+
+const MongoDBLogo = ({ className, color = '47A248' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/mongodb/${color}`} alt="MongoDB" className={className} />
+);
+
+const PostgreSQLLogo = ({ className, color = '4169E1' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/postgresql/${color}`} alt="PostgreSQL" className={className} />
+);
+
+const MySQLLogo = ({ className, color = '4479A1' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/mysql/${color}`} alt="MySQL" className={className} />
+);
+
+const RedisLogo = ({ className, color = 'DC382D' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/redis/${color}`} alt="Redis" className={className} />
+);
+
+const SupabaseLogo = ({ className, color = '3FCF8E' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/supabase/${color}`} alt="Supabase" className={className} />
+);
+
+const FirebaseLogo = ({ className, color = 'FFCA28' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/firebase/${color}`} alt="Firebase" className={className} />
+);
+
+const GitLogo = ({ className, color = 'F05032' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/git/${color}`} alt="Git" className={className} />
+);
+
+const DockerLogo = ({ className, color = '2496ED' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/docker/${color}`} alt="Docker" className={className} />
+);
+
+const VercelLogo = ({ className, color = '000000' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/vercel/${color}`} alt="Vercel" className={className} />
+);
+
+const FigmaLogo = ({ className, color = 'F24E1E' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/figma/${color}`} alt="Figma" className={className} />
+);
+
+const SanityLogo = ({ className, color = 'F03E2F' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/sanity/${color}`} alt="Sanity" className={className} />
+);
+
+const GraphQLLogo = ({ className, color = 'E10098' }: LogoProps) => (
+  <img src={`https://cdn.simpleicons.org/graphql/${color}`} alt="GraphQL" className={className} />
+);
+
 const LogoMap: Record<string, React.FC<LogoProps>> = {
     'NextLogo': NextLogo,
     'ReactLogo': ReactLogo,
@@ -90,6 +187,31 @@ const LogoMap: Record<string, React.FC<LogoProps>> = {
     'SanityCMSLogo': SanityCMSLogo,
     'PythonLogo': PythonLogo,
     'NodeJSLogo': NodeJSLogo,
+    // New additions
+    'VueLogo': VueLogo,
+    'AngularLogo': AngularLogo,
+    'SvelteLogo': SvelteLogo,
+    'JavaScriptLogo': JavaScriptLogo,
+    'GoLogo': GoLogo,
+    'RustLogo': RustLogo,
+    'JavaLogo': JavaLogo,
+    'CSSLogo': CSSLogo,
+    'SassLogo': SassLogo,
+    'StyledComponentsLogo': StyledComponentsLogo,
+    'NodeLogo': NodeLogo,
+    'ExpressLogo': ExpressLogo,
+    'MongoDBLogo': MongoDBLogo,
+    'PostgreSQLLogo': PostgreSQLLogo,
+    'MySQLLogo': MySQLLogo,
+    'RedisLogo': RedisLogo,
+    'SupabaseLogo': SupabaseLogo,
+    'FirebaseLogo': FirebaseLogo,
+    'GitLogo': GitLogo,
+    'DockerLogo': DockerLogo,
+    'VercelLogo': VercelLogo,
+    'FigmaLogo': FigmaLogo,
+    'SanityLogo': SanityLogo,
+    'GraphQLLogo': GraphQLLogo,
 };
 
 interface TechStackProps {
@@ -132,17 +254,23 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
                     {/* Logo Container */}
                     <div className={`
                       relative w-16 h-16 flex items-center justify-center
-                      rounded-2xl bg-white dark:bg-white/5 
-                      border border-gray-200/50 dark:border-white/10
-                      shadow-sm hover:shadow-lg
+                      rounded-2xl
+                      bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-900/50
+                      border border-gray-200 dark:border-white/10
+                      shadow-md hover:shadow-xl
+                      backdrop-blur-sm
                       transition-all duration-300 ease-out
                       group-hover:scale-110 group-hover:-translate-y-1
                       group-hover:border-gray-300 dark:group-hover:border-white/20
+                      group-hover:shadow-primary/20 dark:group-hover:shadow-primary/10
                     `}>
+                      {/* Inner glow effect */}
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      
                       {LogoComponent ? (
-                        <LogoComponent className="w-9 h-9 transition-all duration-300 opacity-70 group-hover:opacity-100" />
+                        <LogoComponent className="w-9 h-9 transition-all duration-300 opacity-80 group-hover:opacity-100 relative z-10" />
                       ) : (
-                        <span className="text-2xl font-bold opacity-70 group-hover:opacity-100">{item.title[0]}</span>
+                        <span className="text-2xl font-bold opacity-70 group-hover:opacity-100 relative z-10">{item.title[0]}</span>
                       )}
                     </div>
                     

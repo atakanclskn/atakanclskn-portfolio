@@ -706,28 +706,55 @@ export const AdminPanel: React.FC = () => {
                             {activeTab === 'tech' && (
                                 <div className="space-y-6 animate-fade-in-up">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-bold text-white">Manage Marquee Logos</h3>
+                                        <h3 className="text-lg font-bold text-white">Manage Technology Stack</h3>
                                         <button 
-                                            onClick={() => setTechStack([...techStack, { _id: Date.now().toString(), title: 'New Tech', tech: 'Tool', iconName: 'Box', color: 'text-white' }])}
+                                            onClick={() => setTechStack([...techStack, { _id: Date.now().toString(), title: 'New Tech', tech: 'Tool', iconName: 'ReactLogo', color: 'text-white' }])}
                                             className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold flex items-center gap-2"
                                         >
-                                            <Plus size={16} /> Add Logo
+                                            <Plus size={16} /> Add Technology
                                         </button>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {techStack.map((item, idx) => (
-                                            <div key={idx} className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4">
-                                                <div className="flex-1 space-y-2">
-                                                    <input 
-                                                        value={item.title}
-                                                        onChange={(e) => {
-                                                            const newStack = [...techStack];
-                                                            newStack[idx].title = e.target.value;
-                                                            setTechStack(newStack);
-                                                        }}
-                                                        className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white"
-                                                        placeholder="Name"
-                                                    />
+                                            <div key={item._id} className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-3 group relative">
+                                                <button
+                                                    onClick={() => setTechStack(techStack.filter((_, i) => i !== idx))}
+                                                    className="absolute top-2 right-2 p-2 bg-red-500/10 text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                                
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Technology Name</label>
+                                                        <input 
+                                                            value={item.title}
+                                                            onChange={(e) => {
+                                                                const newStack = [...techStack];
+                                                                newStack[idx].title = e.target.value;
+                                                                setTechStack(newStack);
+                                                            }}
+                                                            className="w-full bg-black/50 border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                            placeholder="React"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Category</label>
+                                                        <input 
+                                                            value={item.tech}
+                                                            onChange={(e) => {
+                                                                const newStack = [...techStack];
+                                                                newStack[idx].tech = e.target.value;
+                                                                setTechStack(newStack);
+                                                            }}
+                                                            className="w-full bg-black/50 border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                            placeholder="Frontend"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Logo/Icon</label>
                                                     <select 
                                                         value={item.iconName}
                                                         onChange={(e) => {
@@ -735,25 +762,50 @@ export const AdminPanel: React.FC = () => {
                                                             newStack[idx].iconName = e.target.value;
                                                             setTechStack(newStack);
                                                         }}
-                                                        className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-gray-300"
+                                                        className="w-full bg-black/50 border border-white/10 rounded px-2 py-1.5 text-xs text-gray-300"
                                                     >
-                                                        <option value="ReactLogo">React</option>
-                                                        <option value="NextLogo">Next.js</option>
-                                                        <option value="TSLogo">TypeScript</option>
-                                                        <option value="TailwindLogo">Tailwind</option>
-                                                        <option value="FramerLogo">Framer</option>
-                                                        <option value="ShadcnLogo">Shadcn</option>
+                                                        <optgroup label="Frontend">
+                                                            <option value="ReactLogo">⚛️ React</option>
+                                                            <option value="NextLogo">▲ Next.js</option>
+                                                            <option value="VueLogo">🟩 Vue.js</option>
+                                                            <option value="AngularLogo">🅰️ Angular</option>
+                                                            <option value="SvelteLogo">🔥 Svelte</option>
+                                                        </optgroup>
+                                                        <optgroup label="Languages">
+                                                            <option value="TypeScriptLogo">📘 TypeScript</option>
+                                                            <option value="JavaScriptLogo">📙 JavaScript</option>
+                                                            <option value="PythonLogo">🐍 Python</option>
+                                                            <option value="GoLogo">🐹 Go</option>
+                                                            <option value="RustLogo">🦀 Rust</option>
+                                                            <option value="JavaLogo">☕ Java</option>
+                                                        </optgroup>
+                                                        <optgroup label="Styling">
+                                                            <option value="TailwindLogo">🎨 Tailwind CSS</option>
+                                                            <option value="CSSLogo">🎨 CSS</option>
+                                                            <option value="SassLogo">💅 Sass</option>
+                                                            <option value="StyledComponentsLogo">💅 Styled Components</option>
+                                                        </optgroup>
+                                                        <optgroup label="Backend & Database">
+                                                            <option value="NodeLogo">🟢 Node.js</option>
+                                                            <option value="ExpressLogo">🚂 Express</option>
+                                                            <option value="MongoDBLogo">🍃 MongoDB</option>
+                                                            <option value="PostgreSQLLogo">🐘 PostgreSQL</option>
+                                                            <option value="MySQLLogo">🐬 MySQL</option>
+                                                            <option value="RedisLogo">🔴 Redis</option>
+                                                            <option value="SupabaseLogo">⚡ Supabase</option>
+                                                            <option value="FirebaseLogo">🔥 Firebase</option>
+                                                        </optgroup>
+                                                        <optgroup label="Tools & Others">
+                                                            <option value="GitLogo">📦 Git</option>
+                                                            <option value="DockerLogo">🐳 Docker</option>
+                                                            <option value="VercelLogo">▲ Vercel</option>
+                                                            <option value="FigmaLogo">🎨 Figma</option>
+                                                            <option value="FramerLogo">🖼️ Framer</option>
+                                                            <option value="SanityLogo">📝 Sanity</option>
+                                                            <option value="GraphQLLogo">📊 GraphQL</option>
+                                                        </optgroup>
                                                     </select>
                                                 </div>
-                                                <button 
-                                                    onClick={() => {
-                                                        const newStack = techStack.filter((_, i) => i !== idx);
-                                                        setTechStack(newStack);
-                                                    }}
-                                                    className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
                                             </div>
                                         ))}
                                     </div>

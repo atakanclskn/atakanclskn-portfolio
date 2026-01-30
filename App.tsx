@@ -10,7 +10,7 @@ import { Connect } from './components/Connect';
 import { InteractiveBackground } from './components/InteractiveBackground';
 import { LanguageProvider } from './lib/i18n';
 import { AdminProvider, useAdmin } from './lib/adminContext';
-import { AdminPanel } from './components/AdminPanel';
+import { AdminPanel } from './components/AdminPanelNew';
 
 // Separate inner component to use the context
 const AppContent: React.FC = () => {
