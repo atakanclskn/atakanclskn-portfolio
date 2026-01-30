@@ -1,7 +1,10 @@
 import { MultiLangText } from '../types';
 
 // Helper to get text in current language
-export function getText(text: string | MultiLangText, lang: 'EN' | 'TR'): string {
+export function getText(text: string | MultiLangText | undefined | null, lang: 'EN' | 'TR'): string {
+  if (!text) {
+    return '';
+  }
   if (typeof text === 'string') {
     return text;
   }

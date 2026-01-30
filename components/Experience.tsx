@@ -150,18 +150,38 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               )}
                           </div>
 
-                          <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
-                              {getText(item.role, lang) || getText(item.title, lang)}
-                          </h3>
+                          {/* For Education: Show school name as main title */}
+                          {item.type === 'education' ? (
+                            <>
+                              <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
+                                  {item.company}
+                              </h3>
+                              {/* Optionally show degree/field if available */}
+                              {(item.degree || item.field) && (
+                                <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                                    <span>{[item.degree, item.field].filter(Boolean).join(' - ')}</span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
+                                  {getText(item.role, lang) || getText(item.title, lang)}
+                              </h3>
 
-                          <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
-                              <span>{item.company}</span>
-                          </div>
+                              <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                                  <span>{item.company}</span>
+                              </div>
+                            </>
+                          )}
                       </div>
 
-                      <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
-                          {getText(item.description, lang)}
-                      </p>
+                      {/* Hide description for education, show for others */}
+                      {item.type !== 'education' && getText(item.description, lang) && (
+                        <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
+                            {getText(item.description, lang)}
+                        </p>
+                      )}
 
                       {item.skills && (
                           <div className={`flex flex-wrap gap-2 relative z-10 ${skillJustify}`}>
