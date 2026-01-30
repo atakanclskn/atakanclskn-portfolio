@@ -75,10 +75,35 @@ export const adminTranslations = {
   
   // Hobbies Tab
   hobbies: {
-    title: { EN: 'Hobbies', TR: 'Hobiler' },
+    title: { EN: 'Hobbies & Interests', TR: 'Hobiler ve İlgi Alanları' },
     icon: { EN: 'Icon', TR: 'İkon' },
     label: { EN: 'Label', TR: 'Etiket' },
+    labelEN: { EN: 'Label (EN)', TR: 'Etiket (EN)' },
+    labelTR: { EN: 'Label (TR)', TR: 'Etiket (TR)' },
     addHobby: { EN: 'Add Hobby', TR: 'Hobi Ekle' },
+    addCustomHobby: { EN: 'Add Custom Hobby', TR: 'Özel Hobi Ekle' },
+    searchPlaceholder: { EN: 'Search hobbies...', TR: 'Hobi ara...' },
+    noHobbiesFound: { EN: 'No hobbies found. Try a different search or add a custom one.', TR: 'Hobi bulunamadı. Farklı bir arama deneyin veya özel bir tane ekleyin.' },
+    noHobbiesAdded: { EN: 'No hobbies added yet', TR: 'Henüz hobi eklenmedi' },
+    clickToStart: { EN: 'Click "Add Hobby" to get started', TR: 'Başlamak için "Hobi Ekle" butonuna tıklayın' },
+    hobbiesCount: { EN: 'hobbies added', TR: 'hobi eklendi' },
+    removeConfirm: { EN: 'Remove this hobby?', TR: 'Bu hobiyi silmek istiyor musunuz?' },
+    preview: { EN: 'Preview', TR: 'Önizleme' },
+    all: { EN: 'All', TR: 'Tümü' },
+    // Categories
+    categories: {
+      gaming: { EN: 'Gaming & Entertainment', TR: 'Oyun ve Eğlence' },
+      music: { EN: 'Music & Audio', TR: 'Müzik ve Ses' },
+      sports: { EN: 'Sports & Fitness', TR: 'Spor ve Fitness' },
+      creative: { EN: 'Creative', TR: 'Yaratıcı' },
+      technology: { EN: 'Technology', TR: 'Teknoloji' },
+      learning: { EN: 'Learning', TR: 'Öğrenme' },
+      food: { EN: 'Food & Drinks', TR: 'Yiyecek ve İçecek' },
+      travel: { EN: 'Travel & Nature', TR: 'Seyahat ve Doğa' },
+      social: { EN: 'Social', TR: 'Sosyal' },
+      relaxation: { EN: 'Relaxation', TR: 'Rahatlama' },
+      pets: { EN: 'Pets & Animals', TR: 'Evcil Hayvanlar' },
+    },
   },
   
   // Tech Stack Tab
@@ -170,10 +195,53 @@ export const adminTranslations = {
   socials: {
     title: { EN: 'Contact & Social Media', TR: 'İletişim ve Sosyal Medya' },
     platform: { EN: 'Platform', TR: 'Platform' },
+    platformName: { EN: 'Platform Name', TR: 'Platform Adı' },
     url: { EN: 'URL', TR: 'URL' },
+    urlPlaceholder: { EN: 'No URL set', TR: 'URL girilmedi' },
     username: { EN: 'Username / Display Name', TR: 'Kullanıcı Adı / Görünen Ad' },
     icon: { EN: 'Icon', TR: 'İkon' },
+    changeIcon: { EN: 'Change Icon', TR: 'İkon Değiştir' },
     addSocial: { EN: 'Add Social Link', TR: 'Sosyal Link Ekle' },
+    linksCount: { EN: 'links added', TR: 'link eklendi' },
+    noLinksAdded: { EN: 'No social links added yet', TR: 'Henüz sosyal link eklenmedi' },
+    clickToStart: { EN: 'Click "Add Social Link" to get started', TR: 'Başlamak için "Sosyal Link Ekle" butonuna tıklayın' },
+    removeConfirm: { EN: 'Remove this social link?', TR: 'Bu sosyal linki silmek istiyor musunuz?' },
+    close: { EN: 'Close', TR: 'Kapat' },
+  },
+  
+  // Sections Tab
+  sections: {
+    title: { EN: 'Section Texts', TR: 'Bölüm Metinleri' },
+    description: { EN: 'Customize titles and descriptions for each section', TR: 'Her bölüm için başlık ve açıklamaları özelleştirin' },
+    projectsSection: { EN: 'Projects Section', TR: 'Projeler Bölümü' },
+    contactSection: { EN: 'Contact Section', TR: 'İletişim Bölümü' },
+    experienceSection: { EN: 'Experience Section', TR: 'Deneyim Bölümü' },
+    sectionTitle: { EN: 'Section Title', TR: 'Bölüm Başlığı' },
+    sectionDescription: { EN: 'Section Description', TR: 'Bölüm Açıklaması' },
+    emailLabel: { EN: 'Contact Email', TR: 'İletişim E-postası' },
+    successMessage: { EN: 'Success Message', TR: 'Başarı Mesajı' },
+    findMeText: { EN: 'Find Me Text', TR: 'Beni Bul Metni' },
+  },
+  
+  // Footer Tab
+  footer: {
+    title: { EN: 'Footer Settings', TR: 'Footer Ayarları' },
+    footerContent: { EN: 'Footer Content', TR: 'Footer İçeriği' },
+    copyrightText: { EN: 'Copyright Text', TR: 'Telif Hakkı Metni' },
+    copyrightHint: { EN: 'Use {year} for dynamic year', TR: 'Dinamik yıl için {year} kullanın' },
+    showDesignCredit: { EN: 'Show Design Credit', TR: 'Tasarım Kredisi Göster' },
+    designCreditText: { EN: 'Design Credit Text', TR: 'Tasarım Kredisi Metni' },
+    showSocialLinks: { EN: 'Show Social Links in Footer', TR: 'Footer\'da Sosyal Linkler Göster' },
+    additionalLinks: { EN: 'Additional Links', TR: 'Ek Linkler' },
+    addLink: { EN: 'Add Link', TR: 'Link Ekle' },
+    linkLabel: { EN: 'Link Label', TR: 'Link Etiketi' },
+    linkUrl: { EN: 'URL', TR: 'URL' },
+    externalLink: { EN: 'External Link', TR: 'Harici Link' },
+    preview: { EN: 'Preview', TR: 'Önizleme' },
+    noLinksAdded: { EN: 'No additional links added yet', TR: 'Henüz ek link eklenmedi' },
+    clickToAddLink: { EN: 'Click "Add Link" to add footer links', TR: 'Footer linki eklemek için "Link Ekle" butonuna tıklayın' },
+    linksCount: { EN: 'links added', TR: 'link eklendi' },
+    removeConfirm: { EN: 'Remove this link?', TR: 'Bu linki silmek istiyor musunuz?' },
   },
   
   // Navbar Tab
