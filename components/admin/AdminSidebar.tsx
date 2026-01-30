@@ -12,17 +12,23 @@ interface AdminSidebarProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   onLogout: () => void;
+  theme: 'light' | 'dark';
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   tabs,
   activeTab,
   onTabChange,
-  onLogout
+  onLogout,
+  theme
 }) => {
   return (
-    <div className="w-64 bg-black/30 border-r border-white/10 flex flex-col p-4">
-      <div className="space-y-2 flex-1">
+    <div className={`w-72 border-r flex flex-col ${
+      theme === 'dark' 
+        ? 'bg-gray-900 border-gray-800' 
+        : 'bg-white border-gray-200'
+    }`}>
+      <div className="p-4 space-y-1 flex-1 overflow-y-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -30,21 +36,30 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all w-full ${
               activeTab === tab.id 
                 ? 'bg-primary text-black shadow-lg shadow-primary/20' 
-                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                : theme === 'dark'
+                  ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
             }`}
           >
             <tab.icon size={18} />
-            {tab.label}
+            <span className="flex-1 text-left">{tab.label}</span>
           </button>
         ))}
       </div>
 
-      <div className="mt-auto pt-4 border-t border-white/10">
+      <div className={`p-4 border-t ${
+        theme === 'dark' ? 'border-gray-800' : 'border-gray-200'
+      }`}>
         <button 
           onClick={onLogout} 
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 w-full transition-colors"
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full transition-all ${
+            theme === 'dark'
+              ? 'text-red-400 hover:bg-red-500/10'
+              : 'text-red-600 hover:bg-red-50'
+          }`}
         >
-          <LogOut size={18} /> Logout
+          <LogOut size={18} />
+          <span className="flex-1 text-left">Logout</span>
         </button>
       </div>
     </div>
