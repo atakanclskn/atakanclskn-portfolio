@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
   Project, ExperienceItem, Social, Profile, TechItem,
-  HeroContent, AboutContent, StatsContent, HobbyItem, NavbarSettings, SiteSettings
+  HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings
 } from '../types';
 
 // Default Data Constants (Moved from App.tsx)
@@ -102,16 +102,38 @@ const DEFAULT_ABOUT: AboutContent = {
 };
 
 const DEFAULT_STATS: StatsContent = {
-  yearsCount: 5,
-  yearsLabel: 'Years Coding',
-  clientsCount: 10,
-  clientsLabel: 'Happy Clients',
-  qualityLabel: 'Clean',
-  qualityDescription: 'Code Quality',
-  performanceLabel: 'Fast',
-  performanceDescription: 'Performance',
-  designLabel: 'User',
-  designDescription: 'First Design'
+  stats: [
+    { 
+      _id: 's1', 
+      type: 'number', 
+      count: 5, 
+      label: { EN: 'Years Coding', TR: 'Yıl Deneyim' }
+    },
+    { 
+      _id: 's2', 
+      type: 'number', 
+      count: 10, 
+      label: { EN: 'Happy Clients', TR: 'Mutlu Müşteri' }
+    },
+    { 
+      _id: 's3', 
+      type: 'text', 
+      title: { EN: 'Clean', TR: 'Temiz' },
+      description: { EN: 'Code Quality', TR: 'Kod Kalitesi' }
+    },
+    { 
+      _id: 's4', 
+      type: 'text', 
+      title: { EN: 'Fast', TR: 'Hızlı' },
+      description: { EN: 'Performance', TR: 'Performans' }
+    },
+    { 
+      _id: 's5', 
+      type: 'text', 
+      title: { EN: 'User', TR: 'Kullanıcı' },
+      description: { EN: 'First Design', TR: 'Odaklı Tasarım' }
+    }
+  ]
 };
 
 const DEFAULT_HOBBIES: HobbyItem[] = [

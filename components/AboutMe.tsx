@@ -35,8 +35,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   const { aboutContent, statsContent, hobbies } = useAdmin();
   
   // Counter animation state with visibility tracking
-  const [yearsCount, setYearsCount] = useState(0);
-  const [clientsCount, setClientsCount] = useState(0);
+  const [animatedCounts, setAnimatedCounts] = useState<{[key: string]: number}>({});
   const [isVisible, setIsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
   
@@ -87,11 +86,11 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
   useEffect(() => {
     if (!isVisible) return;
 
-    const yearsTarget = statsContent.yearsCount;
-    const clientsTarget = statsContent.clientsCount;
+    const numberStats = statsContent.stats.filter(s => s.type === 'number');
+    if (numberStats.length === 0) return;
+
     const duration = 2000; // 2 seconds
     const startTime = Date.now();
-
     const easeOutQuad = (t: number) => t * (2 - t); // Ease out quadratic
 
     const animateCount = () => {
@@ -99,8 +98,13 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
       const progress = Math.min(elapsed / duration, 1);
       const easedProgress = easeOutQuad(progress);
 
-      setYearsCount(Math.floor(easedProgress * yearsTarget));
-      setClientsCount(Math.floor(easedProgress * clientsTarget));
+      const newCounts: {[key: string]: number} = {};
+      numberStats.forEach(stat => {
+        if (stat.count) {
+          newCounts[stat._id] = Math.floor(easedProgress * stat.count);
+        }
+      });
+      setAnimatedCounts(newCounts);
 
       if (progress < 1) {
         requestAnimationFrame(animateCount);
@@ -108,7 +112,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
     };
 
     requestAnimationFrame(animateCount);
-  }, [isVisible, statsContent.yearsCount, statsContent.clientsCount]);
+  }, [isVisible, statsContent.stats]);
 
   // Effect to randomly toggle directions to create "living" data flow effect
   useEffect(() => {
@@ -287,76 +291,38 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
         </div>
 
         {/* Stats & Core Values Section - Below both columns */}
-        <div ref={statsRef} className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 items-stretch">
-          
-          {/* Years of Experience */}
-          <div 
-            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
-            style={{ 
-              opacity: isVisible ? 1 : 0, 
-              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
-              transitionDelay: '0ms'
-            }}
-          >
-            <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
-              {yearsCount}+
-            </h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.yearsLabel}</p>
-          </div>
-
-          {/* Happy Clients */}
-          <div 
-            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
-            style={{ 
-              opacity: isVisible ? 1 : 0, 
-              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
-              transitionDelay: '150ms'
-            }}
-          >
-            <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
-              {clientsCount}+
-            </h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.clientsLabel}</p>
-          </div>
-
-          {/* Clean Code */}
-          <div 
-            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
-            style={{ 
-              opacity: isVisible ? 1 : 0, 
-              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
-              transitionDelay: '300ms'
-            }}
-          >
-            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">{statsContent.qualityLabel}</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.qualityDescription}</p>
-          </div>
-
-          {/* Fast Performance */}
-          <div 
-            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
-            style={{ 
-              opacity: isVisible ? 1 : 0, 
-              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
-              transitionDelay: '450ms'
-            }}
-          >
-            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">{statsContent.performanceLabel}</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.performanceDescription}</p>
-          </div>
-
-          {/* User First Design */}
-          <div 
-            className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
-            style={{ 
-              opacity: isVisible ? 1 : 0, 
-              transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
-              transitionDelay: '600ms'
-            }}
-          >
-            <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">{statsContent.designLabel}</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">{statsContent.designDescription}</p>
-          </div>
+        <div ref={statsRef} className="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+          {statsContent.stats.map((stat, index) => (
+            <div 
+              key={stat._id}
+              className="flex flex-col items-center justify-center p-6 bg-white/50 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 min-h-[160px] opacity-0 translate-y-8 transition-all duration-700 ease-out"
+              style={{ 
+                opacity: isVisible ? 1 : 0, 
+                transform: isVisible ? 'translateY(0)' : 'translateY(2rem)',
+                transitionDelay: `${index * 150}ms`
+              }}
+            >
+              {stat.type === 'number' ? (
+                <>
+                  <h4 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary font-mono">
+                    {animatedCounts[stat._id] || 0}+
+                  </h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider mt-2 text-center">
+                    {getText(stat.label!, lang)}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h4 className="text-3xl font-bold text-gray-900 dark:text-white font-mono">
+                    {getText(stat.title!, lang)}
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2 text-center">
+                    {getText(stat.description!, lang)}
+                  </p>
+                </>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>

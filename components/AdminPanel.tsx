@@ -13,6 +13,27 @@ export const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
   const { isLoggedIn, login, logout, primaryColor, setPrimaryColor, profile, updateProfile, techStack, setTechStack, projects, setProjects, experiences, setExperiences, socials, setSocials, heroContent, setHeroContent, aboutContent, setAboutContent, statsContent, setStatsContent, hobbies, setHobbies, navbarSettings, setNavbarSettings, siteSettings, setSiteSettings } = useAdmin();
+  
+  // Temporary color state for color picker (doesn't apply until save)
+  const [tempColor, setTempColor] = useState<string>(primaryColor);
+
+  // Sync tempColor when primaryColor changes or panel opens
+  useEffect(() => {
+    setTempColor(primaryColor);
+  }, [primaryColor, isOpen]);
+
+  // Disable body scroll when admin panel is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   // Scroll Detection to show button only at bottom
   useEffect(() => {
@@ -187,14 +208,27 @@ export const AdminPanel: React.FC = () => {
                                             <div className="flex items-center gap-4">
                                                 <input 
                                                     type="color" 
-                                                    value={rgbToHex(primaryColor)}
-                                                    onChange={(e) => setPrimaryColor(hexToRgb(e.target.value))}
+                                                    value={rgbToHex(tempColor)}
+                                                    onChange={(e) => setTempColor(hexToRgb(e.target.value))}
                                                     className="w-16 h-12 bg-transparent cursor-pointer rounded overflow-hidden"
                                                 />
                                                 <div className="flex-1">
                                                     <p className="text-white text-sm">Select the main accent color for the entire website.</p>
                                                     <p className="text-gray-500 text-xs mt-1">Current RGB: {primaryColor}</p>
+                                                    {tempColor !== primaryColor && (
+                                                        <p className="text-primary text-xs mt-1">Preview RGB: {tempColor}</p>
+                                                    )}
                                                 </div>
+                                                {tempColor !== primaryColor && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setPrimaryColor(tempColor);
+                                                        }}
+                                                        className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold hover:opacity-80 transition-opacity"
+                                                    >
+                                                        Apply Color
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                         <div>
@@ -310,16 +344,6 @@ export const AdminPanel: React.FC = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Background Image URL (optional)</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={heroContent.backgroundImage || ''} 
-                                                    onChange={(e) => setHeroContent({...heroContent, backgroundImage: e.target.value || undefined})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                    placeholder="https://..."
-                                                />
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -389,100 +413,116 @@ export const AdminPanel: React.FC = () => {
                                     </div>
 
                                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-                                        <h3 className="text-lg font-bold text-white mb-4">Stats Section</h3>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Years Count</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={statsContent.yearsCount} 
-                                                    onChange={(e) => setStatsContent({...statsContent, yearsCount: parseInt(e.target.value)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Years Label ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.yearsLabel === 'string' ? statsContent.yearsLabel : statsContent.yearsLabel[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, yearsLabel: updateMultiLangText(statsContent.yearsLabel, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Clients Count</label>
-                                                <input 
-                                                    type="number" 
-                                                    value={statsContent.clientsCount} 
-                                                    onChange={(e) => setStatsContent({...statsContent, clientsCount: parseInt(e.target.value)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Clients Label ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.clientsLabel === 'string' ? statsContent.clientsLabel : statsContent.clientsLabel[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, clientsLabel: updateMultiLangText(statsContent.clientsLabel, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-lg font-bold text-white">Stats Section</h3>
+                                            <button 
+                                                onClick={() => setStatsContent({
+                                                    stats: [...statsContent.stats, {
+                                                        _id: Date.now().toString(),
+                                                        type: 'number',
+                                                        count: 0,
+                                                        label: createMultiLangText('New Stat')
+                                                    }]
+                                                })}
+                                                className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold flex items-center gap-2"
+                                            >
+                                                <Plus size={16} /> Add Stat
+                                            </button>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Label ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.qualityLabel === 'string' ? statsContent.qualityLabel : statsContent.qualityLabel[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, qualityLabel: updateMultiLangText(statsContent.qualityLabel, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Description ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.qualityDescription === 'string' ? statsContent.qualityDescription : statsContent.qualityDescription[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, qualityDescription: updateMultiLangText(statsContent.qualityDescription, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Label ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.performanceLabel === 'string' ? statsContent.performanceLabel : statsContent.performanceLabel[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, performanceLabel: updateMultiLangText(statsContent.performanceLabel, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Description ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.performanceDescription === 'string' ? statsContent.performanceDescription : statsContent.performanceDescription[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, performanceDescription: updateMultiLangText(statsContent.performanceDescription, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Label ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.designLabel === 'string' ? statsContent.designLabel : statsContent.designLabel[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, designLabel: updateMultiLangText(statsContent.designLabel, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Description ({editLang})</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={typeof statsContent.designDescription === 'string' ? statsContent.designDescription : statsContent.designDescription[editLang]} 
-                                                    onChange={(e) => setStatsContent({...statsContent, designDescription: updateMultiLangText(statsContent.designDescription, e.target.value, editLang)})}
-                                                    className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
-                                                />
-                                            </div>
+                                        <div className="space-y-4">
+                                            {statsContent.stats.map((stat, idx) => (
+                                                <div key={stat._id} className="p-4 bg-black/30 border border-white/10 rounded-xl space-y-3 group relative">
+                                                    <button
+                                                        onClick={() => setStatsContent({
+                                                            stats: statsContent.stats.filter((_, i) => i !== idx)
+                                                        })}
+                                                        className="absolute top-2 right-2 p-2 bg-red-500/10 text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                    
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Type</label>
+                                                            <select
+                                                                value={stat.type}
+                                                                onChange={(e) => {
+                                                                    const newStats = [...statsContent.stats];
+                                                                    newStats[idx].type = e.target.value as 'number' | 'text';
+                                                                    setStatsContent({ stats: newStats });
+                                                                }}
+                                                                className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                            >
+                                                                <option value="number">Number (Count + Label)</option>
+                                                                <option value="text">Text (Title + Description)</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    {stat.type === 'number' ? (
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Count</label>
+                                                                <input
+                                                                    type="number"
+                                                                    value={stat.count || 0}
+                                                                    onChange={(e) => {
+                                                                        const newStats = [...statsContent.stats];
+                                                                        newStats[idx].count = parseInt(e.target.value);
+                                                                        setStatsContent({ stats: newStats });
+                                                                    }}
+                                                                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Label ({editLang})</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={typeof stat.label === 'string' ? stat.label : (stat.label?.[editLang] || '')}
+                                                                    onChange={(e) => {
+                                                                        const newStats = [...statsContent.stats];
+                                                                        newStats[idx].label = updateMultiLangText(stat.label || createMultiLangText(''), e.target.value, editLang);
+                                                                        setStatsContent({ stats: newStats });
+                                                                    }}
+                                                                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                                    placeholder="Years Coding"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Title ({editLang})</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={typeof stat.title === 'string' ? stat.title : (stat.title?.[editLang] || '')}
+                                                                    onChange={(e) => {
+                                                                        const newStats = [...statsContent.stats];
+                                                                        newStats[idx].title = updateMultiLangText(stat.title || createMultiLangText(''), e.target.value, editLang);
+                                                                        setStatsContent({ stats: newStats });
+                                                                    }}
+                                                                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                                    placeholder="Clean"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Description ({editLang})</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={typeof stat.description === 'string' ? stat.description : (stat.description?.[editLang] || '')}
+                                                                    onChange={(e) => {
+                                                                        const newStats = [...statsContent.stats];
+                                                                        newStats[idx].description = updateMultiLangText(stat.description || createMultiLangText(''), e.target.value, editLang);
+                                                                        setStatsContent({ stats: newStats });
+                                                                    }}
+                                                                    className="w-full bg-black border border-white/10 rounded px-2 py-1.5 text-sm text-white"
+                                                                    placeholder="Code Quality"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -515,6 +555,7 @@ export const AdminPanel: React.FC = () => {
                                                         className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white"
                                                         placeholder="Hobby Name"
                                                     />
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Icon</label>
                                                     <select 
                                                         value={hobby.icon}
                                                         onChange={(e) => {
@@ -524,19 +565,78 @@ export const AdminPanel: React.FC = () => {
                                                         }}
                                                         className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-gray-300"
                                                     >
-                                                        <option value="Gamepad2">Gamepad (Gaming)</option>
-                                                        <option value="Tennis">Tennis</option>
-                                                        <option value="BookOpen">Book (Reading)</option>
-                                                        <option value="Coffee">Coffee</option>
-                                                        <option value="Bike">Bike (Motorcycling)</option>
-                                                        <option value="Rocket">Rocket (Space)</option>
-                                                        <option value="Music">Music</option>
-                                                        <option value="Code2">Code (Open Source)</option>
-                                                        <option value="Camera">Camera</option>
-                                                        <option value="Palette">Art/Design</option>
-                                                        <option value="Dumbbell">Fitness</option>
-                                                        <option value="Plane">Travel</option>
-                                                        <option value="Heart">Heart</option>
+                                                        <optgroup label="🎮 Gaming & Entertainment">
+                                                            <option value="Gamepad2">🎮 Gaming</option>
+                                                            <option value="Joystick">🕹️ Joystick</option>
+                                                            <option value="Tv">📺 TV/Streaming</option>
+                                                            <option value="Film">🎬 Movies</option>
+                                                            <option value="Popcorn">🍿 Cinema</option>
+                                                        </optgroup>
+                                                        <optgroup label="⚽ Sports">
+                                                            <option value="Tennis">🎾 Tennis</option>
+                                                            <option value="Dumbbell">💪 Fitness</option>
+                                                            <option value="Bike">🏍️ Motorcycling</option>
+                                                            <option value="Football">⚽ Football</option>
+                                                            <option value="Trophy">🏆 Competitive</option>
+                                                            <option value="Activity">🏃 Running</option>
+                                                        </optgroup>
+                                                        <optgroup label="📚 Learning & Reading">
+                                                            <option value="BookOpen">📖 Reading</option>
+                                                            <option value="Book">📚 Books</option>
+                                                            <option value="GraduationCap">🎓 Learning</option>
+                                                            <option value="Brain">🧠 Studying</option>
+                                                            <option value="Newspaper">📰 News</option>
+                                                        </optgroup>
+                                                        <optgroup label="💻 Tech & Coding">
+                                                            <option value="Code2">💻 Coding</option>
+                                                            <option value="Terminal">⌨️ Terminal</option>
+                                                            <option value="Laptop">💼 Tech</option>
+                                                            <option value="Cpu">🖥️ Hardware</option>
+                                                            <option value="Workflow">🔄 Automation</option>
+                                                        </optgroup>
+                                                        <optgroup label="🎨 Art & Creative">
+                                                            <option value="Palette">🎨 Art/Design</option>
+                                                            <option value="Camera">📷 Photography</option>
+                                                            <option value="Pencil">✏️ Drawing</option>
+                                                            <option value="Brush">🖌️ Painting</option>
+                                                            <option value="Video">🎥 Video Editing</option>
+                                                        </optgroup>
+                                                        <optgroup label="🎵 Music">
+                                                            <option value="Music">🎵 Music</option>
+                                                            <option value="Headphones">🎧 Listening</option>
+                                                            <option value="Radio">📻 Radio</option>
+                                                            <option value="Mic">🎤 Singing</option>
+                                                            <option value="Guitar">🎸 Guitar</option>
+                                                        </optgroup>
+                                                        <optgroup label="✈️ Travel & Nature">
+                                                            <option value="Plane">✈️ Travel</option>
+                                                            <option value="Map">🗺️ Exploring</option>
+                                                            <option value="Compass">🧭 Adventure</option>
+                                                            <option value="Mountain">⛰️ Hiking</option>
+                                                            <option value="Trees">🌲 Nature</option>
+                                                            <option value="Palmtree">🌴 Beach</option>
+                                                        </optgroup>
+                                                        <optgroup label="🍕 Food & Drinks">
+                                                            <option value="Coffee">☕ Coffee</option>
+                                                            <option value="Pizza">🍕 Pizza</option>
+                                                            <option value="UtensilsCrossed">🍽️ Cooking</option>
+                                                            <option value="Wine">🍷 Wine</option>
+                                                            <option value="IceCream">🍦 Desserts</option>
+                                                        </optgroup>
+                                                        <optgroup label="🚀 Science & Space">
+                                                            <option value="Rocket">🚀 Space</option>
+                                                            <option value="Globe">🌍 Geography</option>
+                                                            <option value="Atom">⚛️ Science</option>
+                                                            <option value="Microscope">🔬 Research</option>
+                                                        </optgroup>
+                                                        <optgroup label="❤️ Other">
+                                                            <option value="Heart">❤️ Love</option>
+                                                            <option value="Star">⭐ Favorites</option>
+                                                            <option value="Sparkles">✨ Magic</option>
+                                                            <option value="Zap">⚡ Energy</option>
+                                                            <option value="Target">🎯 Goals</option>
+                                                            <option value="Award">🏅 Achievement</option>
+                                                        </optgroup>
                                                     </select>
                                                 </div>
                                                 <button 

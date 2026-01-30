@@ -81,7 +81,6 @@ export interface HeroContent {
   status: MultiLangText;
   ctaText: MultiLangText;
   resumeLink: string;
-  backgroundImage?: string;
 }
 
 export interface AboutContent {
@@ -95,17 +94,17 @@ export interface AboutContent {
   };
 }
 
+export interface StatItem {
+  _id: string;
+  type: 'number' | 'text'; // number: shows count+label, text: shows title+description
+  count?: number; // for type 'number'
+  label?: MultiLangText; // for type 'number'
+  title?: MultiLangText; // for type 'text'
+  description?: MultiLangText; // for type 'text'
+}
+
 export interface StatsContent {
-  yearsCount: number;
-  yearsLabel: MultiLangText;
-  clientsCount: number;
-  clientsLabel: MultiLangText;
-  qualityLabel: MultiLangText;
-  qualityDescription: MultiLangText;
-  performanceLabel: MultiLangText;
-  performanceDescription: MultiLangText;
-  designLabel: MultiLangText;
-  designDescription: MultiLangText;
+  stats: StatItem[];
 }
 
 export interface HobbyItem {
