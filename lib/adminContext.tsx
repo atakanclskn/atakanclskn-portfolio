@@ -91,14 +91,42 @@ const DEFAULT_HERO: HeroContent = {
 };
 
 const DEFAULT_ABOUT: AboutContent = {
-  whoAmI: 'Who Am I?',
-  subtitle: 'More Than Just Code',
-  paragraphs: {
-    beyondTerminal: "Beyond the terminal, I'm someone who finds elegance in simplicity and power in thoughtful design. Every line of code I write serves a purpose—whether it's crafting seamless user experiences or architecting scalable systems.",
-    exploring: "When I'm not deep in a codebase, you'll find me exploring new frameworks, contributing to open source, or experimenting with the latest tech trends. I believe in continuous learning and sharing knowledge with the community.",
-    quote: "\"The best code is the code that doesn't need to be written—but when it does, it should be beautiful.\"",
-    beyondCode: "Beyond code, I'm driven by curiosity and creativity. Whether it's designing pixel-perfect interfaces, optimizing performance, or solving complex problems—I approach every challenge with passion and precision."
-  }
+  whoAmI: { EN: 'Who Am I?', TR: 'Ben Kimim?' },
+  subtitle: { EN: 'More Than Just Code', TR: 'Sadece Koddan Fazlası' },
+  paragraphs: [
+    {
+      _id: 'p1',
+      type: 'text',
+      content: {
+        EN: "Beyond the terminal, I'm someone who finds elegance in simplicity and power in thoughtful design. Every line of code I write serves a purpose—whether it's crafting seamless user experiences or architecting scalable systems.",
+        TR: "Terminalin ötesinde, sadelikte zarafet ve düşünceli tasarımda güç bulan biriyim. Yazdığım her kod satırı bir amaca hizmet ediyor—ister kusursuz kullanıcı deneyimleri yaratmak, ister ölçeklenebilir sistemler tasarlamak olsun."
+      }
+    },
+    {
+      _id: 'p2',
+      type: 'text',
+      content: {
+        EN: "When I'm not deep in a codebase, you'll find me exploring new frameworks, contributing to open source, or experimenting with the latest tech trends. I believe in continuous learning and sharing knowledge with the community.",
+        TR: "Kod yazmadığım zamanlarda, yeni framework'ler keşfediyor, açık kaynak projelere katkıda bulunuyor veya en son teknoloji trendleriyle deney yapıyorum. Sürekli öğrenmeye ve bilgiyi toplulukla paylaşmaya inanıyorum."
+      }
+    },
+    {
+      _id: 'p3',
+      type: 'quote',
+      content: {
+        EN: "The best code is the code that doesn't need to be written—but when it does, it should be beautiful.",
+        TR: "En iyi kod, yazılmasına gerek olmayan koddur—ama yazılması gerektiğinde güzel olmalıdır."
+      }
+    },
+    {
+      _id: 'p4',
+      type: 'text',
+      content: {
+        EN: "Beyond code, I'm driven by curiosity and creativity. Whether it's designing pixel-perfect interfaces, optimizing performance, or solving complex problems—I approach every challenge with passion and precision.",
+        TR: "Kodun ötesinde, merak ve yaratıcılık beni yönlendiriyor. İster piksel mükemmel arayüzler tasarlamak, ister performans optimize etmek, ister karmaşık problemler çözmek olsun—her zorluğa tutku ve hassasiyetle yaklaşıyorum."
+      }
+    }
+  ]
 };
 
 const DEFAULT_STATS: StatsContent = {
@@ -163,7 +191,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
 
 interface AdminContextType {
   isLoggedIn: boolean;
-  login: (password: string) => boolean;
+  login: (email: string, password: string) => boolean;
   logout: () => void;
   
   // Data State
@@ -325,8 +353,10 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     localStorage.setItem('site_siteSettings', JSON.stringify(s));
   };
 
-  const login = (password: string) => {
-    if (password === 'admin123') {
+  const login = (email: string, password: string) => {
+    // Şimdilik her şeyi kabul et (Firebase bağlandığında değişecek)
+    // TODO: Firebase Authentication eklenecek
+    if (email || password || true) {
       setIsLoggedIn(true);
       return true;
     }

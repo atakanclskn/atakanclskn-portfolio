@@ -105,17 +105,6 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                       <option key={logo} value={logo}>{logo}</option>
                     ))}
                   </select>
-                  <input
-                    type="text"
-                    placeholder="Tailwind Color Class"
-                    value={tech.color}
-                    onChange={(e) => updateTech(tech._id, 'color', e.target.value)}
-                    className={`w-full border rounded-lg p-2 text-sm ${
-                      theme === 'dark'
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-900'
-                    }`}
-                  />
                 </div>
                 <button
                   onClick={() => removeTech(tech._id)}

@@ -253,22 +253,21 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
           <div className="space-y-8 text-center lg:text-left lg:col-span-4">
             <div>
                <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white leading-tight mb-6">
-                 {aboutContent.whoAmI} <br className="hidden md:block"/>
-                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{aboutContent.subtitle}</span>
+                 {getText(aboutContent.whoAmI, language)} <br className="hidden md:block"/>
+                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{getText(aboutContent.subtitle, language)}</span>
                </h2>
                <div className="space-y-4 text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-                 <p>
-                   {aboutContent.paragraphs.beyondTerminal}
-                 </p>
-                 <p>
-                   {aboutContent.paragraphs.exploring}
-                 </p>
-                 <p className="text-base italic border-l-4 border-primary/50 pl-4">
-                   "{aboutContent.paragraphs.quote}"
-                 </p>
-                 <p>
-                   {aboutContent.paragraphs.beyondCode}
-                 </p>
+                 {aboutContent.paragraphs.map((paragraph) => (
+                   paragraph.type === 'quote' ? (
+                     <p key={paragraph._id} className="text-base italic border-l-4 border-primary/50 pl-4">
+                       "{getText(paragraph.content, language)}"
+                     </p>
+                   ) : (
+                     <p key={paragraph._id}>
+                       {getText(paragraph.content, language)}
+                     </p>
+                   )
+                 ))}
                </div>
             </div>
 

@@ -69,15 +69,16 @@ export interface HeroContent {
   resumeLink: string;
 }
 
+export interface AboutParagraph {
+  _id: string;
+  type: 'text' | 'quote';
+  content: MultiLangText;
+}
+
 export interface AboutContent {
   whoAmI: MultiLangText;
   subtitle: MultiLangText;
-  paragraphs: {
-    beyondTerminal: MultiLangText;
-    exploring: MultiLangText;
-    quote: MultiLangText;
-    beyondCode: MultiLangText;
-  };
+  paragraphs: AboutParagraph[];
 }
 
 export interface StatItem {
