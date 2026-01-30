@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Settings, User, Briefcase, Code, Share2, Palette, 
-  Layers, Home, FileText, BarChart3, Heart, Navigation 
+  Settings, Briefcase, Code, Share2,
+  Layers, Home, FileText, Heart, Navigation 
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { AdminLayout } from './admin/AdminLayout';

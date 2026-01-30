@@ -1,13 +1,5 @@
 import React from 'react';
 
-export interface SanityImage {
-  _type: 'image';
-  asset: {
-    _ref: string;
-    _type: 'reference';
-  };
-}
-
 // Multi-language support
 export interface MultiLangText {
   EN: string;
@@ -20,7 +12,6 @@ export interface Profile {
   titles: string[];
   bio: string;
   status: string;
-  heroImage?: SanityImage;
   avatarUrl?: string;
   location?: string;
 }
@@ -30,7 +21,7 @@ export interface Project {
   title: MultiLangText;
   category: string;
   description: MultiLangText;
-  mainImage: SanityImage | string;
+  mainImage: string;
   size: 'large' | 'small';
   link?: string;
   githubUrl?: string;
@@ -68,11 +59,6 @@ export interface Social {
 }
 
 // Admin-controlled content structures with multi-language support
-export interface MultiLangText {
-  EN: string;
-  TR: string;
-}
-
 export interface HeroContent {
   greeting: MultiLangText;
   name: string;
