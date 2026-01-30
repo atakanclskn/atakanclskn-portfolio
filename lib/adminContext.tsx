@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { 
   Project, ExperienceItem, Social, Profile, TechItem,
   HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings,
-  ContactMessage
+  ContactMessage, SectionContent, FooterSettings, NavLinkItem
 } from '../types';
 
 // Default Data Constants (Moved from App.tsx)
@@ -176,18 +176,54 @@ const DEFAULT_HOBBIES: HobbyItem[] = [
   { _id: 'h8', icon: 'Code2', label: 'Open Source' },
 ];
 
+const DEFAULT_NAV_LINKS: NavLinkItem[] = [
+  { _id: 'nav1', label: { EN: 'About', TR: 'Hakkımda' }, href: '#about', isVisible: true },
+  { _id: 'nav2', label: { EN: 'Projects', TR: 'Projeler' }, href: '#projects', isVisible: true },
+  { _id: 'nav3', label: { EN: 'Experience', TR: 'Deneyim' }, href: '#experience', isVisible: true },
+];
+
 const DEFAULT_NAVBAR: NavbarSettings = {
   logoText: 'AC',
   showLogo: true,
-  ctaText: 'Get in Touch',
-  ctaLink: '#connect'
+  ctaText: { EN: 'Get in Touch', TR: 'İletişime Geç' },
+  ctaLink: '#contact',
+  navLinks: DEFAULT_NAV_LINKS
 };
 
 const DEFAULT_SETTINGS: SiteSettings = {
   favicon: undefined,
-  metaTitle: 'Atakan Çalışkan - Software Engineer & Designer',
-  metaDescription: 'Portfolio of Atakan Çalışkan - Software Engineer and Designer specializing in building exceptional digital experiences.',
-  defaultTheme: 'system'
+  metaTitle: { EN: 'Atakan Çalışkan - Software Engineer & Designer', TR: 'Atakan Çalışkan - Yazılım Mühendisi & Tasarımcı' },
+  metaDescription: { EN: 'Portfolio of Atakan Çalışkan - Software Engineer and Designer specializing in building exceptional digital experiences.', TR: 'Atakan Çalışkan - Olağanüstü dijital deneyimler oluşturmada uzmanlaşmış Yazılım Mühendisi ve Tasarımcı portföyü.' },
+  metaKeywords: { EN: 'software engineer, developer, designer, portfolio, react, typescript', TR: 'yazılım mühendisi, geliştirici, tasarımcı, portfolyo, react, typescript' },
+  ogImage: undefined,
+  defaultTheme: 'system',
+  googleAnalyticsId: undefined
+};
+
+const DEFAULT_SECTION_CONTENT: SectionContent = {
+  projects: {
+    title: { EN: 'Checkout my latest work', TR: 'Son çalışmalarıma göz atın' },
+    description: { EN: "A selection of projects I've worked on, ranging from web applications to open source tools.", TR: "Web uygulamalarından açık kaynak araçlara kadar üzerinde çalıştığım projelerden bir seçki." }
+  },
+  contact: {
+    title: { EN: "Let's work together.", TR: "Birlikte çalışalım." },
+    description: { EN: 'Have a project in mind or just want to say hi? Fill out the form below or send me an email.', TR: 'Aklınızda bir proje mi var ya da sadece merhaba mı demek istiyorsunuz? Formu doldurun veya bana e-posta gönderin.' },
+    emailLabel: 'contact@atakan.dev',
+    successMessage: { EN: 'Your message has been sent! I will get back to you soon.', TR: 'Mesajınız gönderildi! En kısa sürede size geri dönüş yapacağım.' },
+    findMeText: { EN: 'Find me on', TR: 'Beni şurada bul' }
+  },
+  experience: {
+    title: { EN: 'Timeline', TR: 'Zaman Çizelgesi' },
+    description: { EN: 'My professional journey, educational background, and key project milestones.', TR: 'Profesyonel yolculuğum, eğitim geçmişim ve önemli proje kilometre taşlarım.' }
+  }
+};
+
+const DEFAULT_FOOTER: FooterSettings = {
+  copyrightText: { EN: '© {year} Atakan Çalışkan. All rights reserved.', TR: '© {year} Atakan Çalışkan. Tüm hakları saklıdır.' },
+  showDesignCredit: true,
+  designCreditText: { EN: 'Designed & Built with ❤️', TR: '❤️ ile Tasarlandı & Geliştirildi' },
+  showSocialLinks: false,
+  additionalLinks: []
 };
 
 interface AdminContextType {
@@ -233,6 +269,14 @@ interface AdminContextType {
   siteSettings: SiteSettings;
   setSiteSettings: (s: SiteSettings) => void;
 
+  // Section Content
+  sectionContent: SectionContent;
+  setSectionContent: (s: SectionContent) => void;
+
+  // Footer Settings
+  footerSettings: FooterSettings;
+  setFooterSettings: (f: FooterSettings) => void;
+
   // Messages System
   messages: ContactMessage[];
   addMessage: (name: string, email: string, message: string) => void;
@@ -261,6 +305,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [hobbies, setHobbiesState] = useState<HobbyItem[]>(DEFAULT_HOBBIES);
   const [navbarSettings, setNavbarSettingsState] = useState<NavbarSettings>(DEFAULT_NAVBAR);
   const [siteSettings, setSiteSettingsState] = useState<SiteSettings>(DEFAULT_SETTINGS);
+  const [sectionContent, setSectionContentState] = useState<SectionContent>(DEFAULT_SECTION_CONTENT);
+  const [footerSettings, setFooterSettingsState] = useState<FooterSettings>(DEFAULT_FOOTER);
   const [messages, setMessagesState] = useState<ContactMessage[]>([]);
 
   // Load from LocalStorage on mount
@@ -300,6 +346,12 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const savedSettings = localStorage.getItem('site_siteSettings');
     if (savedSettings) setSiteSettingsState(JSON.parse(savedSettings));
+
+    const savedSectionContent = localStorage.getItem('site_sectionContent');
+    if (savedSectionContent) setSectionContentState(JSON.parse(savedSectionContent));
+
+    const savedFooter = localStorage.getItem('site_footerSettings');
+    if (savedFooter) setFooterSettingsState(JSON.parse(savedFooter));
 
     const savedMessages = localStorage.getItem('site_messages');
     if (savedMessages) setMessagesState(JSON.parse(savedMessages));
@@ -365,6 +417,16 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const setSiteSettings = (s: SiteSettings) => {
     setSiteSettingsState(s);
     localStorage.setItem('site_siteSettings', JSON.stringify(s));
+  };
+
+  const setSectionContent = (s: SectionContent) => {
+    setSectionContentState(s);
+    localStorage.setItem('site_sectionContent', JSON.stringify(s));
+  };
+
+  const setFooterSettings = (f: FooterSettings) => {
+    setFooterSettingsState(f);
+    localStorage.setItem('site_footerSettings', JSON.stringify(f));
   };
 
   // Messages Functions
@@ -434,6 +496,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       hobbies, setHobbies,
       navbarSettings, setNavbarSettings,
       siteSettings, setSiteSettings,
+      sectionContent, setSectionContent,
+      footerSettings, setFooterSettings,
       messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount
     }}>
       {children}

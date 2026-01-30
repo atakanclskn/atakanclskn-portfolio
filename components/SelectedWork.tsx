@@ -5,6 +5,7 @@ import { Project } from '../types';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
+import { useAdmin } from '../lib/adminContext';
 
 interface SelectedWorkProps {
   projects: Project[];
@@ -12,16 +13,17 @@ interface SelectedWorkProps {
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
   const { t, lang } = useLanguage();
+  const { sectionContent } = useAdmin();
 
   return (
     <section id="projects" className="py-32 relative bg-gray-50 dark:bg-[#050505] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="mb-16">
             <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-              {t.work.title}
+              {getText(sectionContent.projects.title, lang)}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg">
-               {t.work.desc}
+               {getText(sectionContent.projects.description, lang)}
             </p>
         </div>
 

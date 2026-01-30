@@ -6,4 +6,5 @@ export { TechTab } from './TechTab';
 export { ProjectsTab } from './ProjectsTab';
 export { ExperienceTab } from './ExperienceTab';
 export { SocialsTab } from './SocialsTab';
-// Diğer tablar buraya eklenecek
+export { SectionsTab } from './SectionsTab';
+export { FooterTab } from './FooterTab';

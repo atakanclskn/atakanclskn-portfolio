@@ -1,7 +1,9 @@
 import React from 'react';
+import { Plus, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import { useAdmin } from '../../../lib/adminContext';
 import { updateMultiLangText } from '../../../lib/multiLangHelper';
 import { adminTranslations, getTranslation } from '../../../lib/adminTranslations';
+import { NavLinkItem } from '../../../types';
 
 interface GeneralTabProps {
   editLang: 'EN' | 'TR';
@@ -41,14 +43,61 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
     system: { EN: 'System', TR: 'Sistem' },
     light: { EN: 'Light', TR: 'Açık' },
     dark: { EN: 'Dark', TR: 'Koyu' },
-    siteMetadata: { EN: 'Site Metadata', TR: 'Site Meta Verileri' },
+    siteMetadata: { EN: 'SEO & Metadata', TR: 'SEO ve Meta Verileri' },
     metaTitle: { EN: 'Meta Title', TR: 'Meta Başlık' },
     metaDescription: { EN: 'Meta Description', TR: 'Meta Açıklama' },
+    metaKeywords: { EN: 'Meta Keywords', TR: 'Anahtar Kelimeler' },
+    ogImage: { EN: 'OG Image URL', TR: 'OG Görsel URL' },
+    googleAnalytics: { EN: 'Google Analytics ID', TR: 'Google Analytics ID' },
     navbarSettings: { EN: 'Navbar Settings', TR: 'Navbar Ayarları' },
     logoText: { EN: 'Logo Text', TR: 'Logo Metni' },
     showLogo: { EN: 'Show Logo', TR: 'Logoyu Göster' },
     ctaButtonText: { EN: 'CTA Button Text', TR: 'CTA Buton Metni' },
     ctaLink: { EN: 'CTA Link', TR: 'CTA Linki' },
+    navLinks: { EN: 'Navigation Links', TR: 'Navigasyon Linkleri' },
+    addNavLink: { EN: 'Add Link', TR: 'Link Ekle' },
+    linkLabel: { EN: 'Label', TR: 'Etiket' },
+    linkHref: { EN: 'Link (href)', TR: 'Link (href)' },
+    visible: { EN: 'Visible', TR: 'Görünür' },
+  };
+
+  // Nav Link functions
+  const addNavLink = () => {
+    const newLink: NavLinkItem = {
+      _id: `nav_${Date.now()}`,
+      label: { EN: 'New Link', TR: 'Yeni Link' },
+      href: '#section',
+      isVisible: true
+    };
+    setNavbarSettings({
+      ...navbarSettings,
+      navLinks: [...(navbarSettings.navLinks || []), newLink]
+    });
+  };
+
+  const updateNavLink = (id: string, field: keyof NavLinkItem, value: any) => {
+    setNavbarSettings({
+      ...navbarSettings,
+      navLinks: (navbarSettings.navLinks || []).map(link =>
+        link._id === id ? { ...link, [field]: value } : link
+      )
+    });
+  };
+
+  const deleteNavLink = (id: string) => {
+    setNavbarSettings({
+      ...navbarSettings,
+      navLinks: (navbarSettings.navLinks || []).filter(link => link._id !== id)
+    });
+  };
+
+  const toggleNavLinkVisibility = (id: string) => {
+    setNavbarSettings({
+      ...navbarSettings,
+      navLinks: (navbarSettings.navLinks || []).map(link =>
+        link._id === id ? { ...link, isVisible: !link.isVisible } : link
+      )
+    });
   };
 
   return (
@@ -188,13 +237,86 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
                   ? 'bg-gray-800 border-gray-700 text-white'
                   : 'bg-gray-50 border-gray-300 text-gray-900'
               }`}
-              placeholder="#connect"
+              placeholder="#contact"
             />
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="pt-4 border-t border-gray-700/50">
+          <div className="flex items-center justify-between mb-3">
+            <label className={`text-xs font-bold uppercase ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+            }`}>{getTranslation(t.navLinks, editLang)}</label>
+            <button
+              onClick={addNavLink}
+              className="flex items-center gap-1 px-3 py-1.5 bg-primary/20 text-primary rounded-lg text-xs font-bold hover:bg-primary/30 transition-colors"
+            >
+              <Plus className="w-3 h-3" />
+              {getTranslation(t.addNavLink, editLang)}
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {(navbarSettings.navLinks || []).map((link) => (
+              <div 
+                key={link._id}
+                className={`flex items-center gap-3 p-3 rounded-xl border ${
+                  theme === 'dark' 
+                    ? 'bg-gray-800/50 border-gray-700' 
+                    : 'bg-gray-50 border-gray-200'
+                } ${!link.isVisible ? 'opacity-50' : ''}`}
+              >
+                <GripVertical className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'} cursor-grab`} />
+                
+                <input 
+                  type="text" 
+                  value={link.label[editLang]} 
+                  onChange={(e) => updateNavLink(link._id, 'label', updateMultiLangText(link.label, e.target.value, editLang))}
+                  className={`flex-1 border rounded-lg p-2 text-sm focus:border-primary focus:outline-none ${
+                    theme === 'dark'
+                      ? 'bg-gray-800 border-gray-700 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                  placeholder={getTranslation(t.linkLabel, editLang)}
+                />
+
+                <input 
+                  type="text" 
+                  value={link.href} 
+                  onChange={(e) => updateNavLink(link._id, 'href', e.target.value)}
+                  className={`w-32 border rounded-lg p-2 text-sm focus:border-primary focus:outline-none ${
+                    theme === 'dark'
+                      ? 'bg-gray-800 border-gray-700 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                  placeholder="#section"
+                />
+
+                <button
+                  onClick={() => toggleNavLinkVisibility(link._id)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    link.isVisible 
+                      ? 'text-green-500 hover:bg-green-500/10' 
+                      : 'text-gray-500 hover:bg-gray-500/10'
+                  }`}
+                >
+                  {link.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                </button>
+
+                <button
+                  onClick={() => deleteNavLink(link._id)}
+                  className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Site Metadata */}
+      {/* SEO & Metadata */}
       <div className={`p-6 rounded-2xl border space-y-4 ${
         theme === 'dark' 
           ? 'bg-gray-900 border-gray-800' 
@@ -203,6 +325,7 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
         <h3 className={`text-lg font-bold mb-4 ${
           theme === 'dark' ? 'text-white' : 'text-gray-900'
         }`}>{getTranslation(t.siteMetadata, editLang)}</h3>
+        
         <div>
           <label className={`block text-xs font-bold uppercase mb-2 ${
             theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
@@ -218,12 +341,13 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
             }`}
           />
         </div>
+
         <div>
           <label className={`block text-xs font-bold uppercase mb-2 ${
             theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
           }`}>{getTranslation(t.metaDescription, editLang)} ({editLang})</label>
           <textarea 
-            rows={3}
+            rows={2}
             value={typeof siteSettings.metaDescription === 'string' ? siteSettings.metaDescription : siteSettings.metaDescription[editLang]} 
             onChange={(e) => setSiteSettings({...siteSettings, metaDescription: updateMultiLangText(siteSettings.metaDescription, e.target.value, editLang)})}
             className={`w-full border rounded-lg p-3 focus:border-primary focus:outline-none ${
@@ -232,6 +356,59 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
                 : 'bg-gray-50 border-gray-300 text-gray-900'
             }`}
           />
+        </div>
+
+        <div>
+          <label className={`block text-xs font-bold uppercase mb-2 ${
+            theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+          }`}>{getTranslation(t.metaKeywords, editLang)} ({editLang})</label>
+          <input 
+            type="text" 
+            value={typeof siteSettings.metaKeywords === 'string' ? siteSettings.metaKeywords : (siteSettings.metaKeywords?.[editLang] || '')} 
+            onChange={(e) => setSiteSettings({...siteSettings, metaKeywords: updateMultiLangText(siteSettings.metaKeywords || { EN: '', TR: '' }, e.target.value, editLang)})}
+            className={`w-full border rounded-lg p-3 focus:border-primary focus:outline-none ${
+              theme === 'dark'
+                ? 'bg-gray-800 border-gray-700 text-white'
+                : 'bg-gray-50 border-gray-300 text-gray-900'
+            }`}
+            placeholder="keyword1, keyword2, keyword3"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={`block text-xs font-bold uppercase mb-2 ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+            }`}>{getTranslation(t.ogImage, editLang)}</label>
+            <input 
+              type="text" 
+              value={siteSettings.ogImage || ''} 
+              onChange={(e) => setSiteSettings({...siteSettings, ogImage: e.target.value})}
+              className={`w-full border rounded-lg p-3 focus:border-primary focus:outline-none ${
+                theme === 'dark'
+                  ? 'bg-gray-800 border-gray-700 text-white'
+                  : 'bg-gray-50 border-gray-300 text-gray-900'
+              }`}
+              placeholder="https://example.com/og-image.png"
+            />
+          </div>
+
+          <div>
+            <label className={`block text-xs font-bold uppercase mb-2 ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+            }`}>{getTranslation(t.googleAnalytics, editLang)}</label>
+            <input 
+              type="text" 
+              value={siteSettings.googleAnalyticsId || ''} 
+              onChange={(e) => setSiteSettings({...siteSettings, googleAnalyticsId: e.target.value})}
+              className={`w-full border rounded-lg p-3 focus:border-primary focus:outline-none ${
+                theme === 'dark'
+                  ? 'bg-gray-800 border-gray-700 text-white'
+                  : 'bg-gray-50 border-gray-300 text-gray-900'
+              }`}
+              placeholder="G-XXXXXXXXXX"
+            />
+          </div>
         </div>
       </div>
     </div>

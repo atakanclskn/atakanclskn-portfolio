@@ -5,6 +5,7 @@ import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } f
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
+import { useAdmin } from '../lib/adminContext';
 
 interface ExperienceProps {
   experiences: ExperienceItem[];
@@ -196,7 +197,8 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
   const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'certification', 'project']);
   const [animationKey, setAnimationKey] = useState(0);
   const [shakeFilters, setShakeFilters] = useState(false);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const { sectionContent } = useAdmin();
 
   const toggleFilter = (filter: FilterType) => {
     setActiveFilters(prev => {
@@ -279,10 +281,10 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
         <div className="flex flex-col items-center justify-center text-center mb-16 md:mb-24 gap-6">
             <div>
                 <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-                  {t.experience.title}
+                  {getText(sectionContent.experience.title, lang)}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-sm md:text-base">
-                  {t.experience.desc}
+                  {getText(sectionContent.experience.description, lang)}
                 </p>
             </div>
             

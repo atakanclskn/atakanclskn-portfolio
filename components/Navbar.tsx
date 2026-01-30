@@ -92,12 +92,16 @@ export const Navbar: React.FC = () => {
     }
   };
 
-  // Removed Expertise and Contact from nav links
-  const navLinks = [
-    { name: t.nav.about, href: '#about' },
-    { name: t.nav.projects, href: '#projects' },
-    { name: t.nav.experience, href: '#experience' },
-  ];
+  // Use admin panel nav links if available, otherwise fallback to defaults
+  const navLinks = (navbarSettings.navLinks && navbarSettings.navLinks.length > 0)
+    ? navbarSettings.navLinks
+        .filter(link => link.isVisible)
+        .map(link => ({ name: getText(link.label, lang), href: link.href }))
+    : [
+        { name: t.nav.about, href: '#about' },
+        { name: t.nav.projects, href: '#projects' },
+        { name: t.nav.experience, href: '#experience' },
+      ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();

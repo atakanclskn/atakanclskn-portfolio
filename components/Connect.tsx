@@ -6,6 +6,7 @@ import { Social, Profile } from '../types';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
+import { getText } from '../lib/multiLangHelper';
 
 interface ConnectProps {
   socials: Social[];
@@ -13,8 +14,8 @@ interface ConnectProps {
 }
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
-  const { t } = useLanguage();
-  const { addMessage } = useAdmin();
+  const { t, lang } = useLanguage();
+  const { addMessage, sectionContent, footerSettings } = useAdmin();
   
   // Form state
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -45,10 +46,10 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
             {/* Contact Form */}
             <div>
                <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6">
-                {t.contact.title}
+                {getText(sectionContent.contact.title, lang)}
                </h2>
                <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
-                 {t.contact.desc}
+                 {getText(sectionContent.contact.description, lang)}
                </p>
 
                {isSubmitted ? (
@@ -57,10 +58,10 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                      <CheckCircle className="w-8 h-8 text-green-500" />
                    </div>
                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                     Mesajınız Gönderildi!
+                     {getText(sectionContent.contact.successMessage, lang).split('!')[0]}!
                    </h3>
                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                     En kısa sürede size geri dönüş yapacağım.
+                     {getText(sectionContent.contact.successMessage, lang).split('!')[1] || ''}
                    </p>
                    <button
                      onClick={() => {
@@ -69,7 +70,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                      }}
                      className="text-primary font-bold hover:underline"
                    >
-                     Yeni mesaj gönder
+                     {lang === 'TR' ? 'Yeni mesaj gönder' : 'Send another message'}
                    </button>
                  </div>
                ) : (
@@ -158,7 +159,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
             {/* Socials Grid */}
             <div className="flex flex-col justify-between">
                 <div>
-                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{t.contact.findMe}</h3>
+                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{getText(sectionContent.contact.findMeText, lang)}</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {socials.map((social) => {
                         const color = getSocialColor(social.platform);
@@ -191,7 +192,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                         );
                       })}
                       
-                      <a href="mailto:contact@atakan.dev" className="block">
+                      <a href={`mailto:${sectionContent.contact.emailLabel}`} className="block">
                           <MagicCard 
                             gradientColor="rgba(6, 182, 212, 0.2)" 
                             className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
@@ -204,7 +205,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                                   <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
                                 </div>
                                 <p className="font-bold text-gray-900 dark:text-white">Email</p>
-                                <p className="text-xs text-gray-500">contact@atakan.dev</p>
+                                <p className="text-xs text-gray-500">{sectionContent.contact.emailLabel}</p>
                               </div>
                           </MagicCard>
                       </a>
@@ -217,9 +218,22 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
 
       <footer className="py-12 bg-white dark:bg-black border-t border-gray-200 dark:border-white/10 relative z-20">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Atakan Çalışkan. All rights reserved.</p>
+          <p className="text-gray-500 text-sm">{getText(footerSettings.copyrightText, lang).replace('{year}', new Date().getFullYear().toString())}</p>
           <div className="flex gap-6">
-             <span className="text-gray-400 text-sm">Designed & Built with ❤️</span>
+             {footerSettings.showDesignCredit && (
+               <span className="text-gray-400 text-sm">{getText(footerSettings.designCreditText, lang)}</span>
+             )}
+             {footerSettings.additionalLinks?.map(link => (
+               <a 
+                 key={link._id}
+                 href={link.url}
+                 target={link.isExternal ? '_blank' : undefined}
+                 rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm transition-colors"
+               >
+                 {getText(link.label, lang)}
+               </a>
+             ))}
           </div>
         </div>
       </footer>

@@ -40,6 +40,37 @@ export interface ExperienceItem {
   description: MultiLangText;
   skills?: string[];
   type?: 'work' | 'education' | 'certification' | 'project';
+  
+  // Work-specific fields
+  location?: string;
+  workType?: 'remote' | 'hybrid' | 'onsite';
+  employmentType?: 'full-time' | 'part-time' | 'contract' | 'freelance' | 'internship';
+  companyLogo?: string;
+  companyUrl?: string;
+  
+  // Education-specific fields
+  degree?: string;
+  field?: string;
+  gpa?: string;
+  
+  // Certification-specific fields
+  issueDate?: string; // For certifications - single date
+  expirationDate?: string;
+  credentialId?: string;
+  credentialUrl?: string;
+  issuer?: string;
+  
+  // Project-specific fields
+  projectDate?: string; // Single date for project
+  projectUrl?: string;
+  githubUrl?: string;
+  technologies?: string[];
+  projectImage?: string;
+  
+  // Common optional fields
+  order?: number;
+  isVisible?: boolean;
+  highlights?: MultiLangText[]; // Key achievements/bullet points
 }
 
 export interface TechItem {
@@ -105,13 +136,59 @@ export interface NavbarSettings {
   showLogo: boolean;
   ctaText: MultiLangText;
   ctaLink: string;
+  navLinks: NavLinkItem[];
+}
+
+export interface NavLinkItem {
+  _id: string;
+  label: MultiLangText;
+  href: string;
+  isVisible: boolean;
 }
 
 export interface SiteSettings {
   favicon?: string;
   metaTitle: MultiLangText;
   metaDescription: MultiLangText;
+  metaKeywords: MultiLangText;
+  ogImage?: string;
   defaultTheme: 'light' | 'dark' | 'system';
+  googleAnalyticsId?: string;
+}
+
+// Section Content Settings
+export interface SectionContent {
+  projects: {
+    title: MultiLangText;
+    description: MultiLangText;
+  };
+  contact: {
+    title: MultiLangText;
+    description: MultiLangText;
+    emailLabel: string;
+    successMessage: MultiLangText;
+    findMeText: MultiLangText;
+  };
+  experience: {
+    title: MultiLangText;
+    description: MultiLangText;
+  };
+}
+
+// Footer Settings
+export interface FooterSettings {
+  copyrightText: MultiLangText;
+  showDesignCredit: boolean;
+  designCreditText: MultiLangText;
+  showSocialLinks: boolean;
+  additionalLinks: FooterLink[];
+}
+
+export interface FooterLink {
+  _id: string;
+  label: MultiLangText;
+  url: string;
+  isExternal: boolean;
 }
 
 // Contact Form Messages
