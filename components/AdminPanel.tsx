@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Settings, X, Save, Trash2, Plus, User, Briefcase, Code, Share2, Palette, Layers, LogOut, Home, FileText, BarChart3, Heart, Navigation } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { MagicCard } from './MagicCard';
-import { TechItem, HobbyItem } from '../types';
+import { TechItem, HobbyItem, MultiLangText } from '../types';
+import { updateMultiLangText, createMultiLangText } from '../lib/multiLangHelper';
 
 export const AdminPanel: React.FC = () => {
   const [visible, setVisible] = useState(false);
@@ -213,20 +214,20 @@ export const AdminPanel: React.FC = () => {
                                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                                         <h3 className="text-lg font-bold text-white mb-4">Site Metadata</h3>
                                         <div>
-                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Meta Title</label>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Meta Title ({editLang})</label>
                                             <input 
                                                 type="text" 
-                                                value={siteSettings.metaTitle} 
-                                                onChange={(e) => setSiteSettings({...siteSettings, metaTitle: e.target.value})}
+                                                value={typeof siteSettings.metaTitle === 'string' ? siteSettings.metaTitle : siteSettings.metaTitle[editLang]} 
+                                                onChange={(e) => setSiteSettings({...siteSettings, metaTitle: updateMultiLangText(siteSettings.metaTitle, e.target.value, editLang)})}
                                                 className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Meta Description</label>
+                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Meta Description ({editLang})</label>
                                             <textarea 
                                                 rows={3}
-                                                value={siteSettings.metaDescription} 
-                                                onChange={(e) => setSiteSettings({...siteSettings, metaDescription: e.target.value})}
+                                                value={typeof siteSettings.metaDescription === 'string' ? siteSettings.metaDescription : siteSettings.metaDescription[editLang]} 
+                                                onChange={(e) => setSiteSettings({...siteSettings, metaDescription: updateMultiLangText(siteSettings.metaDescription, e.target.value, editLang)})}
                                                 className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                             />
                                         </div>
@@ -241,11 +242,11 @@ export const AdminPanel: React.FC = () => {
                                         <h3 className="text-lg font-bold text-white mb-4">Hero Section Content</h3>
                                         <div className="grid grid-cols-1 gap-4">
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Greeting Text</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Greeting Text ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={heroContent.greeting} 
-                                                    onChange={(e) => setHeroContent({...heroContent, greeting: e.target.value})}
+                                                    value={typeof heroContent.greeting === 'string' ? heroContent.greeting : heroContent.greeting[editLang]} 
+                                                    onChange={(e) => setHeroContent({...heroContent, greeting: updateMultiLangText(heroContent.greeting, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                     placeholder="Hey, I'm"
                                                 />
@@ -260,41 +261,41 @@ export const AdminPanel: React.FC = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Role/Title</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Role/Title ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={heroContent.role} 
-                                                    onChange={(e) => setHeroContent({...heroContent, role: e.target.value})}
+                                                    value={typeof heroContent.role === 'string' ? heroContent.role : heroContent.role[editLang]} 
+                                                    onChange={(e) => setHeroContent({...heroContent, role: updateMultiLangText(heroContent.role, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                     placeholder="Software Engineer & Designer"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Bio</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Bio ({editLang})</label>
                                                 <textarea 
                                                     rows={3}
-                                                    value={heroContent.bio} 
-                                                    onChange={(e) => setHeroContent({...heroContent, bio: e.target.value})}
+                                                    value={typeof heroContent.bio === 'string' ? heroContent.bio : heroContent.bio[editLang]} 
+                                                    onChange={(e) => setHeroContent({...heroContent, bio: updateMultiLangText(heroContent.bio, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Status</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Status ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={heroContent.status} 
-                                                    onChange={(e) => setHeroContent({...heroContent, status: e.target.value})}
+                                                    value={typeof heroContent.status === 'string' ? heroContent.status : heroContent.status[editLang]} 
+                                                    onChange={(e) => setHeroContent({...heroContent, status: updateMultiLangText(heroContent.status, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                     placeholder="Available for new projects"
                                                 />
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Button Text</label>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Button Text ({editLang})</label>
                                                     <input 
                                                         type="text" 
-                                                        value={heroContent.ctaText} 
-                                                        onChange={(e) => setHeroContent({...heroContent, ctaText: e.target.value})}
+                                                        value={typeof heroContent.ctaText === 'string' ? heroContent.ctaText : heroContent.ctaText[editLang]} 
+                                                        onChange={(e) => setHeroContent({...heroContent, ctaText: updateMultiLangText(heroContent.ctaText, e.target.value, editLang)})}
                                                         className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                     />
                                                 </div>
@@ -331,56 +332,56 @@ export const AdminPanel: React.FC = () => {
                                         <h3 className="text-lg font-bold text-white mb-4">About Section Text</h3>
                                         <div className="grid grid-cols-1 gap-4">
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Section Title</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Section Title ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={aboutContent.whoAmI} 
-                                                    onChange={(e) => setAboutContent({...aboutContent, whoAmI: e.target.value})}
+                                                    value={typeof aboutContent.whoAmI === 'string' ? aboutContent.whoAmI : aboutContent.whoAmI[editLang]} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, whoAmI: updateMultiLangText(aboutContent.whoAmI, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Subtitle</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Subtitle ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={aboutContent.subtitle} 
-                                                    onChange={(e) => setAboutContent({...aboutContent, subtitle: e.target.value})}
+                                                    value={typeof aboutContent.subtitle === 'string' ? aboutContent.subtitle : aboutContent.subtitle[editLang]} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, subtitle: updateMultiLangText(aboutContent.subtitle, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 1 (Beyond Terminal)</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 1 (Beyond Terminal) ({editLang})</label>
                                                 <textarea 
                                                     rows={3}
-                                                    value={aboutContent.paragraphs.beyondTerminal} 
-                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, beyondTerminal: e.target.value}})}
+                                                    value={typeof aboutContent.paragraphs.beyondTerminal === 'string' ? aboutContent.paragraphs.beyondTerminal : aboutContent.paragraphs.beyondTerminal[editLang]} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, beyondTerminal: updateMultiLangText(aboutContent.paragraphs.beyondTerminal, e.target.value, editLang)}})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 2 (Exploring)</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 2 (Exploring) ({editLang})</label>
                                                 <textarea 
                                                     rows={3}
-                                                    value={aboutContent.paragraphs.exploring} 
-                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, exploring: e.target.value}})}
+                                                    value={typeof aboutContent.paragraphs.exploring === 'string' ? aboutContent.paragraphs.exploring : aboutContent.paragraphs.exploring[editLang]} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, exploring: updateMultiLangText(aboutContent.paragraphs.exploring, e.target.value, editLang)}})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quote</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quote ({editLang})</label>
                                                 <textarea 
                                                     rows={2}
-                                                    value={aboutContent.paragraphs.quote} 
-                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, quote: e.target.value}})}
+                                                    value={typeof aboutContent.paragraphs.quote === 'string' ? aboutContent.paragraphs.quote : aboutContent.paragraphs.quote[editLang]} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, quote: updateMultiLangText(aboutContent.paragraphs.quote, e.target.value, editLang)}})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none italic"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 3 (Beyond Code)</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Paragraph 3 (Beyond Code) ({editLang})</label>
                                                 <textarea 
                                                     rows={3}
-                                                    value={aboutContent.paragraphs.beyondCode} 
-                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, beyondCode: e.target.value}})}
+                                                    value={typeof aboutContent.paragraphs.beyondCode === 'string' ? aboutContent.paragraphs.beyondCode : aboutContent.paragraphs.beyondCode[editLang]} 
+                                                    onChange={(e) => setAboutContent({...aboutContent, paragraphs: {...aboutContent.paragraphs, beyondCode: updateMultiLangText(aboutContent.paragraphs.beyondCode, e.target.value, editLang)}})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
@@ -400,11 +401,11 @@ export const AdminPanel: React.FC = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Years Label</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Years Label ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.yearsLabel} 
-                                                    onChange={(e) => setStatsContent({...statsContent, yearsLabel: e.target.value})}
+                                                    value={typeof statsContent.yearsLabel === 'string' ? statsContent.yearsLabel : statsContent.yearsLabel[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, yearsLabel: updateMultiLangText(statsContent.yearsLabel, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
@@ -418,67 +419,67 @@ export const AdminPanel: React.FC = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Clients Label</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Clients Label ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.clientsLabel} 
-                                                    onChange={(e) => setStatsContent({...statsContent, clientsLabel: e.target.value})}
+                                                    value={typeof statsContent.clientsLabel === 'string' ? statsContent.clientsLabel : statsContent.clientsLabel[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, clientsLabel: updateMultiLangText(statsContent.clientsLabel, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Label</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Label ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.qualityLabel} 
-                                                    onChange={(e) => setStatsContent({...statsContent, qualityLabel: e.target.value})}
+                                                    value={typeof statsContent.qualityLabel === 'string' ? statsContent.qualityLabel : statsContent.qualityLabel[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, qualityLabel: updateMultiLangText(statsContent.qualityLabel, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Description</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Quality Description ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.qualityDescription} 
-                                                    onChange={(e) => setStatsContent({...statsContent, qualityDescription: e.target.value})}
+                                                    value={typeof statsContent.qualityDescription === 'string' ? statsContent.qualityDescription : statsContent.qualityDescription[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, qualityDescription: updateMultiLangText(statsContent.qualityDescription, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Label</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Label ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.performanceLabel} 
-                                                    onChange={(e) => setStatsContent({...statsContent, performanceLabel: e.target.value})}
+                                                    value={typeof statsContent.performanceLabel === 'string' ? statsContent.performanceLabel : statsContent.performanceLabel[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, performanceLabel: updateMultiLangText(statsContent.performanceLabel, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Description</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Performance Description ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.performanceDescription} 
-                                                    onChange={(e) => setStatsContent({...statsContent, performanceDescription: e.target.value})}
+                                                    value={typeof statsContent.performanceDescription === 'string' ? statsContent.performanceDescription : statsContent.performanceDescription[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, performanceDescription: updateMultiLangText(statsContent.performanceDescription, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Label</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Label ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.designLabel} 
-                                                    onChange={(e) => setStatsContent({...statsContent, designLabel: e.target.value})}
+                                                    value={typeof statsContent.designLabel === 'string' ? statsContent.designLabel : statsContent.designLabel[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, designLabel: updateMultiLangText(statsContent.designLabel, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Description</label>
+                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Design Description ({editLang})</label>
                                                 <input 
                                                     type="text" 
-                                                    value={statsContent.designDescription} 
-                                                    onChange={(e) => setStatsContent({...statsContent, designDescription: e.target.value})}
+                                                    value={typeof statsContent.designDescription === 'string' ? statsContent.designDescription : statsContent.designDescription[editLang]} 
+                                                    onChange={(e) => setStatsContent({...statsContent, designDescription: updateMultiLangText(statsContent.designDescription, e.target.value, editLang)})}
                                                     className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                 />
                                             </div>
@@ -493,7 +494,7 @@ export const AdminPanel: React.FC = () => {
                                     <div className="flex items-center justify-between">
                                         <h3 className="text-lg font-bold text-white">Manage Hobbies</h3>
                                         <button 
-                                            onClick={() => setHobbies([...hobbies, { _id: Date.now().toString(), icon: 'Heart', label: 'New Hobby' }])}
+                                            onClick={() => setHobbies([...hobbies, { _id: Date.now().toString(), icon: 'Heart', label: createMultiLangText('New Hobby') }])}
                                             className="px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold flex items-center gap-2"
                                         >
                                             <Plus size={16} /> Add Hobby
@@ -503,11 +504,12 @@ export const AdminPanel: React.FC = () => {
                                         {hobbies.map((hobby, idx) => (
                                             <div key={hobby._id} className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4">
                                                 <div className="flex-1 space-y-2">
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Hobby Name ({editLang})</label>
                                                     <input 
-                                                        value={hobby.label}
+                                                        value={typeof hobby.label === 'string' ? hobby.label : hobby.label[editLang]}
                                                         onChange={(e) => {
                                                             const newHobbies = [...hobbies];
-                                                            newHobbies[idx].label = e.target.value;
+                                                            newHobbies[idx].label = updateMultiLangText(hobby.label, e.target.value, editLang);
                                                             setHobbies(newHobbies);
                                                         }}
                                                         className="w-full bg-black/50 border border-white/10 rounded px-2 py-1 text-sm text-white"
@@ -576,11 +578,11 @@ export const AdminPanel: React.FC = () => {
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Button Text</label>
+                                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-2">CTA Button Text ({editLang})</label>
                                                     <input 
                                                         type="text" 
-                                                        value={navbarSettings.ctaText} 
-                                                        onChange={(e) => setNavbarSettings({...navbarSettings, ctaText: e.target.value})}
+                                                        value={typeof navbarSettings.ctaText === 'string' ? navbarSettings.ctaText : navbarSettings.ctaText[editLang]} 
+                                                        onChange={(e) => setNavbarSettings({...navbarSettings, ctaText: updateMultiLangText(navbarSettings.ctaText, e.target.value, editLang)})}
                                                         className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:border-primary focus:outline-none"
                                                     />
                                                 </div>
@@ -685,16 +687,19 @@ export const AdminPanel: React.FC = () => {
                                                 <div className="flex justify-between items-start">
                                                     <div className="space-y-4 flex-1 mr-8">
                                                         <div className="grid grid-cols-2 gap-4">
-                                                            <input 
-                                                                value={proj.title}
-                                                                onChange={(e) => {
-                                                                    const newProjs = [...projects];
-                                                                    newProjs[idx].title = e.target.value;
-                                                                    setProjects(newProjs);
-                                                                }}
-                                                                className="bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-bold"
-                                                                placeholder="Project Title"
-                                                            />
+                                                            <div>
+                                                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Title ({editLang})</label>
+                                                                <input 
+                                                                    value={typeof proj.title === 'string' ? proj.title : proj.title[editLang]}
+                                                                    onChange={(e) => {
+                                                                        const newProjs = [...projects];
+                                                                        newProjs[idx].title = updateMultiLangText(proj.title, e.target.value, editLang);
+                                                                        setProjects(newProjs);
+                                                                    }}
+                                                                    className="bg-black/50 border border-white/10 rounded px-3 py-2 text-white font-bold"
+                                                                    placeholder="Project Title"
+                                                                />
+                                                            </div>
                                                             <input 
                                                                 value={proj.category}
                                                                 onChange={(e) => {
@@ -706,17 +711,20 @@ export const AdminPanel: React.FC = () => {
                                                                 placeholder="Category"
                                                             />
                                                         </div>
-                                                        <textarea 
-                                                            value={proj.description}
-                                                            onChange={(e) => {
-                                                                const newProjs = [...projects];
-                                                                newProjs[idx].description = e.target.value;
-                                                                setProjects(newProjs);
-                                                            }}
-                                                            className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
-                                                            rows={2}
-                                                            placeholder="Description"
-                                                        />
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Description ({editLang})</label>
+                                                            <textarea 
+                                                                value={typeof proj.description === 'string' ? proj.description : proj.description[editLang]}
+                                                                onChange={(e) => {
+                                                                    const newProjs = [...projects];
+                                                                    newProjs[idx].description = updateMultiLangText(proj.description, e.target.value, editLang);
+                                                                    setProjects(newProjs);
+                                                                }}
+                                                                className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-gray-300"
+                                                                rows={2}
+                                                                placeholder="Description"
+                                                            />
+                                                        </div>
                                                         <input 
                                                             value={typeof proj.mainImage === 'string' ? proj.mainImage : ''}
                                                             onChange={(e) => {
