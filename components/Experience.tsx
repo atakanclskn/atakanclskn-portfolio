@@ -5,7 +5,6 @@ import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } f
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
-import { useAdmin } from '../lib/adminContext';
 
 interface ExperienceProps {
   experiences: ExperienceItem[];
@@ -122,168 +121,72 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
 
             {/* Card Content with Magic Effect */}
             <div className={`${isMobile ? 'pl-12 md:pl-0' : ''} ${!isMobile && side === 'left' ? 'flex justify-end' : ''}`}>
-               {/* Wrap in anchor if link exists */}
-               {item.link || item.projectUrl || item.credentialUrl || item.companyUrl ? (
-                 <a 
-                   href={item.link || item.projectUrl || item.credentialUrl || item.companyUrl} 
-                   target="_blank" 
-                   rel="noreferrer"
-                   className="block w-full"
-                 >
-                   <MagicCard 
-                      gradientColor={style.beamColor + '33'}
-                      className={`
-                        w-full relative rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 
-                        transition-all duration-300 hover:-translate-y-1 cursor-pointer group/card
-                        flex flex-col
-                        ${!isMobile && side === 'left' ? 'items-end' : ''}
-                    `}
-                   >
-                      {/* External link indicator - position based on card side */}
-                      <div className={`absolute top-4 z-20 ${!isMobile && side === 'left' ? 'left-4' : 'right-4'}`}>
-                          <div className={`p-2 rounded-full ${style.bg} opacity-60 group-hover/card:opacity-100 transition-opacity`}>
-                              <ArrowUpRight className={`w-4 h-4 ${style.color} ${!isMobile && side === 'left' ? 'rotate-[-90deg]' : ''}`} />
-                          </div>
-                      </div>
-
-                      {/* Inner Content Div with Padding */}
-                      <div className={`p-6 md:p-8 w-full flex flex-col gap-3 ${!isMobile && side === 'left' ? 'items-end' : ''}`}>
-                          {/* Header: Badge + Date */}
-                          <div className={`flex items-center gap-2 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+               <MagicCard 
+                  gradientColor={style.beamColor + '33'}
+                  className={`
+                    w-full relative rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 
+                    transition-all duration-300 hover:-translate-y-1
+                    flex flex-col
+                    ${!isMobile && side === 'left' ? 'items-end' : ''}
+                `}
+               >
+                  {/* Inner Content Div with Padding */}
+                  <div className={`p-6 md:p-8 w-full flex flex-col gap-4 ${!isMobile && side === 'left' ? 'items-end' : ''}`}>
+                      <div className={`flex flex-col gap-1 w-full relative z-10 ${alignClass}`}>
+                          <div className={`flex items-center gap-2 mb-1 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
                               <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
                                   {getLabel()}
                               </span>
-                              <span className="flex items-center gap-1 text-xs text-gray-400">
-                                  {!isMobile && side === 'left' ? (
-                                    <>{period} <Calendar className="w-3 h-3" /></>
-                                  ) : (
-                                    <><Calendar className="w-3 h-3" /> {period}</>
-                                  )}
-                              </span>
-                          </div>
-
-                          {/* Title & Company */}
-                          <div className={`flex flex-col gap-1 w-full relative z-10 ${alignClass}`}>
-                              {item.type === 'education' ? (
-                                <>
-                                  <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover} ${!isMobile && side === 'left' ? 'pl-10' : 'pr-10'}`}>
-                                      {item.company}
-                                  </h3>
-                                  {(item.degree || item.field) && (
-                                    <p className={`text-sm text-gray-500 dark:text-gray-400 font-medium`}>
-                                        {[item.degree, item.field].filter(Boolean).join(' - ')}
-                                    </p>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover} ${!isMobile && side === 'left' ? 'pl-10' : 'pr-10'}`}>
-                                      {getText(item.role, lang) || getText(item.title, lang)}
-                                  </h3>
-                                  <p className={`text-sm text-gray-500 dark:text-gray-400 font-medium`}>
-                                      {item.company}
-                                  </p>
-                                </>
+                              {(isMobile || side === 'right') && (
+                                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                                      <Calendar className="w-3 h-3" /> {period}
+                                  </span>
+                              )}
+                              {!isMobile && side === 'left' && (
+                                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                                      {period} <Calendar className="w-3 h-3" />
+                                  </span>
                               )}
                           </div>
 
-                          {/* Description - only for non-education */}
-                          {item.type !== 'education' && getText(item.description, lang) && (
-                            <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
-                                {getText(item.description, lang)}
-                            </p>
-                          )}
+                          <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
+                              {getText(item.role, lang) || getText(item.title, lang)}
+                          </h3>
 
-                          {/* Skills */}
-                          {item.skills && item.skills.length > 0 && (
-                              <div className={`flex flex-wrap gap-2 pt-1 ${skillJustify}`}>
-                                  {item.skills.map((skill: string) => (
-                                  <span 
-                                      key={skill} 
-                                      className="text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 px-2.5 py-1 rounded-lg"
-                                  >
-                                      {skill}
-                                  </span>
-                                  ))}
-                              </div>
-                          )}
+                          <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                              <span>{item.company}</span>
+                          </div>
                       </div>
-                   </MagicCard>
-                 </a>
-               ) : (
-                 <MagicCard 
-                    gradientColor={style.beamColor + '33'}
-                    className={`
-                      w-full relative rounded-3xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 
-                      transition-all duration-300 hover:-translate-y-1
-                      flex flex-col
-                      ${!isMobile && side === 'left' ? 'items-end' : ''}
-                  `}
-                 >
-                    {/* Inner Content Div with Padding */}
-                    <div className={`p-6 md:p-8 w-full flex flex-col gap-3 ${!isMobile && side === 'left' ? 'items-end' : ''}`}>
-                        {/* Header: Badge + Date */}
-                        <div className={`flex items-center gap-2 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
-                            <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${style.bg} ${style.color}`}>
-                                {getLabel()}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-gray-400">
-                                {!isMobile && side === 'left' ? (
-                                  <>{period} <Calendar className="w-3 h-3" /></>
-                                ) : (
-                                  <><Calendar className="w-3 h-3" /> {period}</>
-                                )}
-                            </span>
-                        </div>
 
-                        {/* Title & Company */}
-                        <div className={`flex flex-col gap-1 w-full relative z-10 ${alignClass}`}>
-                            {item.type === 'education' ? (
-                              <>
-                                <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
-                                    {item.company}
-                                </h3>
-                                {(item.degree || item.field) && (
-                                  <p className={`text-sm text-gray-500 dark:text-gray-400 font-medium`}>
-                                      {[item.degree, item.field].filter(Boolean).join(' - ')}
-                                  </p>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
-                                    {getText(item.role, lang) || getText(item.title, lang)}
-                                </h3>
-                                <p className={`text-sm text-gray-500 dark:text-gray-400 font-medium`}>
-                                    {item.company}
-                                </p>
-                              </>
-                            )}
-                        </div>
+                      <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
+                          {getText(item.description, lang)}
+                      </p>
 
-                        {/* Description - only for non-education */}
-                        {item.type !== 'education' && getText(item.description, lang) && (
-                          <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
-                              {getText(item.description, lang)}
-                          </p>
-                        )}
+                      {item.skills && (
+                          <div className={`flex flex-wrap gap-2 relative z-10 ${skillJustify}`}>
+                              {item.skills.map((skill: string) => (
+                              <span 
+                                  key={skill} 
+                                  className="text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 px-2.5 py-1 rounded-lg"
+                              >
+                                  {skill}
+                              </span>
+                              ))}
+                          </div>
+                      )}
 
-                        {/* Skills */}
-                        {item.skills && item.skills.length > 0 && (
-                            <div className={`flex flex-wrap gap-2 pt-1 ${skillJustify}`}>
-                                {item.skills.map((skill: string) => (
-                                <span 
-                                    key={skill} 
-                                    className="text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 px-2.5 py-1 rounded-lg"
-                                >
-                                    {skill}
-                                </span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                 </MagicCard>
-               )}
+                      {item.link && (
+                          <a 
+                              href={item.link} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity relative z-10 ${linkAlign}`}
+                          >
+                              {t.experience.viewProject} <ArrowUpRight className="w-3 h-3" />
+                          </a>
+                      )}
+                  </div>
+               </MagicCard>
             </div>
         </div>
      );
@@ -293,8 +196,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
   const [activeFilters, setActiveFilters] = useState<FilterType[]>(['work', 'education', 'certification', 'project']);
   const [animationKey, setAnimationKey] = useState(0);
   const [shakeFilters, setShakeFilters] = useState(false);
-  const { t, lang } = useLanguage();
-  const { sectionContent } = useAdmin();
+  const { t } = useLanguage();
 
   const toggleFilter = (filter: FilterType) => {
     setActiveFilters(prev => {
@@ -377,10 +279,10 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
         <div className="flex flex-col items-center justify-center text-center mb-16 md:mb-24 gap-6">
             <div>
                 <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-                  {getText(sectionContent.experience.title, lang)}
+                  {t.experience.title}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-sm md:text-base">
-                  {getText(sectionContent.experience.description, lang)}
+                  {t.experience.desc}
                 </p>
             </div>
             
