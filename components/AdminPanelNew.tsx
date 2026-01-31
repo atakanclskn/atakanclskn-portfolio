@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Briefcase, Code, Share2,
-  Layers, Home, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom
+  Layers, Home, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom,
+  Cloud, CloudOff, Download, Upload, Loader2, Check
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { AdminSidebar, TabItem } from './admin/AdminSidebar';
@@ -21,9 +22,11 @@ export const AdminPanel: React.FC = () => {
   const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
   const [adminTheme, setAdminTheme] = useState<'light' | 'dark'>('dark');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { isLoggedIn, login, logout, primaryColor, setPrimaryColor, unreadCount } = useAdmin();
+  const { isLoggedIn, loginWithGoogle, logout, primaryColor, setPrimaryColor, unreadCount, 
+    saveToFirebase, loadFromFirebase, isSaving, isLoading, lastSyncTime, isAuthLoading, currentUser } = useAdmin();
   
   const [tempColor, setTempColor] = useState<string>(primaryColor);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
 
   // Sync tempColor when primaryColor changes or panel opens
   useEffect(() => {
@@ -76,6 +79,21 @@ export const AdminPanel: React.FC = () => {
 
   const handleApplyColor = () => {
     setPrimaryColor(tempColor);
+  };
+
+  const handleSaveToFirebase = async () => {
+    setSaveStatus('saving');
+    const result = await saveToFirebase();
+    setSaveStatus(result ? 'success' : 'error');
+    setTimeout(() => setSaveStatus('idle'), 3000);
+  };
+
+  const handleLoadFromFirebase = async () => {
+    if (window.confirm(editLang === 'TR' 
+      ? 'Firebase\'den veri yüklenecek. Mevcut değişiklikler kaybolabilir. Devam etmek istiyor musunuz?' 
+      : 'Data will be loaded from Firebase. Current changes may be lost. Continue?')) {
+      await loadFromFirebase();
+    }
   };
 
   const renderTabContent = () => {
@@ -156,6 +174,59 @@ export const AdminPanel: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Firebase Sync Buttons - Only when logged in */}
+              {isLoggedIn && (
+                <div className="flex items-center gap-2">
+                  {/* Load from Firebase */}
+                  <button
+                    onClick={handleLoadFromFirebase}
+                    disabled={isLoading}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      adminTheme === 'dark'
+                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50'
+                    }`}
+                    title={editLang === 'TR' ? 'Firebase\'den Yükle' : 'Load from Firebase'}
+                  >
+                    {isLoading ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Download size={14} />
+                    )}
+                    <span className="hidden md:inline">{editLang === 'TR' ? 'Yükle' : 'Load'}</span>
+                  </button>
+
+                  {/* Save to Firebase */}
+                  <button
+                    onClick={handleSaveToFirebase}
+                    disabled={isSaving}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      saveStatus === 'success'
+                        ? 'bg-green-500 text-white'
+                        : saveStatus === 'error'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-primary text-black hover:opacity-90 disabled:opacity-50'
+                    }`}
+                    title={editLang === 'TR' ? 'Firebase\'e Kaydet' : 'Save to Firebase'}
+                  >
+                    {isSaving ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : saveStatus === 'success' ? (
+                      <Check size={14} />
+                    ) : (
+                      <Upload size={14} />
+                    )}
+                    <span className="hidden md:inline">
+                      {isSaving 
+                        ? (editLang === 'TR' ? 'Kaydediliyor...' : 'Saving...') 
+                        : saveStatus === 'success'
+                        ? (editLang === 'TR' ? 'Kaydedildi!' : 'Saved!')
+                        : (editLang === 'TR' ? 'Kaydet' : 'Save')}
+                    </span>
+                  </button>
+                </div>
+              )}
+
               {/* Language Switcher */}
               <div className={`flex items-center gap-1 rounded-lg p-1 ${
                 adminTheme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
@@ -217,7 +288,7 @@ export const AdminPanel: React.FC = () => {
             {/* Login Screen */}
             {!isLoggedIn ? (
               <div className="flex-1 flex items-center justify-center">
-                <AdminLogin onLogin={login} theme={adminTheme} editLang={editLang} />
+                <AdminLogin onLoginWithGoogle={loginWithGoogle} theme={adminTheme} editLang={editLang} isLoading={isAuthLoading} />
               </div>
             ) : (
               <>

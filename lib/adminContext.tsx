@@ -5,6 +5,9 @@ import {
   HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings,
   ContactMessage, SectionContent, FooterSettings, NavLinkItem
 } from '../types';
+import { loadAllData, saveAllData } from './firestore.service';
+import { signInWithGoogle, logOut, onAuthChange } from './firebase';
+import { User } from 'firebase/auth';
 
 // Default Data Constants (Moved from App.tsx)
 const DEFAULT_EXPERIENCES: ExperienceItem[] = [
@@ -228,8 +231,10 @@ const DEFAULT_FOOTER: FooterSettings = {
 
 interface AdminContextType {
   isLoggedIn: boolean;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
+  currentUser: User | null;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
+  isAuthLoading: boolean;
   
   // Data State
   primaryColor: string; // RGB string like "6 182 212"
@@ -285,12 +290,21 @@ interface AdminContextType {
   archiveMessage: (id: string) => void;
   deleteMessage: (id: string) => void;
   unreadCount: number;
+
+  // Firebase Operations
+  saveToFirebase: () => Promise<boolean>;
+  loadFromFirebase: () => Promise<boolean>;
+  isSaving: boolean;
+  isLoading: boolean;
+  lastSyncTime: string | null;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   
   // Initialize state from LocalStorage or defaults
   const [primaryColor, setPrimaryColorState] = useState<string>('6 182 212');
@@ -308,6 +322,21 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [sectionContent, setSectionContentState] = useState<SectionContent>(DEFAULT_SECTION_CONTENT);
   const [footerSettings, setFooterSettingsState] = useState<FooterSettings>(DEFAULT_FOOTER);
   const [messages, setMessagesState] = useState<ContactMessage[]>([]);
+
+  // Firebase state
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = onAuthChange((user) => {
+      setCurrentUser(user);
+      setIsLoggedIn(!!user);
+      setIsAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Load from LocalStorage on mount
   useEffect(() => {
@@ -468,22 +497,99 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const unreadCount = messages.filter(m => !m.isRead && !m.isArchived).length;
 
-  const login = (email: string, password: string) => {
-    // Şimdilik her şeyi kabul et (Firebase bağlandığında değişecek)
-    // TODO: Firebase Authentication eklenecek
-    if (email || password || true) {
-      setIsLoggedIn(true);
-      return true;
+  // Firebase Operations
+  const saveToFirebase = async (): Promise<boolean> => {
+    setIsSaving(true);
+    try {
+      // Profile'ı Experience formatına dönüştür (Firestore için)
+      const profileForFirebase = {
+        ...profile,
+        heroContent,
+        aboutContent,
+        statsContent,
+        hobbies,
+        navbarSettings,
+        siteSettings,
+        primaryColor,
+      };
+
+      const result = await saveAllData({
+        profile: profileForFirebase as any,
+        projects,
+        experiences,
+        techStack,
+        socials,
+        sectionContent,
+        footerSettings,
+      });
+
+      if (result) {
+        const now = new Date().toISOString();
+        setLastSyncTime(now);
+        localStorage.setItem('site_lastSyncTime', now);
+      }
+      return result;
+    } catch (error) {
+      console.error('Error saving to Firebase:', error);
+      return false;
+    } finally {
+      setIsSaving(false);
     }
-    return false;
   };
 
-  const logout = () => setIsLoggedIn(false);
+  const loadFromFirebase = async (): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const data = await loadAllData();
+      if (data) {
+        if (data.profile) {
+          const p = data.profile as any;
+          setProfileState(p);
+          if (p.heroContent) setHeroContentState(p.heroContent);
+          if (p.aboutContent) setAboutContentState(p.aboutContent);
+          if (p.statsContent) setStatsContentState(p.statsContent);
+          if (p.hobbies) setHobbiesState(p.hobbies);
+          if (p.navbarSettings) setNavbarSettingsState(p.navbarSettings);
+          if (p.siteSettings) setSiteSettingsState(p.siteSettings);
+          if (p.primaryColor) setPrimaryColorState(p.primaryColor);
+        }
+        if (data.projects && data.projects.length > 0) setProjectsState(data.projects);
+        if (data.experiences && data.experiences.length > 0) setExperiencesState(data.experiences);
+        if (data.techStack && data.techStack.length > 0) setTechStackState(data.techStack);
+        if (data.socials && data.socials.length > 0) setSocialsState(data.socials);
+        if (data.sectionContent) setSectionContentState(data.sectionContent);
+        if (data.footerSettings) setFooterSettingsState(data.footerSettings);
+
+        const now = new Date().toISOString();
+        setLastSyncTime(now);
+        localStorage.setItem('site_lastSyncTime', now);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error loading from Firebase:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+    const result = await signInWithGoogle();
+    return result;
+  };
+
+  const logout = async () => {
+    await logOut();
+    setCurrentUser(null);
+    setIsLoggedIn(false);
+  };
+
   const setPrimaryColor = (color: string) => setPrimaryColorState(color);
 
   return (
     <AdminContext.Provider value={{
-      isLoggedIn, login, logout,
+      isLoggedIn, currentUser, loginWithGoogle, logout, isAuthLoading,
       primaryColor, setPrimaryColor,
       profile, updateProfile,
       projects, setProjects,
@@ -498,7 +604,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       siteSettings, setSiteSettings,
       sectionContent, setSectionContent,
       footerSettings, setFooterSettings,
-      messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount
+      messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount,
+      // Firebase
+      saveToFirebase, loadFromFirebase, isSaving, isLoading, lastSyncTime
     }}>
       {children}
     </AdminContext.Provider>
