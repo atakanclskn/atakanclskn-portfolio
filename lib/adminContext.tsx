@@ -338,7 +338,46 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return () => unsubscribe();
   }, []);
 
-  // Load from LocalStorage on mount
+  // Load from Firebase on mount (PUBLIC DATA)
+  useEffect(() => {
+    const loadFromFirebaseOnMount = async () => {
+      try {
+        console.log("🔥 Loading data from Firebase...");
+        const data = await loadAllData();
+        
+        if (data) {
+          if (data.profile) {
+            const p = data.profile as any;
+            setProfileState(p);
+            if (p.heroContent) setHeroContentState(p.heroContent);
+            if (p.aboutContent) setAboutContentState(p.aboutContent);
+            if (p.statsContent) setStatsContentState(p.statsContent);
+            if (p.hobbies) setHobbiesState(p.hobbies);
+            if (p.navbarSettings) setNavbarSettingsState(p.navbarSettings);
+            if (p.siteSettings) setSiteSettingsState(p.siteSettings);
+            if (p.primaryColor) {
+              setPrimaryColorState(p.primaryColor);
+              document.documentElement.style.setProperty('--primary', p.primaryColor);
+            }
+          }
+          if (data.projects && data.projects.length > 0) setProjectsState(data.projects);
+          if (data.experiences && data.experiences.length > 0) setExperiencesState(data.experiences);
+          if (data.techStack && data.techStack.length > 0) setTechStackState(data.techStack);
+          if (data.socials && data.socials.length > 0) setSocialsState(data.socials);
+          if (data.sectionContent) setSectionContentState(data.sectionContent);
+          if (data.footerSettings) setFooterSettingsState(data.footerSettings);
+          
+          console.log("✅ Data loaded from Firebase!");
+        }
+      } catch (error) {
+        console.error("❌ Error loading from Firebase, using defaults:", error);
+      }
+    };
+
+    loadFromFirebaseOnMount();
+  }, []);
+
+  // Load from LocalStorage on mount (fallback/override for admin)
   useEffect(() => {
     const savedColor = localStorage.getItem('site_primaryColor');
     if (savedColor) setPrimaryColorState(savedColor);
