@@ -239,7 +239,9 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
         link: p.link
     }));
 
-    const combined = [...experiences, ...projectItems];
+    // Experience'deki project tiplerini hariç tut (Projects Tab'dan gelenlerle çakışmasın)
+    const nonProjectExperiences = experiences.filter(e => e.type !== 'project');
+    const combined = [...nonProjectExperiences, ...projectItems];
     
     combined.sort((a, b) => {
         const dateA = new Date(a.startDate).getTime();

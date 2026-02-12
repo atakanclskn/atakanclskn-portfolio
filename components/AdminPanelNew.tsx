@@ -121,7 +121,7 @@ export const AdminPanel: React.FC = () => {
       case 'projects':
         return <ProjectsTab editLang={editLang} theme={adminTheme} />;
       case 'experience':
-        return <ExperienceTab editLang={editLang} theme={adminTheme} />;
+        return <ExperienceTab editLang={editLang} theme={adminTheme} onTabChange={setActiveTab} />;
       case 'socials':
         return <SocialsTab editLang={editLang} theme={adminTheme} />;
       case 'sections':

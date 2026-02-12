@@ -6,12 +6,13 @@ import { ExperienceItem, MultiLangText } from '../../../types';
 import { 
   Briefcase, GraduationCap, Award, FolderGit2, Plus, Trash2, 
   ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, ExternalLink,
-  Building2, MapPin, Calendar, Link as LinkIcon, Hash, Star
+  Building2, MapPin, Calendar, Link as LinkIcon, Hash, Star, ArrowRight
 } from 'lucide-react';
 
 interface ExperienceTabProps {
   editLang: 'EN' | 'TR';
   theme: 'light' | 'dark';
+  onTabChange?: (tab: string) => void;
 }
 
 const typeIcons = {
@@ -28,8 +29,8 @@ const typeColors = {
   project: 'from-emerald-500 to-emerald-600',
 };
 
-export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme }) => {
-  const { experiences, setExperiences } = useAdmin();
+export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, onTabChange }) => {
+  const { experiences, setExperiences, projects } = useAdmin();
   const t = adminTranslations.experience;
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
   
@@ -596,9 +597,12 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme })
             {(['all', 'work', 'education', 'certification', 'project'] as const).map((type) => {
               const Icon = type === 'all' ? null : typeIcons[type];
               const isActive = selectedType === type;
+              const projectCount = projects.filter(p => p.showInTimeline !== false).length;
               const count = type === 'all' 
-                ? experiences.length 
-                : experiences.filter(e => e.type === type).length;
+                ? experiences.length + projectCount
+                : type === 'project'
+                  ? experiences.filter(e => e.type === 'project').length + projectCount
+                  : experiences.filter(e => e.type === type).length;
               
               return (
                 <button
@@ -638,7 +642,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme })
           {getText(t.addExperience)}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {(['work', 'education', 'certification', 'project'] as const).map((type) => {
+          {(['work', 'education', 'certification'] as const).map((type) => {
             const Icon = typeIcons[type];
             const colorClass = typeColors[type];
             
@@ -654,12 +658,21 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme })
               </button>
             );
           })}
+          {/* Project button redirects to Projects tab */}
+          <button
+            onClick={() => onTabChange?.('projects')}
+            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r ${typeColors.project} text-white font-medium text-sm transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]`}
+          >
+            <FolderGit2 size={18} />
+            <span>{getText(t.typeProject as { EN: string; TR: string })}</span>
+            <ArrowRight size={16} />
+          </button>
         </div>
       </div>
 
       {/* Experience Items */}
       <div className="space-y-4">
-        {sortedExperiences.length === 0 ? (
+        {sortedExperiences.length === 0 && !(selectedType === 'project' || selectedType === 'all') ? (
           <div className={`p-12 rounded-2xl border text-center ${
             theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
           }`}>
@@ -669,10 +682,26 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme })
               <Briefcase size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
             </div>
             <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              No experiences yet
+              {editLang === 'TR' ? 'Henüz deneyim eklenmedi' : 'No experiences yet'}
             </p>
             <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
-              Add your first experience using the buttons above
+              {editLang === 'TR' ? 'Yukarıdaki butonlardan ekleyin' : 'Add your first experience using the buttons above'}
+            </p>
+          </div>
+        ) : sortedExperiences.length === 0 && selectedType === 'all' && projects.filter(p => p.showInTimeline !== false).length === 0 ? (
+          <div className={`p-12 rounded-2xl border text-center ${
+            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
+          }`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
+              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
+            }`}>
+              <Briefcase size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+            </div>
+            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              {editLang === 'TR' ? 'Henüz deneyim eklenmedi' : 'No experiences yet'}
+            </p>
+            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+              {editLang === 'TR' ? 'Yukarıdaki butonlardan ekleyin' : 'Add your first experience using the buttons above'}
             </p>
           </div>
         ) : (
@@ -873,6 +902,69 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme })
               </div>
             );
           })
+        )}
+
+        {/* Projects from Projects Tab (passive, read-only) */}
+        {(selectedType === 'all' || selectedType === 'project') && projects.filter(p => p.showInTimeline !== false).length > 0 && (
+          <>
+            <div className={`flex items-center gap-3 mt-6 mb-3 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <FolderGit2 size={16} />
+              <span className="text-xs font-semibold uppercase tracking-wider">
+                {editLang === 'TR' ? 'Projeler (Projeler Sekmesinden)' : 'Projects (from Projects Tab)'}
+              </span>
+              <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`} />
+              <button
+                onClick={() => onTabChange?.('projects')}
+                className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                {editLang === 'TR' ? 'Düzenle' : 'Edit'}
+                <ArrowRight size={14} />
+              </button>
+            </div>
+            {projects.filter(p => p.showInTimeline !== false).map((project) => {
+              const titleText = typeof project.title === 'string' ? project.title : project.title[editLang];
+              return (
+                <div
+                  key={`proj-${project._id}`}
+                  className={`rounded-2xl border overflow-hidden transition-all duration-300 opacity-70 cursor-pointer ${
+                    theme === 'dark'
+                      ? 'bg-gray-900/30 border-gray-800 hover:border-emerald-800 hover:opacity-100'
+                      : 'bg-white/50 border-gray-200 hover:border-emerald-300 hover:opacity-100'
+                  }`}
+                  onClick={() => onTabChange?.('projects')}
+                >
+                  <div className={`p-4 flex items-center gap-4`}>
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${typeColors.project} flex items-center justify-center text-white`}>
+                      <FolderGit2 size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                        {titleText}
+                      </h3>
+                      <p className={`text-sm truncate ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {project.category}{project.startDate ? ` • ${project.startDate}` : ''}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {project.skills && project.skills.length > 0 && (
+                        <div className="hidden md:flex gap-1">
+                          {project.skills.slice(0, 3).map((skill, i) => (
+                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded ${
+                              theme === 'dark' ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
+                            }`}>{skill}</span>
+                          ))}
+                        </div>
+                      )}
+                      <div className={`flex items-center gap-1 text-xs font-medium text-primary`}>
+                        <span>{editLang === 'TR' ? 'Düzenle' : 'Edit'}</span>
+                        <ArrowRight size={14} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
     </div>
