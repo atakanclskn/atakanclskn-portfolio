@@ -44,6 +44,11 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
       size: 'small' as const,
       link: '',
       githubUrl: '',
+      startDate: new Date().toISOString().slice(0, 7),
+      endDate: '',
+      isCurrent: false,
+      skills: [],
+      showInTimeline: true,
     };
     setProjects([...projects, newProject]);
     setExpandedItems(new Set([...expandedItems, newProject._id]));
@@ -259,6 +264,70 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                           />
                         </div>
                       )}
+                    </div>
+
+                    {/* Dates & Timeline */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className={labelClass}>
+                          <Tag size={14} />
+                          {editLang === 'TR' ? 'Başlangıç Tarihi' : 'Start Date'}
+                        </label>
+                        <input
+                          type="month"
+                          value={project.startDate || ''}
+                          onChange={(e) => updateProject(project._id, 'startDate', e.target.value)}
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>
+                          <Tag size={14} />
+                          {editLang === 'TR' ? 'Bitiş Tarihi' : 'End Date'}
+                        </label>
+                        <input
+                          type="month"
+                          value={project.endDate || ''}
+                          onChange={(e) => updateProject(project._id, 'endDate', e.target.value)}
+                          className={inputClass}
+                          disabled={project.isCurrent}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-3">
+                        <label className={`flex items-center gap-2 cursor-pointer mt-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <input
+                            type="checkbox"
+                            checked={project.isCurrent || false}
+                            onChange={(e) => updateProject(project._id, 'isCurrent', e.target.checked)}
+                            className="w-4 h-4 rounded accent-primary"
+                          />
+                          <span className="text-sm">{editLang === 'TR' ? 'Devam Ediyor' : 'Ongoing'}</span>
+                        </label>
+                        <label className={`flex items-center gap-2 cursor-pointer ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <input
+                            type="checkbox"
+                            checked={project.showInTimeline !== false}
+                            onChange={(e) => updateProject(project._id, 'showInTimeline', e.target.checked)}
+                            className="w-4 h-4 rounded accent-primary"
+                          />
+                          <span className="text-sm">{editLang === 'TR' ? 'Timeline\'da Göster' : 'Show in Timeline'}</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Skills / Technologies */}
+                    <div>
+                      <label className={labelClass}>
+                        <Tag size={14} />
+                        {editLang === 'TR' ? 'Teknolojiler (virgülle ayırın)' : 'Technologies (comma separated)'}
+                      </label>
+                      <input
+                        type="text"
+                        value={(project.skills || []).join(', ')}
+                        onChange={(e) => updateProject(project._id, 'skills', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                        className={inputClass}
+                        placeholder="React, TypeScript, Firebase"
+                      />
                     </div>
 
                     {/* Size, Link, GitHub */}

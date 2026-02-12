@@ -224,14 +224,17 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
   };
 
   const groupedItems = useMemo(() => {
-    const projectItems = projects.map(p => ({
+    const projectItems = projects
+      .filter(p => p.showInTimeline !== false)
+      .map(p => ({
         _id: p._id,
         role: p.title,
         company: p.category || 'Personal Project',
-        startDate: '2024-01-01',
-        isCurrent: false,
+        startDate: p.startDate || new Date().toISOString().slice(0, 7),
+        endDate: p.endDate,
+        isCurrent: p.isCurrent || false,
         description: p.description,
-        skills: [p.category],
+        skills: p.skills || [p.category],
         type: 'project' as const,
         link: p.link
     }));

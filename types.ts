@@ -28,6 +28,11 @@ export interface Project {
   stars?: number;
   language?: string;
   isLiveData?: boolean;
+  startDate?: string;
+  endDate?: string;
+  isCurrent?: boolean;
+  skills?: string[];
+  showInTimeline?: boolean;
 }
 
 export interface ExperienceItem {
