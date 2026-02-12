@@ -196,6 +196,64 @@
 </script>
 </head>
   <body class="bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-[#e5e5e5]">
+    <!-- Dynamic SEO & Analytics Loader -->
+    <script>
+      // Load SEO settings from localStorage and update meta tags
+      (function() {
+        try {
+          const seoSettings = localStorage.getItem('site_siteSettings');
+          if (seoSettings) {
+            const settings = JSON.parse(seoSettings);
+            const lang = localStorage.getItem('site_language') || 'EN';
+            
+            // Update title
+            if (settings.metaTitle) {
+              const title = typeof settings.metaTitle === 'string' ? settings.metaTitle : settings.metaTitle[lang];
+              document.title = title;
+              document.querySelector('meta[name="title"]')?.setAttribute('content', title);
+              document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+              document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+            }
+            
+            // Update description
+            if (settings.metaDescription) {
+              const desc = typeof settings.metaDescription === 'string' ? settings.metaDescription : settings.metaDescription[lang];
+              document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+              document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
+              document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
+            }
+            
+            // Update keywords
+            if (settings.metaKeywords) {
+              const keywords = typeof settings.metaKeywords === 'string' ? settings.metaKeywords : settings.metaKeywords[lang];
+              document.querySelector('meta[name="keywords"]')?.setAttribute('content', keywords);
+            }
+            
+            // Update OG image
+            if (settings.ogImage) {
+              document.querySelector('meta[property="og:image"]')?.setAttribute('content', settings.ogImage);
+              document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', settings.ogImage);
+            }
+            
+            // Initialize Google Analytics if ID is provided
+            if (settings.googleAnalyticsId && settings.googleAnalyticsId.startsWith('G-')) {
+              const gaScript = document.createElement('script');
+              gaScript.async = true;
+              gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${settings.googleAnalyticsId}`;
+              document.head.appendChild(gaScript);
+              
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', settings.googleAnalyticsId);
+            }
+          }
+        } catch (e) {
+          console.error('SEO settings load error:', e);
+        }
+      })();
+    </script>
+    
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

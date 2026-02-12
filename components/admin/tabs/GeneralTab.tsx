@@ -389,8 +389,11 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
                   ? 'bg-gray-800 border-gray-700 text-white'
                   : 'bg-gray-50 border-gray-300 text-gray-900'
               }`}
-              placeholder="https://example.com/og-image.png"
+              placeholder="https://atakanclskn.me/og-image.png"
             />
+            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`}>
+              {editLang === 'TR' ? '1200x630px görsel (sosyal medya paylaşımları için)' : '1200x630px image (for social media shares)'}
+            </p>
           </div>
 
           <div>
@@ -408,6 +411,11 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({
               }`}
               placeholder="G-XXXXXXXXXX"
             />
+            <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-600'}`}>
+              {editLang === 'TR' 
+                ? '📊 Ziyaretçi analizi için Google Analytics 4 ID (analytics.google.com)' 
+                : '📊 Google Analytics 4 ID for visitor tracking (analytics.google.com)'}
+            </p>
           </div>
         </div>
       </div>
