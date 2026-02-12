@@ -195,7 +195,7 @@ const getIconUrlWithFallback = (iconName: string): string => {
 };
 
 export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
-  const { techStack, setTechStack } = useAdmin();
+  const { techStack, setTechStack, siteSettings, setSiteSettings } = useAdmin();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -298,6 +298,39 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
               <Plus size={18} />
               Add Technology
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Animation Speed Control */}
+      <div className={`p-6 rounded-2xl border ${
+        theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
+      }`}>
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-semibold mb-3 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
+              {editLang === 'TR' ? '⚡ Animasyon Hızı' : '⚡ Animation Speed'}
+            </label>
+            <input 
+              type="range"
+              min="0.2"
+              max="3"
+              step="0.1"
+              value={siteSettings.techStackSpeed || 0.5}
+              onChange={(e) => setSiteSettings({...siteSettings, techStackSpeed: parseFloat(e.target.value)})}
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-primary"
+            />
+            <div className={`flex justify-between text-xs mt-2 ${
+              theme === 'dark' ? 'text-gray-500' : 'text-gray-600'
+            }`}>
+              <span>{editLang === 'TR' ? '🐌 Yavaş' : '🐌 Slow'}</span>
+              <span className={`font-bold text-base ${theme === 'dark' ? 'text-primary' : 'text-primary'}`}>
+                {(siteSettings.techStackSpeed || 0.5).toFixed(1)}x
+              </span>
+              <span>{editLang === 'TR' ? '🚀 Hızlı' : '🚀 Fast'}</span>
+            </div>
           </div>
         </div>
       </div>

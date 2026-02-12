@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { TechItem } from '../types';
+import { useAdmin } from '../lib/adminContext';
 
 // Dynamic icon component that uses Devicon CDN (original colored logos)
 interface DynamicIconProps {
@@ -93,6 +94,7 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
   const scrollPositionRef = useRef(0); // Keep scroll position persistent
   const [isHovered, setIsHovered] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const { siteSettings } = useAdmin();
   
   // Check for dark mode
   useEffect(() => {
@@ -114,7 +116,7 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
     if (!scrollContainer || items.length === 0) return;
 
     let animationId: number;
-    const speed = 0.5; // pixels per frame
+    const speed = siteSettings.techStackSpeed || 0.5; // pixels per frame, customizable from admin
     const itemWidth = 160; // approximate width per item
     const resetPoint = items.length * itemWidth;
 
@@ -137,7 +139,7 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [items.length, isHovered]);
+  }, [items.length, isHovered, siteSettings.techStackSpeed]);
 
   if (items.length === 0) {
     return null;
@@ -145,9 +147,9 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
 
   return (
     <section id="tech-stack" className="relative py-20 overflow-hidden bg-gradient-to-b from-white via-gray-50/50 to-white dark:from-[#050505] dark:via-[#0a0a0a] dark:to-[#050505]">
-      {/* Gradient Masks - Full section height */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 md:w-48 lg:w-64 xl:w-80 bg-gradient-to-r from-white via-white via-50% to-transparent dark:from-[#050505] dark:via-[#050505] dark:via-50% dark:to-transparent z-10 pointer-events-none"></div>
-      <div className="absolute right-0 top-0 bottom-0 w-32 md:w-48 lg:w-64 xl:w-80 bg-gradient-to-l from-white via-white via-50% to-transparent dark:from-[#050505] dark:via-[#050505] dark:via-50% dark:to-transparent z-10 pointer-events-none"></div>
+      {/* Gradient Masks - Smaller on mobile, larger on desktop */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 md:w-48 lg:w-64 xl:w-80 bg-gradient-to-r from-white via-white via-50% to-transparent dark:from-[#050505] dark:via-[#050505] dark:via-50% dark:to-transparent z-10 pointer-events-none"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-16 md:w-48 lg:w-64 xl:w-80 bg-gradient-to-l from-white via-white via-50% to-transparent dark:from-[#050505] dark:via-[#050505] dark:via-50% dark:to-transparent z-10 pointer-events-none"></div>
 
       {/* Section Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -179,7 +181,7 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
               className="flex-shrink-0 px-8 py-6 group cursor-default"
               style={{ width: '160px' }}
             >
-              <div className="flex flex-col items-center gap-4 transition-all duration-100">
+              <div className="flex flex-col items-center gap-4 transition-all duration-300">
                 {/* Logo Container */}
                 <div 
                   className={`
@@ -206,11 +208,11 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
                 </div>
                 
                 {/* Tech Name - Always visible */}
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap">
+                <div className="flex flex-col items-center gap-1 w-full px-2">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-full text-center">
                     {item.title}
                   </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
+                  <span className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-full text-center">
                     {item.tech}
                   </span>
                 </div>
