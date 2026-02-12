@@ -1,79 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useAdmin } from '../../../lib/adminContext';
 import { updateMultiLangText } from '../../../lib/multiLangHelper';
 import { adminTranslations, getTranslation } from '../../../lib/adminTranslations';
-import { uploadResume } from '../../../lib/firebase';
 import { 
   ChevronDown, ChevronUp, FolderKanban, Briefcase, 
   MessageSquare, Mail, Check, Users, Type, FileText,
-  User, Activity, MousePointer, Link, Eye, Home, Upload, Loader2
+  User, Activity, MousePointer, Link, Eye, Home
 } from 'lucide-react';
 
 interface SectionsTabProps {
   editLang: 'EN' | 'TR';
   theme: 'light' | 'dark';
 }
-
-// Resume/CV Upload Button Component
-const ResumeUploadButton: React.FC<{ theme: string; onUpload: (url: string) => void }> = ({ theme, onUpload }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Only accept PDF files
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF file.');
-      return;
-    }
-
-    // Max 10MB
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB.');
-      return;
-    }
-
-    setUploading(true);
-    try {
-      const url = await uploadResume(file);
-      onUpload(url);
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  return (
-    <>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".pdf"
-        onChange={handleUpload}
-        className="hidden"
-      />
-      <button
-        type="button"
-        onClick={() => fileInputRef.current?.click()}
-        disabled={uploading}
-        className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
-          theme === 'dark'
-            ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30'
-            : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-300'
-        } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-        title="Upload PDF"
-      >
-        {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-        {uploading ? 'Uploading...' : 'PDF'}
-      </button>
-    </>
-  );
-};
 
 export const SectionsTab: React.FC<SectionsTabProps> = ({ editLang, theme }) => {
   const { sectionContent, setSectionContent, heroContent, setHeroContent } = useAdmin();
@@ -416,19 +354,13 @@ export const SectionsTab: React.FC<SectionsTabProps> = ({ editLang, theme }) => 
                     <Link size={14} />
                     {getText(heroT.resumeLink)}
                   </label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={heroContent.resumeLink} 
-                      onChange={(e) => setHeroContent({...heroContent, resumeLink: e.target.value})}
-                      className={`${inputClass} flex-1`}
-                      placeholder="/resume.pdf"
-                    />
-                    <ResumeUploadButton 
-                      theme={theme}
-                      onUpload={(url) => setHeroContent({...heroContent, resumeLink: url})}
-                    />
-                  </div>
+                  <input 
+                    type="text" 
+                    value={heroContent.resumeLink} 
+                    onChange={(e) => setHeroContent({...heroContent, resumeLink: e.target.value})}
+                    className={inputClass}
+                    placeholder="/resume.pdf"
+                  />
                 </div>
               </div>
             </div>
