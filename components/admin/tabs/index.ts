@@ -1,5 +1,4 @@
 export { GeneralTab } from './GeneralTab';
-export { HeroTab } from './HeroTab';
 export { AboutTab } from './AboutTab';
 export { HobbiesTab } from './HobbiesTab';
 export { TechTab } from './TechTab';

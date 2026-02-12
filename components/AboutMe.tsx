@@ -223,7 +223,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                     <div className="w-full h-full rounded-full overflow-hidden relative p-2 z-30">
                          <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 animate-pulse rounded-full"></div>
                          {imageUrl ? (
-                             <img src={imageUrl} alt="Profile" className="w-full h-full object-cover relative z-10 p-1 rounded-full bg-white dark:bg-black" />
+                             <img src={imageUrl} alt="Profile" loading="lazy" className="w-full h-full object-cover relative z-10 p-1 rounded-full bg-white dark:bg-black" />
                          ) : (
                              <div className="w-full h-full bg-gray-200 dark:bg-white/10 flex items-center justify-center relative z-10 rounded-full">
                                  <span className="text-xs font-bold">ME</span>

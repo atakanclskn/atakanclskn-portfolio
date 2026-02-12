@@ -57,6 +57,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         <img 
                         src={imageUrl} 
                         alt={getText(project.title, lang)} 
+                        loading="lazy"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                     </>

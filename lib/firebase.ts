@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 
 // Environment variables kullanarak config (güvenli)
 const firebaseConfig = {
@@ -20,6 +21,23 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore
 export const db = getFirestore(app);
+
+// Initialize Storage
+export const storage = getStorage(app);
+
+// Upload Resume/CV to Firebase Storage
+export const uploadResume = async (file: File): Promise<string> => {
+  const storageRef = ref(storage, `resume/${file.name}`);
+  await uploadBytes(storageRef, file);
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+};
+
+// Delete Resume from Firebase Storage
+export const deleteResume = async (fileName: string): Promise<void> => {
+  const storageRef = ref(storage, `resume/${fileName}`);
+  await deleteObject(storageRef);
+};
 
 // Initialize Auth
 export const auth = getAuth(app);

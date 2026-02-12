@@ -6,6 +6,11 @@ import {
   collection, 
   getDocs,
   writeBatch,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+  query,
+  orderBy,
   Timestamp
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -16,7 +21,8 @@ import {
   TechItem, 
   Social,
   SectionContent,
-  FooterSettings
+  FooterSettings,
+  ContactMessage
 } from "../types";
 
 // ==================== PROFILE ====================
@@ -251,6 +257,57 @@ export const saveFooterSettings = async (settings: FooterSettings): Promise<bool
     return true;
   } catch (error) {
     console.error("Error saving footer settings:", error);
+    return false;
+  }
+};
+
+// ==================== CONTACT MESSAGES ====================
+export const saveContactMessage = async (message: ContactMessage): Promise<boolean> => {
+  try {
+    const docRef = doc(db, "messages", message._id);
+    const { _id, ...messageData } = message;
+    await setDoc(docRef, messageData);
+    return true;
+  } catch (error) {
+    console.error("Error saving contact message:", error);
+    return false;
+  }
+};
+
+export const getContactMessages = async (): Promise<ContactMessage[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "messages"));
+    const messages: ContactMessage[] = [];
+    querySnapshot.forEach((docSnap) => {
+      messages.push({ _id: docSnap.id, ...docSnap.data() } as ContactMessage);
+    });
+    // Sort by createdAt descending (newest first)
+    messages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return messages;
+  } catch (error) {
+    console.error("Error fetching contact messages:", error);
+    return [];
+  }
+};
+
+export const updateContactMessage = async (id: string, data: Partial<ContactMessage>): Promise<boolean> => {
+  try {
+    const docRef = doc(db, "messages", id);
+    await updateDoc(docRef, data as any);
+    return true;
+  } catch (error) {
+    console.error("Error updating contact message:", error);
+    return false;
+  }
+};
+
+export const deleteContactMessage = async (id: string): Promise<boolean> => {
+  try {
+    const docRef = doc(db, "messages", id);
+    await deleteDoc(docRef);
+    return true;
+  } catch (error) {
+    console.error("Error deleting contact message:", error);
     return false;
   }
 };

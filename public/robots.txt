@@ -1,9 +1,9 @@
-# Robots.txt for atakan.dev
+# Robots.txt for atakanclskn.me
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://atakan.dev/sitemap.xml
+Sitemap: https://atakanclskn.me/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1

@@ -155,6 +155,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                                 <img 
                                   src={item.companyLogo} 
                                   alt={item.company} 
+                                  loading="lazy"
                                   className="w-8 h-8 rounded-lg object-contain bg-white dark:bg-white/10 border border-gray-100 dark:border-white/10 flex-shrink-0"
                                   onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
                                 />

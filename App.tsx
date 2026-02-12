@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AboutMe } from './components/AboutMe';
@@ -10,8 +10,10 @@ import { Connect } from './components/Connect';
 import { InteractiveBackground } from './components/InteractiveBackground';
 import { LanguageProvider } from './lib/i18n';
 import { AdminProvider, useAdmin } from './lib/adminContext';
-import { AdminPanel } from './components/AdminPanelNew';
 import { PageSkeleton } from './components/Skeleton';
+
+// Lazy load AdminPanel - only needed for admin users
+const AdminPanel = lazy(() => import('./components/AdminPanelNew').then(m => ({ default: m.AdminPanel })));
 
 // Separate inner component to use the context
 const AppContent: React.FC = () => {
@@ -39,7 +41,9 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen relative transition-colors duration-300">
       <InteractiveBackground />
       <Navbar />
-      <AdminPanel />
+      <Suspense fallback={null}>
+        <AdminPanel />
+      </Suspense>
       <main className="relative z-10">
         <Hero profile={profile} />
         <AboutMe profile={profile} />

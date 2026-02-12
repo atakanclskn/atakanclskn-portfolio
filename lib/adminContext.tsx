@@ -6,6 +6,7 @@ import {
   ContactMessage, SectionContent, FooterSettings, NavLinkItem
 } from '../types';
 import { loadAllData, saveAllData } from './firestore.service';
+import { saveContactMessage, getContactMessages, updateContactMessage, deleteContactMessage } from './firestore.service';
 import { signInWithGoogle, logOut, onAuthChange } from './firebase';
 import { User } from 'firebase/auth';
 
@@ -369,6 +370,13 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           
           console.log("✅ Data loaded from Firebase!");
         }
+
+        // Load messages separately
+        const msgs = await getContactMessages();
+        if (msgs && msgs.length > 0) {
+          setMessagesState(msgs);
+          console.log(`✅ ${msgs.length} messages loaded from Firebase!`);
+        }
       } catch (error) {
         console.error("❌ Error loading from Firebase, using defaults:", error);
       }
@@ -516,22 +524,34 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       replies: []
     };
     setMessages([newMessage, ...messages]);
+    // Also save to Firebase
+    saveContactMessage(newMessage).catch(err => console.error("Error saving message to Firebase:", err));
   };
 
   const markAsRead = (id: string) => {
     setMessages(messages.map(m => m._id === id ? { ...m, isRead: true } : m));
+    updateContactMessage(id, { isRead: true }).catch(err => console.error("Error updating message:", err));
   };
 
   const toggleStar = (id: string) => {
-    setMessages(messages.map(m => m._id === id ? { ...m, isStarred: !m.isStarred } : m));
+    const msg = messages.find(m => m._id === id);
+    if (msg) {
+      setMessages(messages.map(m => m._id === id ? { ...m, isStarred: !m.isStarred } : m));
+      updateContactMessage(id, { isStarred: !msg.isStarred }).catch(err => console.error("Error updating message:", err));
+    }
   };
 
   const archiveMessage = (id: string) => {
-    setMessages(messages.map(m => m._id === id ? { ...m, isArchived: !m.isArchived } : m));
+    const msg = messages.find(m => m._id === id);
+    if (msg) {
+      setMessages(messages.map(m => m._id === id ? { ...m, isArchived: !m.isArchived } : m));
+      updateContactMessage(id, { isArchived: !msg.isArchived }).catch(err => console.error("Error updating message:", err));
+    }
   };
 
   const deleteMessage = (id: string) => {
     setMessages(messages.filter(m => m._id !== id));
+    deleteContactMessage(id).catch(err => console.error("Error deleting message:", err));
   };
 
   const unreadCount = messages.filter(m => !m.isRead && !m.isArchived).length;
