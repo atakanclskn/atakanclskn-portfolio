@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { ExperienceItem, Project } from '../types';
-import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight } from 'lucide-react';
+import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight, MapPin, Globe, Building2, ExternalLink, Hash } from 'lucide-react';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
@@ -149,22 +149,76 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               )}
                           </div>
 
-                          <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
-                              {getText(item.role, lang) || getText(item.title, lang)}
-                          </h3>
-
-                          <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
-                              <span>{item.company}</span>
+                          {/* Company Logo + Title */}
+                          <div className={`flex items-center gap-3 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                              {item.companyLogo && (
+                                <img 
+                                  src={item.companyLogo} 
+                                  alt={item.company} 
+                                  className="w-8 h-8 rounded-lg object-contain bg-white dark:bg-white/10 border border-gray-100 dark:border-white/10 flex-shrink-0"
+                                  onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                                />
+                              )}
+                              <h3 className={`text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight transition-colors ${style.hover}`}>
+                                  {getText(item.role, lang) || getText(item.title, lang)}
+                              </h3>
                           </div>
+
+                          <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium flex-wrap ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                              {item.companyUrl ? (
+                                <a href={item.companyUrl} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-1">
+                                  {item.company} <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ) : (
+                                <span>{item.company}</span>
+                              )}
+                              {/* Work: Location, Work Type, Employment Type */}
+                              {item.location && (
+                                <span className="flex items-center gap-1 text-xs">
+                                  <span className="text-gray-300 dark:text-gray-600">•</span>
+                                  <MapPin className="w-3 h-3" /> {item.location}
+                                </span>
+                              )}
+                              {item.workType && (
+                                <span className="flex items-center gap-1 text-xs">
+                                  <span className="text-gray-300 dark:text-gray-600">•</span>
+                                  {item.workType === 'remote' ? 'Remote' : item.workType === 'hybrid' ? 'Hybrid' : 'On-site'}
+                                </span>
+                              )}
+                              {item.employmentType && (
+                                <span className="flex items-center gap-1 text-xs">
+                                  <span className="text-gray-300 dark:text-gray-600">•</span>
+                                  {item.employmentType.replace('-', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                                </span>
+                              )}
+                          </div>
+
+                          {/* Education: Degree & Field & GPA */}
+                          {(item.degree || item.field || item.gpa) && (
+                            <div className={`flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 flex-wrap ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                              {item.degree && <span className="font-medium">{item.degree}</span>}
+                              {item.field && <><span className="text-gray-300 dark:text-gray-600">•</span><span>{item.field}</span></>}
+                              {item.gpa && <><span className="text-gray-300 dark:text-gray-600">•</span><span>GPA: {item.gpa}</span></>}
+                            </div>
+                          )}
+
+                          {/* Certification: Issuer, Credential */}
+                          {item.issuer && (
+                            <div className={`flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                              <Building2 className="w-3 h-3" />
+                              <span>{item.issuer}</span>
+                            </div>
+                          )}
                       </div>
 
                       <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
                           {getText(item.description, lang)}
                       </p>
 
-                      {item.skills && (
+                      {/* Skills / Technologies */}
+                      {(item.skills?.length > 0 || item.technologies?.length > 0) && (
                           <div className={`flex flex-wrap gap-2 relative z-10 ${skillJustify}`}>
-                              {item.skills.map((skill: string) => (
+                              {(item.skills || item.technologies || []).map((skill: string) => (
                               <span 
                                   key={skill} 
                                   className="text-[10px] font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 px-2.5 py-1 rounded-lg"
@@ -175,7 +229,29 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                           </div>
                       )}
 
-                      {item.link && (
+                      {/* Credential Info */}
+                      {(item.credentialId || item.credentialUrl) && (
+                        <div className={`flex items-center gap-3 text-xs relative z-10 ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                          {item.credentialId && (
+                            <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                              <Hash className="w-3 h-3" /> {item.credentialId}
+                            </span>
+                          )}
+                          {item.credentialUrl && (
+                            <a 
+                              href={item.credentialUrl} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className={`inline-flex items-center gap-1 font-bold ${style.color} hover:opacity-80 transition-opacity`}
+                            >
+                              {t.experience.viewProject} <ArrowUpRight className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Project links */}
+                      {item.link && !item.credentialUrl && (
                           <a 
                               href={item.link} 
                               target="_blank" 
@@ -244,9 +320,13 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
     const combined = [...nonProjectExperiences, ...projectItems];
     
     combined.sort((a, b) => {
-        const dateA = new Date(a.startDate).getTime();
-        const dateB = new Date(b.startDate).getTime();
-        return dateB - dateA;
+        // Sort by end date (most recently ended first), current items on top
+        const getEndTime = (item: any) => {
+          if (item.isCurrent) return Infinity;
+          if (item.endDate) return new Date(item.endDate).getTime();
+          return new Date(item.startDate).getTime();
+        };
+        return getEndTime(b) - getEndTime(a);
     });
 
     const filtered = combined.filter(item => {
@@ -256,7 +336,15 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
 
     const groups: Record<string, typeof filtered> = {};
     filtered.forEach(item => {
-        const year = new Date(item.startDate).getFullYear().toString();
+        // Group by end year (or "Present" for current items)
+        let year: string;
+        if (item.isCurrent) {
+          year = new Date().getFullYear().toString();
+        } else if (item.endDate) {
+          year = new Date(item.endDate).getFullYear().toString();
+        } else {
+          year = new Date(item.startDate).getFullYear().toString();
+        }
         if (!groups[year]) groups[year] = [];
         groups[year].push(item);
     });

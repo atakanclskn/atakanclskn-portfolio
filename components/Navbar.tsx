@@ -76,7 +76,12 @@ export const Navbar: React.FC = () => {
   }, []);
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+    // Don't close if clicking inside the desktop lang dropdown OR mobile lang area
+    const target = event.target as Node;
+    if (langDropdownRef.current && !langDropdownRef.current.contains(target)) {
+      // Check if clicking inside mobile lang dropdown area
+      const mobileLangArea = document.getElementById('mobile-lang-dropdown');
+      if (mobileLangArea && mobileLangArea.contains(target)) return;
       setIsLangOpen(false);
     }
   };
@@ -234,7 +239,7 @@ export const Navbar: React.FC = () => {
         {/* Mobile Toggle */}
         <div className="flex items-center gap-4 md:hidden">
           {/* Mobile Language Switcher - Minimal */}
-          <div className="relative">
+          <div className="relative" id="mobile-lang-dropdown">
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
               className="flex items-center gap-1 text-xs font-bold font-mono px-2 py-1 rounded bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white"
@@ -297,7 +302,7 @@ export const Navbar: React.FC = () => {
       />
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-x-0 top-[100%] bg-white dark:bg-background border-b border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 ease-in-out md:hidden ${
+      <div className={`absolute inset-x-0 top-full bg-white dark:bg-background border-b border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 ease-in-out md:hidden ${
         mobileMenuOpen ? 'max-h-[400px] opacity-100 shadow-xl' : 'max-h-0 opacity-0'
       }`}>
         <div className="p-8 flex flex-col gap-6">

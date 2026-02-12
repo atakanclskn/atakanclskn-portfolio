@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Briefcase, Code, Share2,
-  Layers, Home, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom,
+  Layers, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom,
   Cloud, CloudOff, Download, Upload, Loader2, Check
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { AdminSidebar, TabItem } from './admin/AdminSidebar';
 import { AdminLogin } from './admin/AdminLogin';
 import { 
-  GeneralTab, HeroTab, AboutTab, HobbiesTab, 
+  GeneralTab, AboutTab, HobbiesTab, 
   TechTab, ProjectsTab, ExperienceTab, SocialsTab,
   SectionsTab, FooterTab
 } from './admin/tabs';
@@ -66,14 +66,13 @@ export const AdminPanel: React.FC = () => {
   const tabs: TabItem[] = [
     { id: 'messages', label: getTranslation(adminTranslations.tabs.messages, editLang), icon: Mail, badge: unreadCount },
     { id: 'general', label: getTranslation(adminTranslations.tabs.general, editLang), icon: Settings },
-    { id: 'hero', label: getTranslation(adminTranslations.tabs.hero, editLang), icon: Home },
+    { id: 'sections', label: getTranslation(adminTranslations.tabs.sections, editLang), icon: Layout },
     { id: 'about', label: getTranslation(adminTranslations.tabs.about, editLang), icon: FileText },
     { id: 'hobbies', label: getTranslation(adminTranslations.tabs.hobbies, editLang), icon: Heart },
     { id: 'tech', label: getTranslation(adminTranslations.tabs.tech, editLang), icon: Layers },
     { id: 'projects', label: getTranslation(adminTranslations.tabs.projects, editLang), icon: Code },
     { id: 'experience', label: getTranslation(adminTranslations.tabs.experience, editLang), icon: Briefcase },
     { id: 'socials', label: getTranslation(adminTranslations.tabs.socials, editLang), icon: Share2 },
-    { id: 'sections', label: getTranslation(adminTranslations.tabs.sections, editLang), icon: Layout },
     { id: 'footer', label: getTranslation(adminTranslations.tabs.footer, editLang), icon: PanelBottom },
   ];
 
@@ -110,8 +109,6 @@ export const AdminPanel: React.FC = () => {
             theme={adminTheme}
           />
         );
-      case 'hero':
-        return <HeroTab editLang={editLang} theme={adminTheme} />;
       case 'about':
         return <AboutTab editLang={editLang} theme={adminTheme} />;
       case 'hobbies':

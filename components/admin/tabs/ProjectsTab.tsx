@@ -6,6 +6,7 @@ import {
   Plus, Trash2, ChevronDown, ChevronUp, GripVertical, 
   FolderKanban, Image, Link, Github, Tag, FileText, Layers
 } from 'lucide-react';
+import { TagInput } from '../TagInput';
 
 interface ProjectsTabProps {
   editLang: 'EN' | 'TR';
@@ -18,6 +19,8 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
 
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Styling helpers
   const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
@@ -80,6 +83,26 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
     return typeof field === 'string' ? field : field[editLang];
   };
 
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      const newProjects = [...projects];
+      const [dragged] = newProjects.splice(draggedIndex, 1);
+      newProjects.splice(dragOverIndex, 0, dragged);
+      setProjects(newProjects);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
@@ -123,14 +146,29 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
             </p>
           </div>
         ) : (
-          projects.map((project) => {
+          projects.map((project, index) => {
             const isExpanded = expandedItems.has(project._id);
+            const isDragging = draggedIndex === index;
+            const isDragOver = dragOverIndex === index && draggedIndex !== index;
             return (
-              <div key={project._id} className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
-                theme === 'dark' 
-                  ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
-                  : 'bg-white border-gray-200 hover:border-gray-300'
-              }`}>
+              <div 
+                key={project._id} 
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                  isDragging 
+                    ? 'opacity-50 scale-[0.98]' 
+                    : isDragOver 
+                      ? theme === 'dark' 
+                        ? 'border-primary ring-2 ring-primary/30' 
+                        : 'border-primary ring-2 ring-primary/20'
+                      : theme === 'dark' 
+                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
+                        : 'bg-white border-gray-200 hover:border-gray-300'
+                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+              >
                 {/* Card Header */}
                 <div 
                   className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
@@ -138,7 +176,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                   }`}
                   onClick={() => toggleExpand(project._id)}
                 >
-                  <GripVertical size={18} className={`cursor-grab ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                   
                   {/* Project Image Preview */}
                   <div className={`w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center ${
@@ -319,14 +357,14 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                     <div>
                       <label className={labelClass}>
                         <Tag size={14} />
-                        {editLang === 'TR' ? 'Teknolojiler (virgülle ayırın)' : 'Technologies (comma separated)'}
+                        {editLang === 'TR' ? 'Teknolojiler' : 'Technologies'}
                       </label>
-                      <input
-                        type="text"
-                        value={(project.skills || []).join(', ')}
-                        onChange={(e) => updateProject(project._id, 'skills', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                        className={inputClass}
+                      <TagInput
+                        tags={project.skills || []}
+                        onChange={(skills) => updateProject(project._id, 'skills', skills)}
                         placeholder="React, TypeScript, Firebase"
+                        theme={theme}
+                        inputClass={inputClass}
                       />
                     </div>
 

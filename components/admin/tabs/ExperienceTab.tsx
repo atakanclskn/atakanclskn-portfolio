@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, ExternalLink,
   Building2, MapPin, Calendar, Link as LinkIcon, Hash, Star, ArrowRight
 } from 'lucide-react';
+import { TagInput } from '../TagInput';
 
 interface ExperienceTabProps {
   editLang: 'EN' | 'TR';
@@ -120,7 +121,15 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
     ? experiences 
     : experiences.filter(e => e.type === selectedType);
 
-  const sortedExperiences = [...filteredExperiences].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const sortedExperiences = [...filteredExperiences].sort((a, b) => {
+    // Sort by end date descending (current items first)
+    const getEndTime = (item: ExperienceItem) => {
+      if (item.isCurrent) return Infinity;
+      if (item.endDate) return new Date(item.endDate).getTime();
+      return new Date(item.startDate).getTime();
+    };
+    return getEndTime(b) - getEndTime(a);
+  });
 
   // Input class helpers
   const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
@@ -543,30 +552,13 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                 <Star size={14} />
                 {getText(t.technologies)}
               </label>
-              <input
-                type="text"
+              <TagInput
+                tags={exp.technologies || []}
+                onChange={(techs) => updateExperience(exp._id, 'technologies', techs)}
                 placeholder="React, Node.js, PostgreSQL..."
-                value={exp.technologies?.join(', ') || ''}
-                onChange={(e) => {
-                  const techs = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
-                  updateExperience(exp._id, 'technologies', techs);
-                }}
-                className={inputClass}
+                theme={theme}
+                inputClass={inputClass}
               />
-              {exp.technologies && exp.technologies.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {exp.technologies.map((tech, i) => (
-                    <span
-                      key={i}
-                      className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                        theme === 'dark' ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         );
@@ -855,48 +847,15 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                         }`}>
                           {getText(t.skills)}
                         </h4>
-                        <input
-                          type="text"
+                        <TagInput
+                          tags={exp.skills || []}
+                          onChange={(skills) => updateExperience(exp._id, 'skills', skills)}
                           placeholder="JavaScript, React, Node.js..."
-                          value={exp.skills?.join(', ') || ''}
-                          onChange={(e) => {
-                            const skills = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                            updateExperience(exp._id, 'skills', skills);
-                          }}
-                          className={inputClass}
+                          theme={theme}
+                          inputClass={inputClass}
                         />
-                        {exp.skills && exp.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {exp.skills.map((skill, i) => (
-                              <span
-                                key={i}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                                  theme === 'dark' ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-700'
-                                }`}
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
-
-                    {/* Display Order */}
-                    <div className="flex items-center gap-4 pt-4 border-t border-dashed border-gray-700/30">
-                      <div className="flex-1">
-                        <label className={labelClass}>
-                          {getText(t.order)}
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={exp.order || 0}
-                          onChange={(e) => updateExperience(exp._id, 'order', parseInt(e.target.value) || 0)}
-                          className={`${inputClass} w-24`}
-                        />
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
