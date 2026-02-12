@@ -179,7 +179,7 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
               className="flex-shrink-0 px-8 py-6 group cursor-default"
               style={{ width: '160px' }}
             >
-              <div className="flex flex-col items-center gap-4 transition-all duration-300">
+              <div className="flex flex-col items-center gap-4 transition-all duration-100">
                 {/* Logo Container */}
                 <div 
                   className={`
