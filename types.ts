@@ -158,7 +158,6 @@ export interface SiteSettings {
   metaKeywords: MultiLangText;
   ogImage?: string;
   defaultTheme: 'light' | 'dark' | 'system';
-  googleAnalyticsId?: string;
   techStackSpeed?: number; // Animation speed in pixels per frame (default: 0.5)
 }
 

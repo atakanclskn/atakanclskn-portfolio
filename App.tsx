@@ -11,7 +11,6 @@ import { InteractiveBackground } from './components/InteractiveBackground';
 import { LanguageProvider } from './lib/i18n';
 import { AdminProvider, useAdmin } from './lib/adminContext';
 import { PageSkeleton } from './components/Skeleton';
-import { initAnalytics } from './lib/firebase';
 import { trackPageView } from './lib/analytics.service';
 
 // Lazy load AdminPanel - only needed for admin users
@@ -21,13 +20,6 @@ const AdminPanel = lazy(() => import('./components/AdminPanelNew').then(m => ({ 
 const AppContent: React.FC = () => {
   const { profile, techStack, projects, experiences, socials, siteSettings } = useAdmin();
   const [isLoading, setIsLoading] = useState(true);
-
-  // Initialize Google Analytics
-  useEffect(() => {
-    if (siteSettings.googleAnalyticsId) {
-      initAnalytics().catch(err => console.error('Analytics init failed:', err));
-    }
-  }, [siteSettings.googleAnalyticsId]);
 
   // Track page views in Firestore
   useEffect(() => {

@@ -201,7 +201,6 @@ const DEFAULT_SETTINGS: SiteSettings = {
   metaKeywords: { EN: 'software engineer, developer, designer, portfolio, react, typescript', TR: 'yazılım mühendisi, geliştirici, tasarımcı, portfolyo, react, typescript' },
   ogImage: undefined,
   defaultTheme: 'system',
-  googleAnalyticsId: undefined,
   techStackSpeed: 0.5
 };
 

@@ -1,7 +1,6 @@
 // Firebase Configuration
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 
 // Environment variables kullanarak config (güvenli)
@@ -66,14 +65,6 @@ export const onAuthChange = (callback: (user: User | null) => void) => {
       callback(null);
     }
   });
-};
-
-// Initialize Analytics (only in browser)
-export const initAnalytics = async () => {
-  if (await isSupported()) {
-    return getAnalytics(app);
-  }
-  return null;
 };
 
 export default app;

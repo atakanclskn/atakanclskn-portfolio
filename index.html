@@ -243,19 +243,6 @@
               document.querySelector('meta[property="og:image"]')?.setAttribute('content', settings.ogImage);
               document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', settings.ogImage);
             }
-            
-            // Initialize Google Analytics if ID is provided
-            if (settings.googleAnalyticsId && settings.googleAnalyticsId.startsWith('G-')) {
-              const gaScript = document.createElement('script');
-              gaScript.async = true;
-              gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${settings.googleAnalyticsId}`;
-              document.head.appendChild(gaScript);
-              
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', settings.googleAnalyticsId);
-            }
           }
         } catch (e) {
           console.error('SEO settings load error:', e);
