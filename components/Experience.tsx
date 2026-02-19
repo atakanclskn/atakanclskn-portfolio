@@ -271,16 +271,9 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                             <p
                               className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}
                             >
-                              {getText(item.description, lang)}
+                              {getText(item.description, lang)}{needsTruncation && !isExpanded ? '...' : ''}
                             </p>
                           </div>
-
-                          {/* Gradient fade overlay when collapsed */}
-                          {needsTruncation && !isExpanded && (
-                            <div
-                              className="absolute bottom-6 left-0 right-0 h-8 bg-gradient-to-t from-white/90 dark:from-[#111]/90 to-transparent pointer-events-none"
-                            />
-                          )}
 
                           {/* Read More / Read Less button with ShinyText */}
                           {needsTruncation && (
