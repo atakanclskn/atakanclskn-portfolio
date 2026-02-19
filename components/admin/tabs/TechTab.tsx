@@ -201,6 +201,21 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => setDraggedIndex(index);
+  const handleDragOver = (e: React.DragEvent, index: number) => { e.preventDefault(); setDragOverIndex(index); };
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      const newTechStack = [...techStack];
+      const [dragged] = newTechStack.splice(draggedIndex, 1);
+      newTechStack.splice(dragOverIndex, 0, dragged);
+      setTechStack(newTechStack);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   // Filter techs based on search and category
   const filteredTechs = ALL_TECHS.filter(tech => {
@@ -456,11 +471,30 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
             </p>
           </div>
         ) : (
-          techStack.map((tech) => {
+          techStack.map((tech, index) => {
             const isExpanded = expandedItems.has(tech._id);
+            const isDragging = draggedIndex === index;
+            const isDragOver = dragOverIndex === index && draggedIndex !== index;
 
             return (
-              <div key={tech._id} className={cardClass}>
+              <div 
+                key={tech._id}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                  isDragging
+                    ? 'opacity-50 scale-[0.98]'
+                    : isDragOver
+                      ? theme === 'dark'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-primary ring-2 ring-primary/20'
+                      : theme === 'dark'
+                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
+                        : 'bg-white border-gray-200 hover:border-gray-300'
+                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+              >
                 {/* Card Header */}
                 <div 
                   className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
@@ -470,7 +504,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                 >
                   {/* Drag Handle & Icon */}
                   <div className="flex items-center gap-3">
-                    <GripVertical size={18} className={`cursor-grab ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800"
                     >

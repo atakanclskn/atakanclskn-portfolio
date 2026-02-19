@@ -52,6 +52,21 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [iconSearch, setIconSearch] = useState('');
   const [selectingIconFor, setSelectingIconFor] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => setDraggedIndex(index);
+  const handleDragOver = (e: React.DragEvent, index: number) => { e.preventDefault(); setDragOverIndex(index); };
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      const newSocials = [...socials];
+      const [dragged] = newSocials.splice(draggedIndex, 1);
+      newSocials.splice(dragOverIndex, 0, dragged);
+      setSocials(newSocials);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   // Styling helpers
   const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
@@ -162,17 +177,32 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
             </p>
           </div>
         ) : (
-          socials.map((social) => {
+          socials.map((social, index) => {
             const isExpanded = expandedItems.has(social._id);
             const IconComponent = (LucideIcons as any)[social.iconName] || LucideIcons.Link;
             const isSelectingIcon = selectingIconFor === social._id;
+            const isDragging = draggedIndex === index;
+            const isDragOver = dragOverIndex === index && draggedIndex !== index;
             
             return (
-              <div key={social._id} className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
-                theme === 'dark' 
-                  ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
-                  : 'bg-white border-gray-200 hover:border-gray-300'
-              }`}>
+              <div 
+                key={social._id}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                  isDragging
+                    ? 'opacity-50 scale-[0.98]'
+                    : isDragOver
+                      ? theme === 'dark'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-primary ring-2 ring-primary/20'
+                      : theme === 'dark'
+                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
+                        : 'bg-white border-gray-200 hover:border-gray-300'
+                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+              >
                 {/* Card Header */}
                 <div 
                   className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
@@ -180,7 +210,7 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                   }`}
                   onClick={() => toggleExpand(social._id)}
                 >
-                  <GripVertical size={18} className={`cursor-grab ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
+                  <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                   
                   {/* Social Icon */}
                   <div className="p-3 bg-primary/20 rounded-xl">

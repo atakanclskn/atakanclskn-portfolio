@@ -150,6 +150,21 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => setDraggedIndex(index);
+  const handleDragOver = (e: React.DragEvent, index: number) => { e.preventDefault(); setDragOverIndex(index); };
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      const newHobbies = [...hobbies];
+      const [dragged] = newHobbies.splice(draggedIndex, 1);
+      newHobbies.splice(dragOverIndex, 0, dragged);
+      setHobbies(newHobbies);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   // Filter hobbies based on search and category
   const filteredHobbies = ALL_HOBBIES.filter(hobby => {
@@ -373,14 +388,33 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
             </p>
           </div>
         ) : (
-          hobbies.map((hobby) => {
+          hobbies.map((hobby, index) => {
             const isExpanded = expandedItems.has(hobby._id);
             const IconComponent = getIconComponent(hobby.icon);
             const hobbyInfo = ALL_HOBBIES.find(h => h.icon === hobby.icon);
             const iconColor = hobbyInfo?.color || '6366F1';
+            const isDragging = draggedIndex === index;
+            const isDragOver = dragOverIndex === index && draggedIndex !== index;
 
             return (
-              <div key={hobby._id} className={cardClass}>
+              <div 
+                key={hobby._id}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`rounded-2xl border overflow-hidden transition-all duration-300 ${
+                  isDragging
+                    ? 'opacity-50 scale-[0.98]'
+                    : isDragOver
+                      ? theme === 'dark'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-primary ring-2 ring-primary/20'
+                      : theme === 'dark'
+                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
+                        : 'bg-white border-gray-200 hover:border-gray-300'
+                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+              >
                 {/* Card Header */}
                 <div 
                   className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
@@ -390,7 +424,7 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                 >
                   {/* Drag Handle & Icon */}
                   <div className="flex items-center gap-3">
-                    <GripVertical size={18} className={`cursor-grab ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: `#${iconColor}20` }}

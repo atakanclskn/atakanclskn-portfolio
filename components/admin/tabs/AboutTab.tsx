@@ -4,7 +4,7 @@ import { updateMultiLangText } from '../../../lib/multiLangHelper';
 import { adminTranslations, getTranslation } from '../../../lib/adminTranslations';
 import { AboutParagraph } from '../../../types';
 import { 
-  AlignLeft, Quote, MoveUp, MoveDown, Plus, Trash2, ChevronDown, ChevronUp,
+  AlignLeft, Quote, Plus, Trash2, ChevronDown, ChevronUp,
   Type, FileText, BarChart3, GripVertical, Hash, Tag
 } from 'lucide-react';
 
@@ -19,6 +19,14 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
 
   const [expandedStats, setExpandedStats] = useState<Set<string>>(new Set());
+
+  // Drag state for paragraphs
+  const [draggedParagraph, setDraggedParagraph] = useState<number | null>(null);
+  const [dragOverParagraph, setDragOverParagraph] = useState<number | null>(null);
+
+  // Drag state for stats
+  const [draggedStat, setDraggedStat] = useState<number | null>(null);
+  const [dragOverStat, setDragOverStat] = useState<number | null>(null);
 
   // Styling helpers
   const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
@@ -65,13 +73,32 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
     });
   };
 
-  const moveParagraph = (index: number, direction: 'up' | 'down') => {
-    const newParagraphs = [...aboutContent.paragraphs];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newParagraphs.length) return;
-    
-    [newParagraphs[index], newParagraphs[targetIndex]] = [newParagraphs[targetIndex], newParagraphs[index]];
-    setAboutContent({ ...aboutContent, paragraphs: newParagraphs });
+  // Paragraph drag handlers
+  const handleParagraphDragStart = (index: number) => setDraggedParagraph(index);
+  const handleParagraphDragOver = (e: React.DragEvent, index: number) => { e.preventDefault(); setDragOverParagraph(index); };
+  const handleParagraphDragEnd = () => {
+    if (draggedParagraph !== null && dragOverParagraph !== null && draggedParagraph !== dragOverParagraph) {
+      const newParagraphs = [...aboutContent.paragraphs];
+      const [dragged] = newParagraphs.splice(draggedParagraph, 1);
+      newParagraphs.splice(dragOverParagraph, 0, dragged);
+      setAboutContent({ ...aboutContent, paragraphs: newParagraphs });
+    }
+    setDraggedParagraph(null);
+    setDragOverParagraph(null);
+  };
+
+  // Stat drag handlers
+  const handleStatDragStart = (index: number) => setDraggedStat(index);
+  const handleStatDragOver = (e: React.DragEvent, index: number) => { e.preventDefault(); setDragOverStat(index); };
+  const handleStatDragEnd = () => {
+    if (draggedStat !== null && dragOverStat !== null && draggedStat !== dragOverStat) {
+      const newStats = [...statsContent.stats];
+      const [dragged] = newStats.splice(draggedStat, 1);
+      newStats.splice(dragOverStat, 0, dragged);
+      setStatsContent({ stats: newStats });
+    }
+    setDraggedStat(null);
+    setDragOverStat(null);
   };
 
   const addStat = () => {
@@ -214,38 +241,27 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
           </div>
         ) : (
           <div className="space-y-3">
-            {aboutContent.paragraphs.map((paragraph, index) => (
-              <div key={paragraph._id} className={`rounded-xl border overflow-hidden transition-all ${
-                theme === 'dark' ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
-              }`}>
+            {aboutContent.paragraphs.map((paragraph, index) => {
+              const isPDragging = draggedParagraph === index;
+              const isPDragOver = dragOverParagraph === index && draggedParagraph !== index;
+              return (
+              <div 
+                key={paragraph._id}
+                draggable
+                onDragStart={() => handleParagraphDragStart(index)}
+                onDragOver={(e) => handleParagraphDragOver(e, index)}
+                onDragEnd={handleParagraphDragEnd}
+                className={`rounded-xl border overflow-hidden transition-all duration-300 ${
+                  isPDragging
+                    ? 'opacity-50 scale-[0.98]'
+                    : isPDragOver
+                      ? 'border-primary ring-2 ring-primary/30'
+                      : theme === 'dark' ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+                } ${theme === 'dark' ? 'bg-gray-800/30' : 'bg-gray-50'}`}
+              >
                 <div className="p-4 flex items-start gap-3">
-                  <div className="flex flex-col gap-1 pt-1">
-                    <button
-                      onClick={() => moveParagraph(index, 'up')}
-                      disabled={index === 0}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        index === 0
-                          ? 'opacity-30 cursor-not-allowed'
-                          : theme === 'dark'
-                          ? 'text-gray-400 hover:text-white hover:bg-gray-700'
-                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200'
-                      }`}
-                    >
-                      <MoveUp size={16} />
-                    </button>
-                    <button
-                      onClick={() => moveParagraph(index, 'down')}
-                      disabled={index === aboutContent.paragraphs.length - 1}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        index === aboutContent.paragraphs.length - 1
-                          ? 'opacity-30 cursor-not-allowed'
-                          : theme === 'dark'
-                          ? 'text-gray-400 hover:text-white hover:bg-gray-700'
-                          : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200'
-                      }`}
-                    >
-                      <MoveDown size={16} />
-                    </button>
+                  <div className="pt-2">
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                   </div>
 
                   <div className="flex-1 space-y-2">
@@ -284,7 +300,8 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -318,12 +335,25 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
           </div>
         ) : (
           <div className="space-y-3">
-            {statsContent.stats.map((stat) => {
+            {statsContent.stats.map((stat, statIndex) => {
               const isExpanded = expandedStats.has(stat._id);
+              const isSDragging = draggedStat === statIndex;
+              const isSDragOver = dragOverStat === statIndex && draggedStat !== statIndex;
               return (
-                <div key={stat._id} className={`rounded-xl border overflow-hidden transition-all ${
-                  theme === 'dark' ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
-                }`}>
+                <div 
+                  key={stat._id}
+                  draggable
+                  onDragStart={() => handleStatDragStart(statIndex)}
+                  onDragOver={(e) => handleStatDragOver(e, statIndex)}
+                  onDragEnd={handleStatDragEnd}
+                  className={`rounded-xl border overflow-hidden transition-all duration-300 ${
+                    isSDragging
+                      ? 'opacity-50 scale-[0.98]'
+                      : isSDragOver
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : theme === 'dark' ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+                  } ${theme === 'dark' ? 'bg-gray-800/30' : 'bg-gray-50'}`}
+                >
                   {/* Header */}
                   <div 
                     className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
@@ -331,7 +361,7 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                     }`}
                     onClick={() => toggleStatExpand(stat._id)}
                   >
-                    <GripVertical size={18} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
                     
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                       stat.type === 'number' 
