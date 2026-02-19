@@ -13,13 +13,13 @@ interface ExperienceProps {
 
 type FilterType = 'work' | 'education' | 'certification' | 'project';
 
-/* ── ShinyText: Pure CSS shimmer effect (inspired by reactbits.dev/text-animations/shiny-text) ── */
+/* ── ShinyText: White shimmer on hover (inspired by reactbits.dev/text-animations/shiny-text) ── */
 const ShinyText: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => (
   <span
-    className={`inline-block bg-clip-text [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] bg-[length:200%_100%] animate-[shine_3s_linear_infinite] ${className}`}
+    className={`inline-block bg-clip-text [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] bg-[length:200%_100%] bg-[position:200%_center] group-hover:animate-shine ${className}`}
     style={{
       backgroundImage:
-        'linear-gradient(120deg, #6b7280 0%, #6b7280 35%, #a78bfa 45%, #60a5fa 55%, #6b7280 65%, #6b7280 100%)',
+        'linear-gradient(120deg, #9ca3af 0%, #9ca3af 40%, #ffffff 50%, #9ca3af 60%, #9ca3af 100%)',
     }}
   >
     {text}
