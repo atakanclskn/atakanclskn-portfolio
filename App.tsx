@@ -38,7 +38,7 @@ const AppContent: React.FC = () => {
     return () => clearTimeout(timer);
   }, [profile]);
 
-  const isAdminPath = (path: string) => path === '/admin' || path === '/admin/';
+  const isAdminPath = (path: string) => path.startsWith('/admin');
   const [isAdminRoute, setIsAdminRoute] = useState(isAdminPath(window.location.pathname));
 
   // Listen for URL changes (pushState from AdminPanel)

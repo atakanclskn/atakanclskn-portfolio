@@ -15,7 +15,7 @@ import {
 import { MessagesTab } from './admin/tabs/MessagesTab';
 import { adminTranslations, getTranslation } from '../lib/adminTranslations';
 
-const isAdminPath = (path: string) => path === '/admin' || path === '/admin/';
+const isAdminPath = (path: string) => path.startsWith('/admin');
 
 export const AdminPanel: React.FC = () => {
   const [visible, setVisible] = useState(isAdminPath(window.location.pathname));
