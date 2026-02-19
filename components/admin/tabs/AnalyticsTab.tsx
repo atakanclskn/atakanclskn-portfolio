@@ -171,7 +171,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
     data.dailyStats.forEach(day => {
       if (day.countries) {
         Object.entries(day.countries).forEach(([c, count]) => {
-          countries[c] = (countries[c] || 0) + count;
+          countries[c] = (countries[c] || 0) + (count as number);
         });
       }
     });
