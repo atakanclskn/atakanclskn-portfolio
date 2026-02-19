@@ -15,9 +15,11 @@ import {
 import { MessagesTab } from './admin/tabs/MessagesTab';
 import { adminTranslations, getTranslation } from '../lib/adminTranslations';
 
+const isAdminPath = (path: string) => path === '/admin' || path === '/admin/';
+
 export const AdminPanel: React.FC = () => {
-  const [visible, setVisible] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [visible, setVisible] = useState(isAdminPath(window.location.pathname));
+  const [isOpen, setIsOpen] = useState(isAdminPath(window.location.pathname));
   const [activeTab, setActiveTab] = useState('general');
   const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
   const [adminTheme, setAdminTheme] = useState<'light' | 'dark'>('dark');
@@ -46,9 +48,36 @@ export const AdminPanel: React.FC = () => {
     };
   }, [isOpen]);
 
-  // Scroll Detection to show button only at bottom
+  // No need for auto-open effect — isOpen initializes from URL
+
+  // Sync URL when panel opens/closes
+  useEffect(() => {
+    if (isOpen && !isAdminPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/admin');
+      window.dispatchEvent(new Event('adminRouteChange'));
+    } else if (!isOpen && isAdminPath(window.location.pathname)) {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new Event('adminRouteChange'));
+    }
+  }, [isOpen]);
+
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isAdminPath(window.location.pathname)) {
+        setIsOpen(true);
+      } else {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Scroll Detection to show button only at bottom (skip when panel is open)
   useEffect(() => {
     const handleScroll = () => {
+      if (isOpen) return; // Don't change visibility while admin is open
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const scrollY = window.scrollY;
@@ -61,7 +90,7 @@ export const AdminPanel: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isOpen]);
 
   const tabs: TabItem[] = [
     { id: 'messages', label: getTranslation(adminTranslations.tabs.messages, editLang), icon: Mail, badge: unreadCount },
