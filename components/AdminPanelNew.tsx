@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Settings, Briefcase, Code, Share2,
   Layers, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom,
-  Cloud, CloudOff, Download, Upload, Loader2, Check
+  Cloud, CloudOff, Download, Upload, Loader2, Check, BarChart3
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { AdminSidebar, TabItem } from './admin/AdminSidebar';
@@ -10,7 +10,7 @@ import { AdminLogin } from './admin/AdminLogin';
 import { 
   GeneralTab, AboutTab, HobbiesTab, 
   TechTab, ProjectsTab, ExperienceTab, SocialsTab,
-  SectionsTab, FooterTab
+  SectionsTab, FooterTab, AnalyticsTab
 } from './admin/tabs';
 import { MessagesTab } from './admin/tabs/MessagesTab';
 import { adminTranslations, getTranslation } from '../lib/adminTranslations';
@@ -74,6 +74,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'experience', label: getTranslation(adminTranslations.tabs.experience, editLang), icon: Briefcase },
     { id: 'socials', label: getTranslation(adminTranslations.tabs.socials, editLang), icon: Share2 },
     { id: 'footer', label: getTranslation(adminTranslations.tabs.footer, editLang), icon: PanelBottom },
+    { id: 'analytics', label: getTranslation(adminTranslations.tabs.analytics, editLang), icon: BarChart3 },
   ];
 
   const handleApplyColor = () => {
@@ -125,6 +126,8 @@ export const AdminPanel: React.FC = () => {
         return <SectionsTab editLang={editLang} theme={adminTheme} />;
       case 'footer':
         return <FooterTab editLang={editLang} theme={adminTheme} />;
+      case 'analytics':
+        return <AnalyticsTab editLang={editLang} theme={adminTheme} />;
       default:
         return null;
     }

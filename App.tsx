@@ -12,6 +12,7 @@ import { LanguageProvider } from './lib/i18n';
 import { AdminProvider, useAdmin } from './lib/adminContext';
 import { PageSkeleton } from './components/Skeleton';
 import { initAnalytics } from './lib/firebase';
+import { trackPageView } from './lib/analytics.service';
 
 // Lazy load AdminPanel - only needed for admin users
 const AdminPanel = lazy(() => import('./components/AdminPanelNew').then(m => ({ default: m.AdminPanel })));
@@ -27,6 +28,11 @@ const AppContent: React.FC = () => {
       initAnalytics().catch(err => console.error('Analytics init failed:', err));
     }
   }, [siteSettings.googleAnalyticsId]);
+
+  // Track page views in Firestore
+  useEffect(() => {
+    trackPageView(window.location.pathname).catch(err => console.error('Page view tracking failed:', err));
+  }, []);
 
   // Simulate initial data loading (or can be replaced with actual async fetch)
   useEffect(() => {

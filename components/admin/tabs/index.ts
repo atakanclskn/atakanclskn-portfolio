@@ -7,3 +7,4 @@ export { ExperienceTab } from './ExperienceTab';
 export { SocialsTab } from './SocialsTab';
 export { SectionsTab } from './SectionsTab';
 export { FooterTab } from './FooterTab';
+export { AnalyticsTab } from './AnalyticsTab';

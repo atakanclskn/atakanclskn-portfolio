@@ -18,6 +18,7 @@ export const adminTranslations = {
     socials: { EN: 'Contact & Socials', TR: 'İletişim ve Sosyal Medya' },
     sections: { EN: 'Section Texts', TR: 'Bölüm Metinleri' },
     footer: { EN: 'Footer', TR: 'Footer' },
+    analytics: { EN: 'Analytics', TR: 'Analitik' },
   },
   
   // Common Actions
