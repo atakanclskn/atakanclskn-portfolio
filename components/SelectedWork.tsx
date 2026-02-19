@@ -72,18 +72,24 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                     </div>
 
                     {/* Content Overlay */}
-                    <div className="absolute bottom-0 left-0 w-full p-6 z-20 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-20">
-                    {project.category && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 block">
-                        {project.category}
-                        </span>
-                    )}
-                    <h3 className={`font-display font-bold text-white mb-2 leading-tight ${isFeatured ? 'text-3xl' : 'text-xl'}`}>
-                        {getText(project.title, lang)}
-                    </h3>
-                    <p className="text-gray-300 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
-                        {getText(project.description, lang)}
-                    </p>
+                    <div className="absolute bottom-0 left-0 w-full z-20 bg-gradient-to-t from-black/90 via-black/60 to-transparent transition-all duration-500 ease-out">
+                      <div className="p-6 flex flex-col justify-end">
+                        {project.category && (
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 block transition-transform duration-500 ease-out translate-y-0 group-hover:-translate-y-1">
+                            {project.category}
+                          </span>
+                        )}
+                        <h3 className={`font-display font-bold text-white leading-tight transition-transform duration-500 ease-out translate-y-0 group-hover:-translate-y-1 ${isFeatured ? 'text-3xl' : 'text-xl'}`}>
+                          {getText(project.title, lang)}
+                        </h3>
+                        <div className="grid transition-all duration-500 ease-out grid-rows-[0fr] group-hover:grid-rows-[1fr]">
+                          <div className="overflow-hidden">
+                            <p className="text-gray-300 text-sm line-clamp-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                              {getText(project.description, lang)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                 </div>
               </MagicCard>
