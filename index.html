@@ -129,6 +129,7 @@
               'border-beam': 'border-beam calc(var(--duration)*1s) infinite linear',
               'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
               'bounce-in': 'bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
+              'shine': 'shine 3s linear infinite',
             },
             keyframes: {
               'infinite-scroll': {
@@ -157,6 +158,10 @@
                 },
                 '70%': { transform: 'scale(0.9)' },
                 '100%': { transform: 'scale(1)' },
+              },
+              'shine': {
+                '0%': { 'background-position': '200% center' },
+                '100%': { 'background-position': '-200% center' },
               },
             }
           }

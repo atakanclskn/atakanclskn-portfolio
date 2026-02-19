@@ -1,7 +1,7 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { ExperienceItem, Project } from '../types';
-import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight, MapPin, Globe, Building2, ExternalLink, Hash } from 'lucide-react';
+import { GraduationCap, Briefcase, Award, FolderGit2, Calendar, ArrowUpRight, MapPin, Globe, Building2, ExternalLink, Hash, ChevronDown, ChevronUp } from 'lucide-react';
 import { MagicCard } from './MagicCard';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
@@ -12,6 +12,19 @@ interface ExperienceProps {
 }
 
 type FilterType = 'work' | 'education' | 'certification' | 'project';
+
+/* ── ShinyText: Pure CSS shimmer effect (inspired by reactbits.dev/text-animations/shiny-text) ── */
+const ShinyText: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => (
+  <span
+    className={`inline-block bg-clip-text [-webkit-background-clip:text] [-webkit-text-fill-color:transparent] bg-[length:200%_100%] animate-[shine_3s_linear_infinite] ${className}`}
+    style={{
+      backgroundImage:
+        'linear-gradient(120deg, #6b7280 0%, #6b7280 35%, #a78bfa 45%, #60a5fa 55%, #6b7280 65%, #6b7280 100%)',
+    }}
+  >
+    {text}
+  </span>
+);
 
 const getTypeStyles = (type?: string) => {
     switch (type) {
@@ -57,11 +70,41 @@ const getTypeStyles = (type?: string) => {
 
 const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: boolean, index?: number }> = ({ item, side = 'left', isMobile = false, index = 0 }) => {
      const { t, lang } = useLanguage();
+     const [isExpanded, setIsExpanded] = useState(false);
+     const [needsTruncation, setNeedsTruncation] = useState(false);
+     const contentRef = useRef<HTMLDivElement>(null);
+     const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
+
      const type = item.type || 'work';
      const style = getTypeStyles(type);
      const startYear = new Date(item.startDate).getFullYear();
      const endYear = item.isCurrent ? t.experience.present : (item.endDate ? new Date(item.endDate).getFullYear() : startYear);
      const period = `${startYear}${startYear !== endYear ? ` — ${endYear}` : ''}`;
+
+     // Check if description needs truncation (content overflows the max-height)
+     useEffect(() => {
+       if (contentRef.current) {
+         const el = contentRef.current;
+         // Temporarily remove max-height to measure full content
+         const originalMaxHeight = el.style.maxHeight;
+         el.style.maxHeight = 'none';
+         const fullHeight = el.scrollHeight;
+         el.style.maxHeight = originalMaxHeight;
+         // 4.5em ≈ 72px at 16px font, compare against threshold
+         setNeedsTruncation(fullHeight > 72);
+       }
+     }, [item.description, lang]);
+
+     // Measure content height for smooth animation
+     useEffect(() => {
+       if (contentRef.current) {
+         setContentHeight(contentRef.current.scrollHeight);
+       }
+     }, [isExpanded, item.description, lang]);
+
+     const toggleExpand = useCallback(() => {
+       setIsExpanded(prev => !prev);
+     }, []);
 
      // Position logic
      const dotClass = isMobile 
@@ -194,12 +237,12 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               )}
                           </div>
 
-                          {/* Education: Degree & Field & GPA */}
+                          {/* Education: Degree & Field & GPA — standardized inline layout */}
                           {(item.degree || item.field || item.gpa) && (
-                            <div className={`flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 flex-wrap ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
-                              {item.degree && <span className="font-medium">{item.degree}</span>}
+                            <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium flex-wrap ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
+                              {item.degree && <span>{item.degree}</span>}
                               {item.field && <><span className="text-gray-300 dark:text-gray-600">•</span><span>{item.field}</span></>}
-                              {item.gpa && <><span className="text-gray-300 dark:text-gray-600">•</span><span>GPA: {item.gpa}</span></>}
+                              {item.gpa && <><span className="text-gray-300 dark:text-gray-600">•</span><span className="text-xs">GPA: {item.gpa}</span></>}
                             </div>
                           )}
 
@@ -212,9 +255,52 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                           )}
                       </div>
 
-                      <p className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed relative z-10 ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}>
-                          {getText(item.description, lang)}
-                      </p>
+                      {/* Description with truncation & smooth expand */}
+                      {getText(item.description, lang) && (
+                        <div className="relative z-10">
+                          {/* Collapsible content wrapper */}
+                          <div
+                            ref={contentRef}
+                            className="overflow-hidden transition-[max-height] duration-500 ease-in-out"
+                            style={{
+                              maxHeight: isExpanded
+                                ? `${contentHeight || 1000}px`
+                                : '4.5em', // ~3 lines (1.5em line-height × 3)
+                            }}
+                          >
+                            <p
+                              className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${!isMobile && side === 'left' ? 'text-right' : 'text-left'}`}
+                            >
+                              {getText(item.description, lang)}
+                            </p>
+                          </div>
+
+                          {/* Gradient fade overlay when collapsed */}
+                          {needsTruncation && !isExpanded && (
+                            <div
+                              className="absolute bottom-6 left-0 right-0 h-8 bg-gradient-to-t from-white/90 dark:from-[#111]/90 to-transparent pointer-events-none"
+                            />
+                          )}
+
+                          {/* Read More / Read Less button with ShinyText */}
+                          {needsTruncation && (
+                            <button
+                              onClick={toggleExpand}
+                              className={`mt-1 flex items-center gap-1 text-xs font-semibold cursor-pointer transition-opacity hover:opacity-80 ${!isMobile && side === 'left' ? 'ml-auto' : ''}`}
+                            >
+                              <ShinyText
+                                text={isExpanded ? (lang === 'TR' ? 'Daha Az' : 'Read Less') : (lang === 'TR' ? 'Devamını Oku' : 'Read More')}
+                                className="text-xs font-semibold"
+                              />
+                              {isExpanded ? (
+                                <ChevronUp className="w-3 h-3 text-gray-400 transition-transform duration-300" />
+                              ) : (
+                                <ChevronDown className="w-3 h-3 text-gray-400 transition-transform duration-300" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      )}
 
                       {/* Skills / Technologies */}
                       {(item.skills?.length > 0 || item.technologies?.length > 0) && (
