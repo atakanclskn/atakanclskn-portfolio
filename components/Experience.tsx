@@ -77,9 +77,18 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
 
      const type = item.type || 'work';
      const style = getTypeStyles(type);
-     const startYear = new Date(item.startDate).getFullYear();
-     const endYear = item.isCurrent ? t.experience.present : (item.endDate ? new Date(item.endDate).getFullYear() : startYear);
-     const period = `${startYear}${startYear !== endYear ? ` — ${endYear}` : ''}`;
+     
+     // Calculate period display based on type
+     let period: string;
+     if (type === 'certification') {
+       // Certifications: show issueDate year only
+       const certDate = item.issueDate || item.startDate;
+       period = new Date(certDate).getFullYear().toString();
+     } else {
+       const startYear = new Date(item.startDate).getFullYear();
+       const endYear = item.isCurrent ? t.experience.present : (item.endDate ? new Date(item.endDate).getFullYear() : startYear);
+       period = `${startYear}${startYear !== endYear ? ` — ${endYear}` : ''}`;
+     }
 
      // Check if description needs truncation (content overflows the max-height)
      useEffect(() => {
@@ -400,13 +409,18 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
     const combined = [...nonProjectExperiences, ...projectItems];
     
     combined.sort((a, b) => {
-        // Sort by end date (most recently ended first), current items on top
-        const getEndTime = (item: any) => {
+        // Sort by relevant date (most recent first), current items on top
+        const getRelevantTime = (item: any) => {
           if (item.isCurrent) return Infinity;
+          // Certifications: use issueDate
+          if (item.type === 'certification' && item.issueDate) {
+            return new Date(item.issueDate).getTime();
+          }
+          // Others: use endDate, fallback to startDate
           if (item.endDate) return new Date(item.endDate).getTime();
           return new Date(item.startDate).getTime();
         };
-        return getEndTime(b) - getEndTime(a);
+        return getRelevantTime(b) - getRelevantTime(a);
     });
 
     const filtered = combined.filter(item => {
@@ -416,10 +430,15 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
 
     const groups: Record<string, typeof filtered> = {};
     filtered.forEach(item => {
-        // Group by end year (or "Present" for current items)
+        const type = (item as any).type || 'work';
         let year: string;
+        
         if (item.isCurrent) {
           year = new Date().getFullYear().toString();
+        } else if (type === 'certification') {
+          // Certifications: use issueDate first, then startDate
+          const certDate = (item as any).issueDate || item.startDate;
+          year = new Date(certDate).getFullYear().toString();
         } else if (item.endDate) {
           year = new Date(item.endDate).getFullYear().toString();
         } else {
@@ -553,6 +572,26 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                     </div>
                 );
             })}
+
+            {/* Earliest start year badge at the bottom of the timeline */}
+            {(() => {
+              const allItems = Object.values(groupedItems).flat();
+              const earliestStartYear = Math.min(...allItems.map(item => new Date(item.startDate).getFullYear()));
+              const lowestGroupYear = Math.min(...sortedYears.map(Number));
+              if (earliestStartYear < lowestGroupYear) {
+                return (
+                  <div className="mb-8 md:mb-0 relative">
+                    <div className="flex justify-start md:justify-center items-center mb-8 md:mb-12 relative z-20">
+                      <div className="absolute left-4 -translate-x-1/2 w-3 h-3 rounded-full bg-gray-300 dark:bg-white/20 md:hidden"></div>
+                      <div className="inline-block px-4 py-1.5 md:px-5 md:py-2 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-[#050505] shadow-sm relative z-30 ml-8 md:ml-0">
+                        <span className="text-base md:text-lg font-display font-bold text-gray-900 dark:text-white tracking-tight">{earliestStartYear}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
         </div>
       </div>
     </section>
