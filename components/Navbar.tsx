@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Sun, Moon, ChevronDown, Globe } from 'lucide-react';
-import { useLanguage, languages, Language } from '../lib/i18n';
+import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
 import { getText } from '../lib/multiLangHelper';
 
@@ -126,8 +126,6 @@ export const Navbar: React.FC = () => {
       setMobileMenuOpen(false);
     }
   };
-
-  const currentLangObj = languages.find(l => l.code === lang) || languages[0];
 
   return (
     <nav 

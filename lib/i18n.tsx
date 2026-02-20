@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-export type Language = 'EN' | 'TR' | 'ES' | 'FR' | 'DE' | 'IT' | 'PT' | 'RU' | 'ZH' | 'JA';
+export type Language = 'EN' | 'TR';
 
 interface Translation {
   nav: {
@@ -154,70 +154,6 @@ const translations: Record<Language, Translation> = {
     work: { title: 'Son çalışmalarıma göz atın', desc: "Web uygulamalarından açık kaynak araçlara kadar üzerinde çalıştığım projelerden bir seçki." },
     experience: { title: 'Zaman Çizelgesi', desc: 'Profesyonel yolculuğum, eğitim geçmişim ve önemli proje kilometre taşlarım.', filters: { work: 'İş', education: 'Eğitim', certification: 'Sertifikalar', project: 'Projeler' }, present: 'Günümüz', viewProject: 'Projeyi Gör', viewCredential: 'Sertifikayı Gör' },
     contact: { title: "Birlikte çalışalım.", desc: 'Aklınızda bir proje mi var ya da sadece merhaba mı demek istiyorsunuz? Formu doldurun veya bana e-posta gönderin.', form: { name: 'İsim', email: 'E-posta', message: 'Mesaj', send: 'Mesaj Gönder' }, findMe: 'Beni şurada bul' }
-  },
-  ES: {
-    nav: { about: 'Sobre mí', expertise: 'Habilidades', projects: 'Proyectos', experience: 'Experiencia', contact: 'Contacto', letsTalk: "Hablemos" },
-    hero: { status: 'Disponible para proyectos', greeting: "Hola, soy", role: 'Creando productos digitales, marcas y experiencias.', bio: 'Ingeniero de software y diseñador especializado en crear experiencias digitales excepcionales.', checkWork: 'Ver mi trabajo', resume: 'Descargar CV' },
-    about: { title: 'Ingeniando el futuro,', highlight: 'una línea de código a la vez.', p1: "Soy un apasionado Ingeniero de Software con sede en Izmir, TR, dedicado a construir productos digitales escalables.", p2: "Ya sea arquitectando sistemas backend complejos o creando interfaces de usuario fluidas, siempre busco la excelencia.", years: 'Años Codificando', shipped: 'Proyectos', coffee: 'Café Consumido' },
-    work: { title: 'Mira mis últimos trabajos', desc: "Una selección de proyectos en los que he trabajado, desde aplicaciones web hasta herramientas open source." },
-    experience: { title: 'Cronología', desc: 'Mi trayectoria profesional, formación académica e hitos clave.', filters: { work: 'Trabajo', education: 'Educación', certification: 'Certificaciones', project: 'Proyectos' }, present: 'Presente', viewProject: 'Ver Proyecto', viewCredential: 'Ver Credencial' },
-    contact: { title: "Trabajemos juntos.", desc: '¿Tienes un proyecto en mente? Rellena el formulario o envíame un correo.', form: { name: 'Nombre', email: 'Correo', message: 'Mensaje', send: 'Enviar Mensaje' }, findMe: 'Encuéntrame en' }
-  },
-  FR: {
-    nav: { about: 'À propos', expertise: 'Compétences', projects: 'Projets', experience: 'Expérience', contact: 'Contact', letsTalk: "Discutons" },
-    hero: { status: 'Disponible pour projets', greeting: "Salut, je suis", role: 'Création de produits numériques, marques et expériences.', bio: 'Ingénieur logiciel spécialisé dans la création d\'expériences numériques exceptionnelles.', checkWork: 'Voir mon travail', resume: 'Télécharger CV' },
-    about: { title: 'Ingénierie du futur,', highlight: 'une ligne de code à la fois.', p1: "Ingénieur logiciel passionné basé à Izmir, dédié à la création de produits numériques évolutifs.", p2: "Que ce soit pour l'architecture backend ou les interfaces utilisateur fluides, je vise toujours l'excellence.", years: 'Années de Code', shipped: 'Projets Livrés', coffee: 'Café' },
-    work: { title: 'Mes derniers travaux', desc: "Une sélection de projets, des applications web aux outils open source." },
-    experience: { title: 'Chronologie', desc: 'Mon parcours professionnel, ma formation et mes projets clés.', filters: { work: 'Travail', education: 'Éducation', certification: 'Certifications', project: 'Projets' }, present: 'Présent', viewProject: 'Voir le projet', viewCredential: 'Voir le certificat' },
-    contact: { title: "Travaillons ensemble.", desc: 'Un projet en tête ? Remplissez le formulaire ou envoyez-moi un email.', form: { name: 'Nom', email: 'Email', message: 'Message', send: 'Envoyer' }, findMe: 'Retrouvez-moi sur' }
-  },
-  DE: {
-    nav: { about: 'Über mich', expertise: 'Expertise', projects: 'Projekte', experience: 'Erfahrung', contact: 'Kontakt', letsTalk: "Lass uns reden" },
-    hero: { status: 'Verfügbar für Projekte', greeting: "Hallo, ich bin", role: 'Entwicklung digitaler Produkte, Marken und Erlebnisse.', bio: 'Softwareingenieur und Designer, spezialisiert auf außergewöhnliche digitale Erlebnisse.', checkWork: 'Meine Arbeit', resume: 'Lebenslauf' },
-    about: { title: 'Die Zukunft gestalten,', highlight: 'eine Zeile Code nach der anderen.', p1: "Leidenschaftlicher Softwareingenieur aus Izmir, TR, fokussiert auf skalierbare digitale Produkte.", p2: "Ob komplexe Backend-Systeme oder flüssige Benutzeroberflächen, ich strebe immer nach Exzellenz.", years: 'Jahre Coding', shipped: 'Projekte', coffee: 'Kaffee' },
-    work: { title: 'Meine neuesten Arbeiten', desc: "Eine Auswahl an Projekten, von Web-Apps bis zu Open-Source-Tools." },
-    experience: { title: 'Zeitlinie', desc: 'Mein beruflicher Werdegang, Ausbildung und wichtige Meilensteine.', filters: { work: 'Arbeit', education: 'Bildung', certification: 'Zertifikate', project: 'Projekte' }, present: 'Gegenwart', viewProject: 'Projekt ansehen', viewCredential: 'Zertifikat ansehen' },
-    contact: { title: "Lass uns zusammenarbeiten.", desc: 'Hast du ein Projekt im Sinn? Fülle das Formular aus oder sende mir eine E-Mail.', form: { name: 'Name', email: 'E-Mail', message: 'Nachricht', send: 'Nachricht senden' }, findMe: 'Finde mich auf' }
-  },
-  IT: {
-    nav: { about: 'Chi sono', expertise: 'Competenze', projects: 'Progetti', experience: 'Esperienza', contact: 'Contatto', letsTalk: "Parliamo" },
-    hero: { status: 'Disponibile per progetti', greeting: "Ciao, sono", role: 'Costruisco prodotti digitali, marchi ed esperienze.', bio: 'Ingegnere del software e designer specializzato in esperienze digitali eccezionali.', checkWork: 'I miei lavori', resume: 'Scarica CV' },
-    about: { title: 'Ingegnerizzare il futuro,', highlight: 'una riga di codice alla volta.', p1: "Ingegnere del software appassionato con base a Izmir, dedicato a prodotti digitali scalabili.", p2: "Dall'architettura backend alle interfacce utente fluide, punto sempre all'eccellenza.", years: 'Anni di Codice', shipped: 'Progetti', coffee: 'Caffè' },
-    work: { title: 'I miei ultimi lavori', desc: "Una selezione di progetti, dalle web app agli strumenti open source." },
-    experience: { title: 'Cronologia', desc: 'Il mio percorso professionale, formazione e pietre miliari.', filters: { work: 'Lavoro', education: 'Istruzione', certification: 'Certificazioni', project: 'Progetti' }, present: 'Presente', viewProject: 'Vedi Progetto', viewCredential: 'Vedi Certificato' },
-    contact: { title: "Lavoriamo insieme.", desc: 'Hai un progetto in mente? Compila il modulo o mandami un\'email.', form: { name: 'Nome', email: 'Email', message: 'Messaggio', send: 'Invia Messaggio' }, findMe: 'Trovami su' }
-  },
-  PT: {
-    nav: { about: 'Sobre', expertise: 'Expertise', projects: 'Projetos', experience: 'Experiência', contact: 'Contato', letsTalk: "Vamos conversar" },
-    hero: { status: 'Disponível para projetos', greeting: "Olá, sou", role: 'Criando produtos digitais, marcas e experiências.', bio: 'Engenheiro de Software e Designer focado em experiências digitais excepcionais.', checkWork: 'Ver trabalhos', resume: 'Baixar CV' },
-    about: { title: 'Projetando o futuro,', highlight: 'uma linha de código por vez.', p1: "Engenheiro de Software apaixonado em Izmir, dedicado a produtos digitais escaláveis.", p2: "Seja arquitetando backends complexos ou interfaces fluidas, sempre busco a excelência.", years: 'Anos Codando', shipped: 'Projetos', coffee: 'Café' },
-    work: { title: 'Meus trabalhos recentes', desc: "Uma seleção de projetos, de web apps a ferramentas open source." },
-    experience: { title: 'Linha do tempo', desc: 'Minha jornada profissional, educação e marcos importantes.', filters: { work: 'Trabalho', education: 'Educação', certification: 'Certificações', project: 'Projetos' }, present: 'Presente', viewProject: 'Ver Projeto', viewCredential: 'Ver Credencial' },
-    contact: { title: "Vamos trabalhar juntos.", desc: 'Tem um projeto? Preencha o formulário ou envie um e-mail.', form: { name: 'Nome', email: 'E-mail', message: 'Mensagem', send: 'Enviar Mensagem' }, findMe: 'Encontre-me em' }
-  },
-  RU: {
-    nav: { about: 'Обо мне', expertise: 'Навыки', projects: 'Проекты', experience: 'Опыт', contact: 'Контакты', letsTalk: "Обсудим" },
-    hero: { status: 'Доступен для проектов', greeting: "Привет, я", role: 'Создаю цифровые продукты, бренды и опыт.', bio: 'Инженер-программист и дизайнер, специализирующийся на исключительных цифровых продуктах.', checkWork: 'Мои работы', resume: 'Скачать резюме' },
-    about: { title: 'Создавая будущее,', highlight: 'строчка за строчкой.', p1: "Я увлеченный инженер-программист из Измира, создающий масштабируемые продукты.", p2: "Будь то сложная архитектура бэкенда или плавные интерфейсы, я всегда стремлюсь к совершенству.", years: 'Лет кодинга', shipped: 'Проектов', coffee: 'Кофе' },
-    work: { title: 'Мои последние работы', desc: "Подборка проектов: от веб-приложений до open source инструментов." },
-    experience: { title: 'Хронология', desc: 'Мой профессиональный путь, образование и ключевые проекты.', filters: { work: 'Работа', education: 'Образование', certification: 'Сертификаты', project: 'Проекты' }, present: 'Сейчас', viewProject: 'Смотреть', viewCredential: 'Сертификат' },
-    contact: { title: "Давайте работать вместе.", desc: 'Есть проект? Заполните форму или отправьте мне email.', form: { name: 'Имя', email: 'Email', message: 'Сообщение', send: 'Отправить' }, findMe: 'Я в соцсетях' }
-  },
-  ZH: {
-    nav: { about: '关于', expertise: '专长', projects: '项目', experience: '经验', contact: '联系', letsTalk: "让我们谈谈" },
-    hero: { status: '接受新项目', greeting: "你好，我是", role: '构建数字产品、品牌和体验。', bio: '专注于构建卓越数字体验的软件工程师和设计师。', checkWork: '查看作品', resume: '下载简历' },
-    about: { title: '工程化未来，', highlight: '一次一行代码。', p1: "我是位于伊兹密尔的热情软件工程师，致力于构建可扩展的以用户为中心的数字产品。", p2: "无论是构建复杂的后端系统还是流畅的用户界面，我都追求卓越。", years: '编程年限', shipped: '已发布项目', coffee: '咖啡消耗' },
-    work: { title: '查看我的最新作品', desc: "我参与的项目精选，从Web应用到开源工具。" },
-    experience: { title: '时间轴', desc: '我的职业旅程、教育背景和关键项目里程碑。', filters: { work: '工作', education: '教育', certification: '认证', project: '项目' }, present: '至今', viewProject: '查看项目', viewCredential: '查看证书' },
-    contact: { title: "让我们一起工作。", desc: '有项目想法？填写表格或给我发邮件。', form: { name: '姓名', email: '邮箱', message: '信息', send: '发送信息' }, findMe: '在这里找到我' }
-  },
-  JA: {
-    nav: { about: '私について', expertise: 'スキル', projects: 'プロジェクト', experience: '経歴', contact: '連絡先', letsTalk: "話しましょう" },
-    hero: { status: '新規プロジェクト募集中', greeting: "こんにちは、", role: 'デジタル製品、ブランド、体験を構築します。', bio: '卓越したデジタル体験の構築を専門とするソフトウェアエンジニア兼デザイナー。', checkWork: '作品を見る', resume: '履歴書をDL' },
-    about: { title: '未来を設計する、', highlight: '一行のコードから。', p1: "イズミルを拠点とする情熱的なソフトウェアエンジニアで、スケーラブルな製品構築に専念しています。", p2: "複雑なバックエンド構築でも、スムーズなUI作成でも、常に卓越性を追求します。", years: 'コーディング歴', shipped: 'プロジェクト数', coffee: 'コーヒー消費' },
-    work: { title: '最新の作品をチェック', desc: "Webアプリからオープンソースツールまで、私が取り組んだプロジェクトのセレクション。" },
-    experience: { title: 'タイムライン', desc: '私の専門的な旅路、学歴、そして重要なプロジェクトのマイルストーン。', filters: { work: '仕事', education: '教育', certification: '資格', project: 'プロジェクト' }, present: '現在', viewProject: 'プロジェクトを見る', viewCredential: '資格を見る' },
-    contact: { title: "一緒に働きましょう。", desc: 'プロジェクトのアイデアがありますか？フォームに記入するか、メールを送ってください。', form: { name: '名前', email: 'メール', message: 'メッセージ', send: '送信' }, findMe: 'SNS' }
   }
 };
 
@@ -250,12 +186,4 @@ export const useLanguage = () => {
 export const languages: { code: Language; label: string; flag: string }[] = [
   { code: 'EN', label: 'English', flag: '🇺🇸' },
   { code: 'TR', label: 'Türkçe', flag: '🇹🇷' },
-  { code: 'ES', label: 'Español', flag: '🇪🇸' },
-  { code: 'FR', label: 'Français', flag: '🇫🇷' },
-  { code: 'DE', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'IT', label: 'Italiano', flag: '🇮🇹' },
-  { code: 'PT', label: 'Português', flag: '🇵🇹' },
-  { code: 'RU', label: 'Русский', flag: '🇷🇺' },
-  { code: 'ZH', label: '中文', flag: '🇨🇳' },
-  { code: 'JA', label: '日本語', flag: '🇯🇵' },
 ];
