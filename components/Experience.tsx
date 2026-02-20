@@ -333,7 +333,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               rel="noreferrer" 
                               className={`inline-flex items-center gap-1 font-bold ${style.color} hover:opacity-80 transition-opacity`}
                             >
-                              {t.experience.viewProject} <ArrowUpRight className="w-3 h-3" />
+                              {t.experience.viewCredential} <ArrowUpRight className="w-3 h-3" />
                             </a>
                           )}
                         </div>
