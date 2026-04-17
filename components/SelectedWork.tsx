@@ -3,6 +3,7 @@ import React from 'react';
 import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Project } from '../types';
 import { MagicCard } from './MagicCard';
+import { Reveal } from './Reveal';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
 import { useAdmin } from '../lib/adminContext';
@@ -18,14 +19,16 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
   return (
     <section id="projects" className="py-32 relative bg-gray-50 dark:bg-[#050505] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <div className="mb-16">
+        <Reveal>
+          <div className="mb-16">
             <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
               {getText(sectionContent.projects.title, lang)}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg">
                {getText(sectionContent.projects.description, lang)}
             </p>
-        </div>
+          </div>
+        </Reveal>
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[300px] gap-4">

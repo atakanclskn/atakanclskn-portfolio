@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { TechItem } from '../types';
 import { useAdmin } from '../lib/adminContext';
+import { useLanguage } from '../lib/i18n';
+import { Reveal } from './Reveal';
 
 // Dynamic icon component that uses Devicon CDN (original colored logos)
 interface DynamicIconProps {
@@ -95,6 +97,7 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const { siteSettings } = useAdmin();
+  const { t } = useLanguage();
   
   // Check for dark mode
   useEffect(() => {
@@ -152,16 +155,18 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
       <div className="absolute right-0 top-0 bottom-0 w-16 md:w-48 lg:w-64 xl:w-80 bg-gradient-to-l from-white via-white via-50% to-transparent dark:from-[#050505] dark:via-[#050505] dark:via-50% dark:to-transparent z-10 pointer-events-none"></div>
 
       {/* Section Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Technology Stack
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Tools and technologies I use to build modern applications
-          </p>
+      <Reveal>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              {t.techStack.title}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              {t.techStack.desc}
+            </p>
+          </div>
         </div>
-      </div>
+      </Reveal>
 
       {/* Tech Stack Carousel - Full Width */}
       <div 

@@ -4,6 +4,7 @@ import { ArrowUpRight, Mail, Send, CheckCircle, Loader2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Social, Profile } from '../types';
 import { MagicCard } from './MagicCard';
+import { Reveal } from './Reveal';
 import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
 import { getText } from '../lib/multiLangHelper';
@@ -15,7 +16,7 @@ interface ConnectProps {
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   const { t, lang } = useLanguage();
-  const { addMessage, sectionContent, footerSettings } = useAdmin();
+  const { addMessage, sectionContent, footerSettings, heroContent } = useAdmin();
   
   // Form state
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -44,6 +45,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
             
             {/* Contact Form */}
+            <Reveal direction="left">
             <div>
                <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6">
                 {getText(sectionContent.contact.title, lang)}
@@ -70,7 +72,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                      }}
                      className="text-primary font-bold hover:underline"
                    >
-                     {lang === 'TR' ? 'Yeni mesaj gönder' : 'Send another message'}
+                     {t.contact.form.sendAnother}
                    </button>
                  </div>
                ) : (
@@ -82,12 +84,12 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                    
                    // Validation
                    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-                     setError('Lütfen tüm alanları doldurun.');
+                     setError(t.contact.form.fillAll);
                      return;
                    }
                    
                    if (!formData.email.includes('@')) {
-                     setError('Geçerli bir e-posta adresi girin.');
+                     setError(t.contact.form.invalidEmail);
                      return;
                    }
                    
@@ -144,7 +146,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Gönderiliyor...
+                        {t.contact.form.sending}
                       </>
                     ) : (
                       <>
@@ -155,8 +157,10 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                </form>
                )}
             </div>
+            </Reveal>
 
             {/* Socials Grid */}
+            <Reveal direction="right" delay={200}>
             <div className="flex flex-col justify-between">
                 <div>
                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">{getText(sectionContent.contact.findMeText, lang)}</h3>
@@ -212,28 +216,119 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                    </div>
                 </div>
             </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      <footer className="py-12 bg-white dark:bg-black border-t border-gray-200 dark:border-white/10 relative z-20">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-gray-500 text-sm">{getText(footerSettings.copyrightText, lang).replace('{year}', new Date().getFullYear().toString())}</p>
-          <div className="flex gap-6">
-             {footerSettings.showDesignCredit && (
-               <span className="text-gray-400 text-sm">{getText(footerSettings.designCreditText, lang)}</span>
-             )}
-             {footerSettings.additionalLinks?.map(link => (
-               <a 
-                 key={link._id}
-                 href={link.url}
-                 target={link.isExternal ? '_blank' : undefined}
-                 rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm transition-colors"
-               >
-                 {getText(link.label, lang)}
-               </a>
-             ))}
+      <footer className="relative z-20 bg-white dark:bg-black border-t border-gray-200 dark:border-white/10">
+        {/* Main Footer Content */}
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            
+            {/* Brand Column */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-xl tracking-tighter text-gray-900 dark:text-white">
+                  {profile.name.split(' ').map(n => n[0]).join('')}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-primary"></span>
+              </div>
+              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-xs">
+                {getText(heroContent.bio, lang)}
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h4 className="font-display font-bold text-sm uppercase tracking-wider text-gray-900 dark:text-white">
+                {lang === 'TR' ? 'Hızlı Linkler' : 'Quick Links'}
+              </h4>
+              <nav className="flex flex-col gap-2">
+                {[
+                  { label: t.nav.about, href: '#about' },
+                  { label: t.nav.projects, href: '#projects' },
+                  { label: t.nav.experience, href: '#experience' },
+                  { label: t.nav.contact, href: '#contact' },
+                ].map(link => (
+                  <a 
+                    key={link.href}
+                    href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const el = document.getElementById(link.href.replace('#', ''));
+                      if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+                    }}
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                {footerSettings.additionalLinks?.map(link => (
+                  <a 
+                    key={link._id}
+                    href={link.url}
+                    target={link.isExternal ? '_blank' : undefined}
+                    rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit"
+                  >
+                    {getText(link.label, lang)}
+                  </a>
+                ))}
+              </nav>
+            </div>
+
+            {/* Social & Contact */}
+            <div className="space-y-4">
+              <h4 className="font-display font-bold text-sm uppercase tracking-wider text-gray-900 dark:text-white">
+                {lang === 'TR' ? 'Bağlantı' : 'Connect'}
+              </h4>
+              <div className="flex gap-3">
+                {socials.map((social) => {
+                  const IconComponent = (LucideIcons as any)[social.iconName] || LucideIcons.Link;
+                  return (
+                    <a
+                      key={social._id}
+                      href={social.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={social.platform}
+                      className="p-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:scale-110"
+                    >
+                      <IconComponent className="w-4 h-4" />
+                    </a>
+                  );
+                })}
+              </div>
+              <a 
+                href={`mailto:${sectionContent.contact.emailLabel}`}
+                className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors block"
+              >
+                {sectionContent.contact.emailLabel}
+              </a>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 dark:border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-400 dark:text-gray-500 text-xs">
+              {getText(footerSettings.copyrightText, lang).replace('{year}', new Date().getFullYear().toString())}
+            </p>
+            
+            <div className="flex items-center gap-6">
+              {footerSettings.showDesignCredit && (
+                <span className="text-gray-400 dark:text-gray-500 text-xs">{getText(footerSettings.designCreditText, lang)}</span>
+              )}
+              
+              {/* Back to Top */}
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                aria-label="Back to top"
+                className="p-2 bg-gray-100 dark:bg-white/5 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:-translate-y-0.5"
+              >
+                <LucideIcons.ArrowUp className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </footer>

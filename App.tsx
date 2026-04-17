@@ -7,6 +7,7 @@ import { TechStack } from './components/TechStack';
 import { SelectedWork } from './components/SelectedWork';
 import { Experience } from './components/Experience';
 import { Connect } from './components/Connect';
+import { NotFound } from './components/NotFound';
 import { InteractiveBackground } from './components/InteractiveBackground';
 import { LanguageProvider } from './lib/i18n';
 import { AdminProvider, useAdmin } from './lib/adminContext';
@@ -39,11 +40,17 @@ const AppContent: React.FC = () => {
   }, [profile]);
 
   const isAdminPath = (path: string) => path.startsWith('/admin');
+  const isHomePath = (path: string) => path === '/' || path === '';
   const [isAdminRoute, setIsAdminRoute] = useState(isAdminPath(window.location.pathname));
+  const [is404, setIs404] = useState(!isHomePath(window.location.pathname) && !isAdminPath(window.location.pathname));
 
   // Listen for URL changes (pushState from AdminPanel)
   useEffect(() => {
-    const checkRoute = () => setIsAdminRoute(isAdminPath(window.location.pathname));
+    const checkRoute = () => {
+      const path = window.location.pathname;
+      setIsAdminRoute(isAdminPath(path));
+      setIs404(!isHomePath(path) && !isAdminPath(path));
+    };
     window.addEventListener('popstate', checkRoute);
     // Custom event dispatched by AdminPanel on open/close
     window.addEventListener('adminRouteChange', checkRoute);
@@ -69,8 +76,10 @@ const AppContent: React.FC = () => {
       }>
         <AdminPanel />
       </Suspense>
-      {!isAdminRoute && (
+      {is404 && <NotFound />}
+      {!isAdminRoute && !is404 && (
         <>
+          <a href="#about" className="skip-to-content">Skip to content</a>
           <InteractiveBackground />
           <Navbar />
           <main className="relative z-10">

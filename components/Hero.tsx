@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Download } from 'lucide-react';
 import { Profile } from '../types';
 import { useLanguage } from '../lib/i18n';
@@ -13,6 +13,28 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ profile }) => {
   const { t, lang } = useLanguage();
   const { heroContent } = useAdmin();
+
+  // Rotating text effect for titles
+  const titles = profile.titles && profile.titles.length > 1 
+    ? profile.titles 
+    : [getText(heroContent.role, lang)];
+  
+  const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (titles.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setIsVisible(false);
+      setTimeout(() => {
+        setCurrentTitleIndex((prev) => (prev + 1) % titles.length);
+        setIsVisible(true);
+      }, 400); // Wait for fade out before changing
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [titles.length]);
 
   const scrollToProjects = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -51,8 +73,17 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
           <h1 className="text-4xl md:text-7xl lg:text-8xl font-display font-bold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-4 md:mb-6 animate-fade-in-up" style={{animationDelay: '0.2s'}}>
             {getText(heroContent.greeting, lang)} {heroContent.name.split(' ')[0]}.
           </h1>
-          <h2 className="text-xl md:text-4xl font-display font-medium text-gray-500 dark:text-gray-400 animate-fade-in-up px-4" style={{animationDelay: '0.3s'}}>
-            {getText(heroContent.role, lang)}
+          <h2 className="text-xl md:text-4xl font-display font-medium animate-fade-in-up px-4 min-h-[2.5rem] md:min-h-[3.5rem] flex items-center justify-center" style={{animationDelay: '0.3s'}}>
+            <span 
+              className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary transition-all duration-400"
+              style={{ 
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(-10px)',
+                transition: 'opacity 0.4s ease, transform 0.4s ease'
+              }}
+            >
+              {titles.length > 1 ? titles[currentTitleIndex] : getText(heroContent.role, lang)}
+            </span>
           </h2>
         </div>
 
