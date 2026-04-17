@@ -479,7 +479,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                 <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
                   {t.experience.title}
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-sm md:text-base">
+                <p className="text-gray-700 dark:text-gray-300 max-w-lg mx-auto text-sm md:text-base">
                   {t.experience.desc}
                 </p>
             </div>
@@ -495,7 +495,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                     className={`px-4 py-2 md:px-6 md:py-2 rounded-full text-[10px] md:text-xs font-bold transition-all duration-300 border flex items-center justify-center ${
                       isActive 
                         ? `${styles.bg} ${styles.color} ${styles.border} ${shakeFilters ? 'animate-bounce-in' : ''}`
-                        : 'bg-transparent text-gray-500 border-gray-200 dark:border-white/10 hover:border-gray-400'
+                        : 'bg-transparent text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-gray-400'
                     }`}
                     aria-pressed={isActive}
                     aria-label={f.label}

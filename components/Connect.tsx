@@ -50,7 +50,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6">
                 {getText(sectionContent.contact.title, lang)}
                </h2>
-               <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+               <p className="text-gray-700 dark:text-gray-300 mb-8 text-lg">
                  {getText(sectionContent.contact.description, lang)}
                </p>
 
@@ -62,7 +62,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                      {getText(sectionContent.contact.successMessage, lang).split('!')[0]}!
                    </h3>
-                   <p className="text-gray-600 dark:text-gray-400 mb-6">
+                   <p className="text-gray-700 dark:text-gray-300 mb-6">
                      {getText(sectionContent.contact.successMessage, lang).split('!')[1] || ''}
                    </p>
                    <button
@@ -111,7 +111,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                     </div>
                   )}
                   <div>
-                   <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.name}</label>
+                   <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">{t.contact.form.name}</label>
                     <input 
                      id="contact-name"
                       type="text" 
@@ -124,7 +124,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                     />
                   </div>
                   <div>
-                   <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.email}</label>
+                   <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">{t.contact.form.email}</label>
                     <input 
                      id="contact-email"
                       type="email" 
@@ -137,7 +137,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                     />
                   </div>
                   <div>
-                   <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.message}</label>
+                   <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-2">{t.contact.form.message}</label>
                     <textarea 
                       id="contact-message"
                       rows={4} 
@@ -201,7 +201,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                                         <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
                                     </div>
                                     <p className="font-bold text-gray-900 dark:text-white">{social.platform}</p>
-                                    <p className="text-xs text-gray-500">{social.username || 'Follow'}</p>
+                                    <p className="text-xs text-gray-700 dark:text-gray-300">{social.username || 'Follow'}</p>
                                 </div>
                              </MagicCard>
                           </a>
@@ -221,7 +221,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                                   <ArrowUpRight className="w-4 h-4 text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
                                 </div>
                                 <p className="font-bold text-gray-900 dark:text-white">Email</p>
-                                <p className="text-xs text-gray-500">{sectionContent.contact.emailLabel}</p>
+                                <p className="text-xs text-gray-700 dark:text-gray-300">{sectionContent.contact.emailLabel}</p>
                               </div>
                           </MagicCard>
                       </a>
@@ -246,7 +246,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                 </span>
                 <span className="w-2 h-2 rounded-full bg-primary"></span>
               </div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-xs">
+              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed max-w-xs">
                 {getText(heroContent.bio, lang)}
               </p>
             </div>
@@ -271,7 +271,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       const el = document.getElementById(link.href.replace('#', ''));
                       if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
                     }}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                    className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
                     aria-label={`Go to ${link.label} section`}
                   >
                     {link.label}
@@ -283,7 +283,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                     href={link.url}
                     target={link.isExternal ? '_blank' : undefined}
                     rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                    className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
                     aria-label={getText(link.label, lang)}
                   >
                     {getText(link.label, lang)}
@@ -307,7 +307,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       target="_blank"
                       rel="noreferrer"
                       aria-label={social.platform}
-                      className="p-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      className="p-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                     >
                       <IconComponent className="w-4 h-4" />
                     </a>
@@ -316,7 +316,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
               </div>
               <a 
                 href={`mailto:${sectionContent.contact.emailLabel}`}
-                className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                className="text-gray-700 dark:text-gray-300 hover:text-primary text-sm transition-colors block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
                 aria-label={`Send email to ${sectionContent.contact.emailLabel}`}
               >
                 {sectionContent.contact.emailLabel}
@@ -326,20 +326,20 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
 
           {/* Divider */}
           <div className="border-t border-gray-200 dark:border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 dark:text-gray-500 text-xs">
+            <p className="text-gray-600 dark:text-gray-300 text-xs">
               {getText(footerSettings.copyrightText, lang).replace('{year}', new Date().getFullYear().toString())}
             </p>
             
             <div className="flex items-center gap-6">
               {footerSettings.showDesignCredit && (
-                <span className="text-gray-400 dark:text-gray-500 text-xs">{getText(footerSettings.designCreditText, lang)}</span>
+                <span className="text-gray-600 dark:text-gray-300 text-xs">{getText(footerSettings.designCreditText, lang)}</span>
               )}
               
               {/* Back to Top */}
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 aria-label="Back to top"
-                className="p-2 bg-gray-100 dark:bg-white/5 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:-translate-y-0.5"
+                className="p-2 bg-gray-100 dark:bg-white/5 rounded-full text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:-translate-y-0.5"
               >
                 <LucideIcons.ArrowUp className="w-4 h-4" />
               </button>

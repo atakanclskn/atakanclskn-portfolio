@@ -87,7 +87,7 @@ export const Hero: React.FC<HeroProps> = ({ profile }) => {
           </h2>
         </div>
 
-        <p className="text-gray-600 dark:text-gray-400 text-base md:text-xl max-w-2xl leading-relaxed font-sans mb-10 md:mb-12 animate-fade-in-up px-4" style={{animationDelay: '0.4s'}}>
+        <p className="text-gray-700 dark:text-gray-300 text-base md:text-xl max-w-2xl leading-relaxed font-sans mb-10 md:mb-12 animate-fade-in-up px-4" style={{animationDelay: '0.4s'}}>
           {getText(heroContent.bio, lang)}
         </p>
 

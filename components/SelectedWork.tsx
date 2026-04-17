@@ -24,7 +24,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
             <h2 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white tracking-tight mb-4">
               {getText(sectionContent.projects.title, lang)}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg">
+            <p className="text-gray-700 dark:text-gray-300 max-w-2xl text-lg">
                {getText(sectionContent.projects.description, lang)}
             </p>
           </div>
@@ -98,7 +98,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         </h3>
                         <div className="grid transition-all duration-500 ease-out grid-rows-[0fr] group-hover:grid-rows-[1fr]">
                           <div className="overflow-hidden">
-                            <p className="text-gray-300 text-sm line-clamp-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                            <p className="text-gray-200 text-sm line-clamp-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                               {getText(project.description, lang)}
                             </p>
                           </div>
