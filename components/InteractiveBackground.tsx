@@ -10,9 +10,13 @@ export const InteractiveBackground: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let shouldAnimate = !prefersReducedMotion.matches && window.innerWidth >= 768;
+
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
     let time = 0;
+    let animId: number | null = null;
     
     // Get primary color from CSS variable set by Admin Context
     const getPrimaryColor = () => {
@@ -73,7 +77,45 @@ export const InteractiveBackground: React.FC = () => {
       }
     };
 
-    const handleResize = () => init();
+    const handleResize = () => {
+      shouldAnimate = !prefersReducedMotion.matches && window.innerWidth >= 768;
+      init();
+      if (!shouldAnimate) {
+        if (animId !== null) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+        ctx.clearRect(0, 0, width, height);
+      } else if (animId === null) {
+        animId = requestAnimationFrame(animate);
+      }
+    };
+
+    const handleMotionPreferenceChange = () => {
+      shouldAnimate = !prefersReducedMotion.matches && window.innerWidth >= 768;
+      if (!shouldAnimate) {
+        if (animId !== null) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+        ctx.clearRect(0, 0, width, height);
+      } else if (animId === null) {
+        init();
+        animId = requestAnimationFrame(animate);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && animId !== null) {
+        cancelAnimationFrame(animId);
+        animId = null;
+        return;
+      }
+      if (!document.hidden && shouldAnimate && animId === null) {
+        animId = requestAnimationFrame(animate);
+      }
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
@@ -91,10 +133,17 @@ export const InteractiveBackground: React.FC = () => {
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
+    prefersReducedMotion.addEventListener('change', handleMotionPreferenceChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     init();
 
     const animate = () => {
+      if (!shouldAnimate || document.hidden) {
+        animId = null;
+        return;
+      }
+
       time += 0.002; 
       ctx.clearRect(0, 0, width, height);
       
@@ -157,15 +206,22 @@ export const InteractiveBackground: React.FC = () => {
         ctx.fill();
       });
 
-      requestAnimationFrame(animate);
+      animId = requestAnimationFrame(animate);
     };
 
-    const animId = requestAnimationFrame(animate);
+    if (shouldAnimate) {
+      animId = requestAnimationFrame(animate);
+    }
+
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      prefersReducedMotion.removeEventListener('change', handleMotionPreferenceChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       observer.disconnect();
-      cancelAnimationFrame(animId);
+      if (animId !== null) {
+        cancelAnimationFrame(animId);
+      }
     };
   }, []);
 

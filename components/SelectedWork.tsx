@@ -13,7 +13,7 @@ interface SelectedWorkProps {
 }
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
-  const { t, lang } = useLanguage();
+  const { lang } = useLanguage();
   const { sectionContent } = useAdmin();
 
   return (
@@ -53,7 +53,16 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                     hover:shadow-2xl transition-all duration-500 cursor-pointer
                 `}
               >
-                <div onClick={() => project.link && window.open(project.link, '_blank')} className="w-full h-full relative z-20">
+                <a
+                  href={project.link || '#'}
+                  target={project.link ? '_blank' : undefined}
+                  rel={project.link ? 'noreferrer' : undefined}
+                  onClick={(e) => {
+                    if (!project.link) e.preventDefault();
+                  }}
+                  className="w-full h-full relative z-20 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-3xl"
+                  aria-label={`${getText(project.title, lang)} project details`}
+                >
                     {imageUrl ? (
                     <>
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
@@ -61,6 +70,8 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         src={imageUrl} 
                         alt={getText(project.title, lang)} 
                         loading="lazy"
+                        decoding="async"
+                        sizes={isFeatured ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 25vw, 100vw"}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                     </>
@@ -94,7 +105,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         </div>
                       </div>
                     </div>
-                </div>
+                </a>
               </MagicCard>
             );
           })}

@@ -55,7 +55,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                </p>
 
                {isSubmitted ? (
-                 <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="flex flex-col items-center justify-center py-12 text-center" aria-live="polite">
                    <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
                      <CheckCircle className="w-8 h-8 text-green-500" />
                    </div>
@@ -70,14 +70,16 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                        setIsSubmitted(false);
                        setFormData({ name: '', email: '', message: '' });
                      }}
-                     className="text-primary font-bold hover:underline"
+                     className="text-primary font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                     aria-label="Send another message"
                    >
                      {t.contact.form.sendAnother}
                    </button>
                  </div>
                ) : (
-               <form 
+              <form 
                  className="space-y-6 relative"
+                 aria-label="Contact form"
                  onSubmit={(e) => {
                    e.preventDefault();
                    setError('');
@@ -103,45 +105,54 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                    }, 800);
                  }}
                >
-                  {error && (
-                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+                 {error && (
+                   <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm" role="alert" aria-live="assertive">
                       {error}
                     </div>
                   )}
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.name}</label>
+                   <label htmlFor="contact-name" className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.name}</label>
                     <input 
+                     id="contact-name"
                       type="text" 
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" 
+                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors" 
                       placeholder="John Doe" 
+                      autoComplete="name"
+                      aria-invalid={!!error && !formData.name.trim()}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.email}</label>
+                   <label htmlFor="contact-email" className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.email}</label>
                     <input 
+                     id="contact-email"
                       type="email" 
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" 
+                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors" 
                       placeholder="john@example.com" 
+                      autoComplete="email"
+                      aria-invalid={!!error && (!formData.email.trim() || !formData.email.includes('@'))}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.message}</label>
+                   <label htmlFor="contact-message" className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{t.contact.form.message}</label>
                     <textarea 
+                      id="contact-message"
                       rows={4} 
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary transition-colors" 
+                      className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors" 
                       placeholder="Tell me about your project..."
+                      aria-invalid={!!error && !formData.message.trim()}
                     ></textarea>
                   </div>
                   <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                    aria-label={isSubmitting ? t.contact.form.sending : t.contact.form.send}
                   >
                     {isSubmitting ? (
                       <>
@@ -175,7 +186,8 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                             href={social.url} 
                             target="_blank" 
                             rel="noreferrer"
-                            className="block"
+                            className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-2xl"
+                            aria-label={`${social.platform} profile${social.username ? `: ${social.username}` : ''}`}
                           >
                              <MagicCard 
                                 gradientColor={color + '33'}
@@ -196,7 +208,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                         );
                       })}
                       
-                      <a href={`mailto:${sectionContent.contact.emailLabel}`} className="block">
+                      <a href={`mailto:${sectionContent.contact.emailLabel}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-2xl" aria-label={`Send email to ${sectionContent.contact.emailLabel}`}>
                           <MagicCard 
                             gradientColor="rgba(6, 182, 212, 0.2)" 
                             className="relative group bg-white dark:bg-surface border border-gray-200 dark:border-white/10 rounded-2xl hover:border-gray-300 dark:hover:border-white/30 transition-all hover:-translate-y-1 shadow-sm overflow-hidden"
@@ -259,7 +271,8 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       const el = document.getElementById(link.href.replace('#', ''));
                       if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
                     }}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                    aria-label={`Go to ${link.label} section`}
                   >
                     {link.label}
                   </a>
@@ -270,7 +283,8 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                     href={link.url}
                     target={link.isExternal ? '_blank' : undefined}
                     rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors w-fit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                    aria-label={getText(link.label, lang)}
                   >
                     {getText(link.label, lang)}
                   </a>
@@ -293,7 +307,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       target="_blank"
                       rel="noreferrer"
                       aria-label={social.platform}
-                      className="p-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:scale-110"
+                      className="p-2.5 bg-gray-100 dark:bg-white/5 rounded-xl text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                     >
                       <IconComponent className="w-4 h-4" />
                     </a>
@@ -302,7 +316,8 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
               </div>
               <a 
                 href={`mailto:${sectionContent.contact.emailLabel}`}
-                className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors block"
+                className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
+                aria-label={`Send email to ${sectionContent.contact.emailLabel}`}
               >
                 {sectionContent.contact.emailLabel}
               </a>

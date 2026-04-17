@@ -208,6 +208,8 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                                   src={item.companyLogo} 
                                   alt={item.company} 
                                   loading="lazy"
+                                  decoding="async"
+                                  sizes="32px"
                                   className="w-8 h-8 rounded-lg object-contain bg-white dark:bg-white/10 border border-gray-100 dark:border-white/10 flex-shrink-0"
                                   onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
                                 />
@@ -219,7 +221,7 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
 
                           <div className={`flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium flex-wrap ${!isMobile && side === 'left' ? 'flex-row-reverse' : ''}`}>
                               {item.companyUrl ? (
-                                <a href={item.companyUrl} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-1">
+                                <a href={item.companyUrl} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded" aria-label={`${item.company} website`}>
                                   {item.company} <ExternalLink className="w-3 h-3" />
                                 </a>
                               ) : (
@@ -288,7 +290,9 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                           {needsTruncation && (
                             <button
                               onClick={toggleExpand}
-                              className={`mt-1 flex items-center gap-1 text-xs font-semibold cursor-pointer transition-opacity hover:opacity-80 ${!isMobile && side === 'left' ? 'ml-auto' : ''}`}
+                              className={`mt-1 flex items-center gap-1 text-xs font-semibold cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded ${!isMobile && side === 'left' ? 'ml-auto' : ''}`}
+                              aria-expanded={isExpanded}
+                              aria-label={isExpanded ? (lang === 'TR' ? 'Açıklamayı daralt' : 'Collapse description') : (lang === 'TR' ? 'Açıklamayı genişlet' : 'Expand description')}
                             >
                               <ShinyText
                                 text={isExpanded ? (lang === 'TR' ? 'Daha Az' : 'Read Less') : (lang === 'TR' ? 'Devamını Oku' : 'Read More')}
@@ -331,7 +335,8 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               href={item.credentialUrl} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className={`inline-flex items-center gap-1 font-bold ${style.color} hover:opacity-80 transition-opacity`}
+                              className={`inline-flex items-center gap-1 font-bold ${style.color} hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded`}
+                              aria-label={t.experience.viewCredential}
                             >
                               {t.experience.viewCredential} <ArrowUpRight className="w-3 h-3" />
                             </a>
@@ -345,7 +350,8 @@ const TimelineCard: React.FC<{ item: any, side?: 'left' | 'right', isMobile?: bo
                               href={item.link} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity relative z-10 ${linkAlign}`}
+                              className={`inline-flex items-center gap-1 text-xs font-bold ${style.color} hover:opacity-80 transition-opacity relative z-10 ${linkAlign} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded`}
+                              aria-label={t.experience.viewProject}
                           >
                               {t.experience.viewProject} <ArrowUpRight className="w-3 h-3" />
                           </a>
@@ -491,6 +497,8 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
                         ? `${styles.bg} ${styles.color} ${styles.border} ${shakeFilters ? 'animate-bounce-in' : ''}`
                         : 'bg-transparent text-gray-500 border-gray-200 dark:border-white/10 hover:border-gray-400'
                     }`}
+                    aria-pressed={isActive}
+                    aria-label={f.label}
                   >
                     {f.label}
                   </button>

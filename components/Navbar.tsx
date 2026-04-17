@@ -176,6 +176,8 @@ export const Navbar: React.FC = () => {
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
               className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-all duration-300"
+              aria-label="Change language"
+              aria-expanded={isLangOpen}
             >
               <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{lang.toUpperCase()}</span>
               <ChevronDown size={12} className={`text-gray-500 transition-transform duration-300 ${isLangOpen ? 'rotate-180' : ''}`} />
@@ -194,6 +196,7 @@ export const Navbar: React.FC = () => {
                       ? 'bg-primary/10 text-primary' 
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
+                  aria-label="Switch language to English"
                 >
                   EN
                 </button>
@@ -207,6 +210,7 @@ export const Navbar: React.FC = () => {
                       ? 'bg-primary/10 text-primary' 
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
                   }`}
+                  aria-label="Switch language to Turkish"
                 >
                   TR
                 </button>
@@ -229,6 +233,7 @@ export const Navbar: React.FC = () => {
                if(el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
             }}
             className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+            aria-label="Scroll to contact section"
           >
             {getText(navbarSettings.ctaText, lang)}
           </button>
@@ -241,6 +246,8 @@ export const Navbar: React.FC = () => {
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
               className="flex items-center gap-1 text-xs font-bold font-mono px-2 py-1 rounded bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white"
+              aria-label="Change language"
+              aria-expanded={isLangOpen}
             >
               {lang.toUpperCase()}
               <ChevronDown size={10} className={`transition-transform duration-300 ${isLangOpen ? 'rotate-180' : ''}`} />
@@ -258,6 +265,7 @@ export const Navbar: React.FC = () => {
                     className={`w-full px-2 py-2 rounded text-xs font-bold font-mono transition-colors ${
                       lang === 'EN' ? 'bg-primary/10 text-primary' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5'
                     }`}
+                    aria-label="Switch language to English"
                   >
                     EN
                   </button>
@@ -269,6 +277,7 @@ export const Navbar: React.FC = () => {
                     className={`w-full px-2 py-2 rounded text-xs font-bold font-mono transition-colors ${
                       lang === 'TR' ? 'bg-primary/10 text-primary' : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5'
                     }`}
+                    aria-label="Switch language to Turkish"
                   >
                     TR
                   </button>
@@ -280,12 +289,15 @@ export const Navbar: React.FC = () => {
           <button 
             onClick={toggleTheme}
             className="p-2 rounded-full bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300"
+            aria-label="Toggle Theme"
           >
              {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           <button 
             className="text-gray-900 dark:text-white p-1"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -323,6 +335,7 @@ export const Navbar: React.FC = () => {
               setMobileMenuOpen(false);
             }}
             className="w-full mt-4 py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20"
+            aria-label="Scroll to contact section"
           >
             {t.nav.letsTalk}
           </button>

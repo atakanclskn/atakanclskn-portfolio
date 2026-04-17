@@ -41,12 +41,14 @@ export const NotFound: React.FC = () => {
               window.dispatchEvent(new Event('popstate'));
             }}
             className="w-full sm:w-auto px-8 py-4 bg-black dark:bg-white text-white dark:text-black rounded-full font-bold text-sm transition-transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
+            aria-label="Go to home page"
           >
             <Home className="w-4 h-4" /> Go Home
           </button>
           <button
             onClick={() => window.history.back()}
             className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-full font-bold text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            aria-label="Go back to previous page"
           >
             <ArrowLeft className="w-4 h-4" /> Go Back
           </button>
