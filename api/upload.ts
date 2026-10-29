@@ -3,6 +3,7 @@
 //
 // Environment variables (set in the Vercel project):
 //   BLOB_READ_WRITE_TOKEN – added automatically when a Blob store is connected to the project
+//                           (any <PREFIX>_READ_WRITE_TOKEN holding a Blob token also works)
 //   FIREBASE_API_KEY      – the site's public Firebase web API key, used to check the admin's ID token
 //   ADMIN_EMAIL           – optional, defaults to the admin address in lib/firebase.ts
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
@@ -26,6 +27,11 @@ const isAdminToken = async (idToken: string): Promise<boolean> => {
   return !!user?.emailVerified && user.email === (process.env.ADMIN_EMAIL || 'calskanatakan55@gmail.com');
 };
 
+// Connecting a store with a custom prefix renames the variable, so accept any Blob read-write token
+const blobToken = () =>
+  process.env.BLOB_READ_WRITE_TOKEN
+  ?? Object.entries(process.env).find(([key, value]) => key.endsWith('_READ_WRITE_TOKEN') && value?.startsWith('vercel_blob_rw_'))?.[1];
+
 export const OPTIONS = preflight;
 
 export async function POST(request: Request) {
@@ -33,8 +39,11 @@ export async function POST(request: Request) {
   if (!headers['Access-Control-Allow-Origin']) return json(403, { error: 'Origin not allowed' }, headers);
 
   try {
+    const token = blobToken();
+    if (!token) return json(500, { error: 'Blob storage is not connected' }, headers);
     const body = await request.json() as HandleUploadBody;
     const result = await handleUpload({
+      token,
       body,
       request,
       onBeforeGenerateToken: async (_pathname, clientPayload) => {
