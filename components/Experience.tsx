@@ -583,7 +583,7 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences, projects })
 
             {/* Earliest start year badge at the bottom of the timeline */}
             {(() => {
-              const allItems = Object.values(groupedItems).flat();
+              const allItems = sortedYears.flatMap(year => groupedItems[year]);
               const earliestStartYear = Math.min(...allItems.map(item => new Date(item.startDate).getFullYear()));
               const lowestGroupYear = Math.min(...sortedYears.map(Number));
               if (earliestStartYear < lowestGroupYear) {

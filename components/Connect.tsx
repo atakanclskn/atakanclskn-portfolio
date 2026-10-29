@@ -9,6 +9,9 @@ import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
 import { getText } from '../lib/multiLangHelper';
 
+// Mirrors the email check in firestore.rules
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
 interface ConnectProps {
   socials: Social[];
   profile: Profile;
@@ -19,7 +22,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   const { addMessage, sectionContent, footerSettings, heroContent } = useAdmin();
   
   // Form state
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', message: '', website: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -68,7 +71,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                    <button
                      onClick={() => {
                        setIsSubmitted(false);
-                       setFormData({ name: '', email: '', message: '' });
+                       setFormData({ name: '', email: '', message: '', website: '' });
                      }}
                      className="text-primary font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded"
                      aria-label="Send another message"
@@ -80,31 +83,47 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
               <form 
                  className="space-y-6 relative"
                  aria-label="Contact form"
-                 onSubmit={(e) => {
+                 onSubmit={async (e) => {
                    e.preventDefault();
                    setError('');
-                   
+
                    // Validation
                    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
                      setError(t.contact.form.fillAll);
                      return;
                    }
-                   
-                   if (!formData.email.includes('@')) {
+
+                   if (!EMAIL_PATTERN.test(formData.email.trim())) {
                      setError(t.contact.form.invalidEmail);
                      return;
                    }
-                   
-                   setIsSubmitting(true);
-                   
-                   // Simulate network delay for better UX
-                   setTimeout(() => {
-                     addMessage(formData.name, formData.email, formData.message);
-                     setIsSubmitting(false);
+
+                   // Honeypot: real users never see or fill this field
+                   if (formData.website) {
                      setIsSubmitted(true);
-                   }, 800);
+                     return;
+                   }
+
+                   setIsSubmitting(true);
+                   const saved = await addMessage(formData.name.trim(), formData.email.trim(), formData.message.trim());
+                   setIsSubmitting(false);
+                   if (saved) {
+                     setIsSubmitted(true);
+                   } else {
+                     setError(t.contact.form.sendFailed);
+                   }
                  }}
                >
+                 <input
+                   type="text"
+                   name="website"
+                   value={formData.website}
+                   onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                   tabIndex={-1}
+                   autoComplete="off"
+                   aria-hidden="true"
+                   className="absolute -left-[9999px] w-px h-px opacity-0"
+                 />
                  {error && (
                    <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm" role="alert" aria-live="assertive">
                       {error}
@@ -120,6 +139,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors" 
                       placeholder="John Doe" 
                       autoComplete="name"
+                      maxLength={100}
                       aria-invalid={!!error && !formData.name.trim()}
                     />
                   </div>
@@ -133,7 +153,8 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors" 
                       placeholder="john@example.com" 
                       autoComplete="email"
-                      aria-invalid={!!error && (!formData.email.trim() || !formData.email.includes('@'))}
+                      maxLength={200}
+                      aria-invalid={!!error && !EMAIL_PATTERN.test(formData.email.trim())}
                     />
                   </div>
                   <div>
@@ -145,6 +166,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg p-4 text-gray-900 dark:text-white focus:outline-none focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors" 
                       placeholder="Tell me about your project..."
+                      maxLength={5000}
                       aria-invalid={!!error && !formData.message.trim()}
                     ></textarea>
                   </div>

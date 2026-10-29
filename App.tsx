@@ -19,25 +19,12 @@ const AdminPanel = lazy(() => import('./components/AdminPanelNew').then(m => ({ 
 
 // Separate inner component to use the context
 const AppContent: React.FC = () => {
-  const { profile, techStack, projects, experiences, socials, siteSettings } = useAdmin();
-  const [isLoading, setIsLoading] = useState(true);
+  const { profile, techStack, projects, experiences, socials, isDataReady } = useAdmin();
 
   // Track page views in Firestore
   useEffect(() => {
     trackPageView(window.location.pathname).catch(err => console.error('Page view tracking failed:', err));
   }, []);
-
-  // Simulate initial data loading (or can be replaced with actual async fetch)
-  useEffect(() => {
-    // Small delay to show skeleton effect, remove in production with real async
-    const timer = setTimeout(() => {
-      if (profile) {
-        setIsLoading(false);
-      }
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, [profile]);
 
   const isAdminPath = (path: string) => path.startsWith('/admin');
   const isHomePath = (path: string) => path === '/' || path === '';
@@ -61,7 +48,7 @@ const AppContent: React.FC = () => {
   }, []);
 
   // Show skeleton while loading (only on non-admin route)
-  if (!isAdminRoute && (isLoading || !profile)) {
+  if (!isAdminRoute && !isDataReady) {
     return <PageSkeleton />;
   }
 

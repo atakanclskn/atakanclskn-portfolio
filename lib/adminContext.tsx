@@ -14,23 +14,23 @@ import { User } from 'firebase/auth';
 const DEFAULT_EXPERIENCES: ExperienceItem[] = [
     {
         _id: 'li-oyku',
-        role: 'AI Developer',
+        role: { EN: 'AI Developer', TR: 'AI Developer' },
         company: 'Öykü Lojistik',
         startDate: '2025-07',
         endDate: '2025-11',
         isCurrent: false,
-        description: 'AI Development Expert focusing on Microsoft SQL Server and SQL integrations.',
+        description: { EN: 'AI Development Expert focusing on Microsoft SQL Server and SQL integrations.', TR: 'AI Development Expert focusing on Microsoft SQL Server and SQL integrations.' },
         skills: ['AI', 'SQL'],
         type: 'work'
     },
     {
         _id: 'li-outlier',
-        role: 'Freelance AI Data Contributor',
+        role: { EN: 'Freelance AI Data Contributor', TR: 'Freelance AI Data Contributor' },
         company: 'Outlier AI',
         startDate: '2024-09',
         endDate: '2025-10',
         isCurrent: false,
-        description: 'NLP, data validation, and annotation tasks.',
+        description: { EN: 'NLP, data validation, and annotation tasks.', TR: 'NLP, data validation, and annotation tasks.' },
         skills: ['NLP', 'Python'],
         type: 'work'
     }
@@ -39,18 +39,18 @@ const DEFAULT_EXPERIENCES: ExperienceItem[] = [
 const DEFAULT_PROJECTS: Project[] = [
     {
         _id: 'p1',
-        title: 'Autonomous AI Agent',
+        title: { EN: 'Autonomous AI Agent', TR: 'Autonomous AI Agent' },
         category: 'AI / Logistics',
-        description: 'An autonomous agent utilizing LLMs to optimize logistics routing.',
+        description: { EN: 'An autonomous agent utilizing LLMs to optimize logistics routing.', TR: 'An autonomous agent utilizing LLMs to optimize logistics routing.' },
         size: 'large',
         mainImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop',
         link: '#',
     },
     {
         _id: 'p2',
-        title: 'Portfolio V2',
+        title: { EN: 'Portfolio V2', TR: 'Portfolio V2' },
         category: 'Web',
-        description: 'Modern portfolio built with React, Tailwind, and Sanity CMS.',
+        description: { EN: 'Modern portfolio built with React, Tailwind, and Sanity CMS.', TR: 'Modern portfolio built with React, Tailwind, and Sanity CMS.' },
         size: 'small',
         mainImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop',
         link: '#',
@@ -80,19 +80,17 @@ const DEFAULT_PROFILE: Profile = {
     titles: ['Software Engineer'],
     bio: 'Software Engineer and Designer specializing in building exceptional digital experiences.',
     status: 'Available for new projects',
-    heroImage: 'https://github.com/atakanclskn.png' as any,
     avatarUrl: 'https://github.com/atakanclskn.png'
 };
 
 const DEFAULT_HERO: HeroContent = {
-  greeting: "Hey, I'm",
+  greeting: { EN: "Hi, I'm", TR: 'Selam, Ben' },
   name: 'Atakan Çalışkan',
-  role: 'Software Engineer & Designer',
-  bio: 'I build exceptional digital experiences with modern technologies.',
-  status: 'Available for new projects',
-  ctaText: 'View My Work',
+  role: { EN: 'Software Engineer & Designer', TR: 'Yazılım Mühendisi & Tasarımcı' },
+  bio: { EN: 'I build exceptional digital experiences with modern technologies.', TR: 'Modern teknolojilerle sıra dışı dijital deneyimler geliştiriyorum.' },
+  status: { EN: 'Available for new projects', TR: 'Yeni projeler için uygun' },
+  ctaText: { EN: 'View My Work', TR: 'Projelerimi Gör' },
   resumeLink: '/resume.pdf',
-  backgroundImage: undefined
 };
 
 const DEFAULT_ABOUT: AboutContent = {
@@ -170,14 +168,14 @@ const DEFAULT_STATS: StatsContent = {
 };
 
 const DEFAULT_HOBBIES: HobbyItem[] = [
-  { _id: 'h1', icon: 'Gamepad2', label: 'Gaming' },
-  { _id: 'h2', icon: 'Tennis', label: 'Tennis' },
-  { _id: 'h3', icon: 'BookOpen', label: 'Tech Blogs' },
-  { _id: 'h4', icon: 'Coffee', label: 'Coffee Enthusiast' },
-  { _id: 'h5', icon: 'Bike', label: 'Motorcycling' },
-  { _id: 'h6', icon: 'Rocket', label: 'Space Tech' },
-  { _id: 'h7', icon: 'Music', label: 'Lo-fi Beats' },
-  { _id: 'h8', icon: 'Code2', label: 'Open Source' },
+  { _id: 'h1', icon: 'Gamepad2', label: { EN: 'Gaming', TR: 'Oyun' } },
+  { _id: 'h2', icon: 'Tennis', label: { EN: 'Tennis', TR: 'Tenis' } },
+  { _id: 'h3', icon: 'BookOpen', label: { EN: 'Tech Blogs', TR: 'Teknoloji Blogları' } },
+  { _id: 'h4', icon: 'Coffee', label: { EN: 'Coffee Enthusiast', TR: 'Kahve Tutkunu' } },
+  { _id: 'h5', icon: 'Bike', label: { EN: 'Motorcycling', TR: 'Motosiklet' } },
+  { _id: 'h6', icon: 'Rocket', label: { EN: 'Space Tech', TR: 'Uzay Teknolojisi' } },
+  { _id: 'h7', icon: 'Music', label: { EN: 'Lo-fi Beats', TR: 'Lo-fi Müzik' } },
+  { _id: 'h8', icon: 'Code2', label: { EN: 'Open Source', TR: 'Açık Kaynak' } },
 ];
 
 const DEFAULT_NAV_LINKS: NavLinkItem[] = [
@@ -285,7 +283,7 @@ interface AdminContextType {
 
   // Messages System
   messages: ContactMessage[];
-  addMessage: (name: string, email: string, message: string) => void;
+  addMessage: (name: string, email: string, message: string) => Promise<boolean>;
   markAsRead: (id: string) => void;
   toggleStar: (id: string) => void;
   archiveMessage: (id: string) => void;
@@ -297,6 +295,7 @@ interface AdminContextType {
   loadFromFirebase: () => Promise<boolean>;
   isSaving: boolean;
   isLoading: boolean;
+  isDataReady: boolean; // true once the initial Firebase load has finished (or failed)
   lastSyncTime: string | null;
 }
 
@@ -327,6 +326,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Firebase state
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDataReady, setIsDataReady] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   // Listen to Firebase Auth state
@@ -343,7 +343,6 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const loadFromFirebaseOnMount = async () => {
       try {
-        console.log("🔥 Loading data from Firebase...");
         const data = await loadAllData();
         
         if (data) {
@@ -367,23 +366,25 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           if (data.socials && data.socials.length > 0) setSocialsState(data.socials);
           if (data.sectionContent) setSectionContentState(data.sectionContent);
           if (data.footerSettings) setFooterSettingsState(data.footerSettings);
-          
-          console.log("✅ Data loaded from Firebase!");
-        }
-
-        // Load messages separately
-        const msgs = await getContactMessages();
-        if (msgs && msgs.length > 0) {
-          setMessagesState(msgs);
-          console.log(`✅ ${msgs.length} messages loaded from Firebase!`);
         }
       } catch (error) {
-        console.error("❌ Error loading from Firebase, using defaults:", error);
+        console.error("Error loading from Firebase, using defaults:", error);
+      } finally {
+        setIsDataReady(true);
       }
     };
 
     loadFromFirebaseOnMount();
   }, []);
+
+  // Messages are private: only fetch them once the admin is signed in
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setMessagesState([]);
+      return;
+    }
+    getContactMessages().then(setMessagesState);
+  }, [isLoggedIn]);
 
   // Load from LocalStorage on mount (fallback/override for admin)
   useEffect(() => {
@@ -429,8 +430,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const savedFooter = localStorage.getItem('site_footerSettings');
     if (savedFooter) setFooterSettingsState(JSON.parse(savedFooter));
 
-    const savedMessages = localStorage.getItem('site_messages');
-    if (savedMessages) setMessagesState(JSON.parse(savedMessages));
+    // Messages used to be cached here; drop any copy left in visitors' browsers
+    localStorage.removeItem('site_messages');
   }, []);
 
   // Update CSS Variable whenever primaryColor changes
@@ -506,14 +507,11 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   // Messages Functions
-  const setMessages = (m: ContactMessage[]) => {
-    setMessagesState(m);
-    localStorage.setItem('site_messages', JSON.stringify(m));
-  };
+  const setMessages = (m: ContactMessage[]) => setMessagesState(m);
 
-  const addMessage = (name: string, email: string, message: string) => {
+  const addMessage = async (name: string, email: string, message: string): Promise<boolean> => {
     const newMessage: ContactMessage = {
-      _id: `msg_${Date.now()}`,
+      _id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       name,
       email,
       message,
@@ -521,11 +519,10 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       isRead: false,
       isStarred: false,
       isArchived: false,
-      replies: []
     };
-    setMessages([newMessage, ...messages]);
-    // Also save to Firebase
-    saveContactMessage(newMessage).catch(err => console.error("Error saving message to Firebase:", err));
+    const saved = await saveContactMessage(newMessage);
+    if (saved && isLoggedIn) setMessagesState(prev => [newMessage, ...prev]);
+    return saved;
   };
 
   const markAsRead = (id: string) => {
@@ -665,7 +662,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       footerSettings, setFooterSettings,
       messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount,
       // Firebase
-      saveToFirebase, loadFromFirebase, isSaving, isLoading, lastSyncTime
+      saveToFirebase, loadFromFirebase, isSaving, isLoading, isDataReady, lastSyncTime
     }}>
       {children}
     </AdminContext.Provider>

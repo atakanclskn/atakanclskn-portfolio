@@ -1,6 +1,6 @@
 // Analytics Service - Tracks page views and events in Firestore
 import { db } from './firebase';
-import { doc, getDoc, setDoc, updateDoc, increment, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, increment, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 
 // ==================== PAGE VIEW TRACKING ====================
 
@@ -8,7 +8,7 @@ interface DailyStats {
   date: string; // YYYY-MM-DD
   pageViews: number;
   uniqueVisitors: number;
-  visitors: string[]; // anonymized visitor IDs
+  visitors?: string[]; // legacy: anonymized visitor IDs, no longer written
   pages: Record<string, number>; // page path -> view count
   referrers: Record<string, number>; // referrer -> count
   devices: Record<string, number>; // device type -> count
@@ -30,14 +30,15 @@ interface AnalyticsSummary {
   browserBreakdown: Record<string, number>;
 }
 
-// Generate anonymous visitor ID (not personally identifiable)
-const getVisitorId = (): string => {
-  let id = localStorage.getItem('_vid');
-  if (!id) {
-    id = 'v_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-    localStorage.setItem('_vid', id);
+// Returns true only on this browser's first visit of the given day (no visitor IDs are stored)
+const isFirstVisitOfDay = (today: string): boolean => {
+  try {
+    if (localStorage.getItem('_vday') === today) return false;
+    localStorage.setItem('_vday', today);
+    return true;
+  } catch {
+    return true;
   }
-  return id;
 };
 
 // Get device type
@@ -111,70 +112,26 @@ const getTodayStr = (): string => {
 export const trackPageView = async (path: string = '/'): Promise<void> => {
   try {
     const today = getTodayStr();
-    const visitorId = getVisitorId();
     const device = getDeviceType();
     const browser = getBrowserName();
     const country = getCountryFromTimezone();
     const referrer = document.referrer ? new URL(document.referrer).hostname : 'Direct';
 
-    const docRef = doc(db, 'analytics', today);
-    const docSnap = await getDoc(docRef);
+    // Atomic merge writes: no reads needed (visitors can't read analytics), no lost updates
+    await setDoc(doc(db, 'analytics', today), {
+      date: today,
+      pageViews: increment(1),
+      ...(isFirstVisitOfDay(today) && { uniqueVisitors: increment(1) }),
+      pages: { [path]: increment(1) },
+      referrers: { [referrer]: increment(1) },
+      devices: { [device]: increment(1) },
+      browsers: { [browser]: increment(1) },
+      countries: { [country]: increment(1) },
+    }, { merge: true });
 
-    if (docSnap.exists()) {
-      const data = docSnap.data() as DailyStats;
-      const isNewVisitor = !data.visitors?.includes(visitorId);
-      
-      const pages = data.pages || {};
-      pages[path] = (pages[path] || 0) + 1;
-
-      const referrers = data.referrers || {};
-      referrers[referrer] = (referrers[referrer] || 0) + 1;
-
-      const devices = data.devices || {};
-      devices[device] = (devices[device] || 0) + 1;
-
-      const browsers = data.browsers || {};
-      browsers[browser] = (browsers[browser] || 0) + 1;
-
-      const countries = data.countries || {};
-      countries[country] = (countries[country] || 0) + 1;
-
-      await updateDoc(docRef, {
-        pageViews: (data.pageViews || 0) + 1,
-        uniqueVisitors: isNewVisitor ? (data.uniqueVisitors || 0) + 1 : (data.uniqueVisitors || 0),
-        visitors: isNewVisitor ? [...(data.visitors || []), visitorId] : data.visitors,
-        pages,
-        referrers,
-        devices,
-        browsers,
-        countries,
-      });
-    } else {
-      await setDoc(docRef, {
-        date: today,
-        pageViews: 1,
-        uniqueVisitors: 1,
-        visitors: [visitorId],
-        pages: { [path]: 1 },
-        referrers: { [referrer]: 1 },
-        devices: { [device]: 1 },
-        browsers: { [browser]: 1 },
-        countries: { [country]: 1 },
-      });
-    }
-
-    // Update total counter
-    const totalRef = doc(db, 'analytics', '_totals');
-    const totalSnap = await getDoc(totalRef);
-    if (totalSnap.exists()) {
-      await updateDoc(totalRef, {
-        totalPageViews: increment(1),
-      });
-    } else {
-      await setDoc(totalRef, {
-        totalPageViews: 1,
-      });
-    }
+    await setDoc(doc(db, 'analytics', '_totals'), {
+      totalPageViews: increment(1),
+    }, { merge: true });
   } catch (error) {
     console.error('Analytics tracking error:', error);
   }

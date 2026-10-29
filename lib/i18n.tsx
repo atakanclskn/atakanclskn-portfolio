@@ -79,6 +79,7 @@ interface Translation {
       fillAll: string;
       invalidEmail: string;
       sendAnother: string;
+      sendFailed: string;
     };
     findMe: string;
   };
@@ -124,7 +125,7 @@ const translations: Record<Language, Translation> = {
     },
     work: { title: 'Checkout my latest work', desc: "A selection of projects I've worked on, ranging from web applications to open source tools." },
     experience: { title: 'Timeline', desc: 'My professional journey, educational background, and key project milestones.', filters: { work: 'Work', education: 'Education', certification: 'Certifications', project: 'Projects' }, present: 'Present', viewProject: 'View Project', viewCredential: 'View Credential' },
-    contact: { title: "Let's work together.", desc: 'Have a project in mind or just want to say hi? Fill out the form below or send me an email.', form: { name: 'Name', email: 'Email', message: 'Message', send: 'Send Message', sending: 'Sending...', fillAll: 'Please fill in all fields.', invalidEmail: 'Please enter a valid email address.', sendAnother: 'Send another message' }, findMe: 'Find me on' },
+    contact: { title: "Let's work together.", desc: 'Have a project in mind or just want to say hi? Fill out the form below or send me an email.', form: { name: 'Name', email: 'Email', message: 'Message', send: 'Send Message', sending: 'Sending...', fillAll: 'Please fill in all fields.', invalidEmail: 'Please enter a valid email address.', sendAnother: 'Send another message', sendFailed: 'Your message could not be sent. Please try again or email me directly.' }, findMe: 'Find me on' },
     techStack: { title: 'Technology Stack', desc: 'Tools and technologies I use to build modern applications' }
   },
   TR: {
@@ -162,7 +163,7 @@ const translations: Record<Language, Translation> = {
     },
     work: { title: 'Son çalışmalarıma göz atın', desc: "Web uygulamalarından açık kaynak araçlara kadar üzerinde çalıştığım projelerden bir seçki." },
     experience: { title: 'Zaman Çizelgesi', desc: 'Profesyonel yolculuğum, eğitim geçmişim ve önemli proje kilometre taşlarım.', filters: { work: 'İş', education: 'Eğitim', certification: 'Sertifikalar', project: 'Projeler' }, present: 'Günümüz', viewProject: 'Projeyi Gör', viewCredential: 'Sertifikayı Gör' },
-    contact: { title: "Birlikte çalışalım.", desc: 'Aklınızda bir proje mi var ya da sadece merhaba mı demek istiyorsunuz? Formu doldurun veya bana e-posta gönderin.', form: { name: 'İsim', email: 'E-posta', message: 'Mesaj', send: 'Mesaj Gönder', sending: 'Gönderiliyor...', fillAll: 'Lütfen tüm alanları doldurun.', invalidEmail: 'Geçerli bir e-posta adresi girin.', sendAnother: 'Yeni mesaj gönder' }, findMe: 'Beni şurada bul' },
+    contact: { title: "Birlikte çalışalım.", desc: 'Aklınızda bir proje mi var ya da sadece merhaba mı demek istiyorsunuz? Formu doldurun veya bana e-posta gönderin.', form: { name: 'İsim', email: 'E-posta', message: 'Mesaj', send: 'Mesaj Gönder', sending: 'Gönderiliyor...', fillAll: 'Lütfen tüm alanları doldurun.', invalidEmail: 'Geçerli bir e-posta adresi girin.', sendAnother: 'Yeni mesaj gönder', sendFailed: 'Mesajınız gönderilemedi. Lütfen tekrar deneyin veya doğrudan e-posta gönderin.' }, findMe: 'Beni şurada bul' },
     techStack: { title: 'Teknoloji Yığını', desc: 'Modern uygulamalar geliştirmek için kullandığım araçlar ve teknolojiler' }
   }
 };

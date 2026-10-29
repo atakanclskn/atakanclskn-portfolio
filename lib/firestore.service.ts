@@ -45,12 +45,10 @@ export const saveProfile = async (profile: Profile): Promise<boolean> => {
     const docRef = doc(db, "settings", "profile");
     // Undefined değerleri ve fonksiyonları temizle (Firestore bunları kabul etmez)
     const cleanProfile = JSON.parse(JSON.stringify(profile));
-    console.log("Saving profile:", cleanProfile);
     await setDoc(docRef, cleanProfile);
     return true;
   } catch (error: any) {
     console.error("Error saving profile:", error);
-    console.error("Profile data that failed:", JSON.stringify(profile, null, 2));
     return false;
   }
 };
@@ -323,29 +321,22 @@ export const saveAllData = async (data: {
   footerSettings: FooterSettings;
 }): Promise<boolean> => {
   try {
-    console.log("🔥 Firebase Save Started...");
-    console.log("Data to save:", data);
-    
     // Undefined değerleri temizle (Firestore undefined kabul etmez)
     const cleanData = JSON.parse(JSON.stringify(data));
     
-    console.log("Cleaned data:", cleanData);
-    
     const results = await Promise.all([
-      saveProfile(cleanData.profile).then(r => { console.log("✅ Profile saved:", r); return r; }),
-      saveProjects(cleanData.projects).then(r => { console.log("✅ Projects saved:", r); return r; }),
-      saveExperiences(cleanData.experiences).then(r => { console.log("✅ Experiences saved:", r); return r; }),
-      saveTechStack(cleanData.techStack).then(r => { console.log("✅ TechStack saved:", r); return r; }),
-      saveSocials(cleanData.socials).then(r => { console.log("✅ Socials saved:", r); return r; }),
-      saveSectionContent(cleanData.sectionContent).then(r => { console.log("✅ SectionContent saved:", r); return r; }),
-      saveFooterSettings(cleanData.footerSettings).then(r => { console.log("✅ FooterSettings saved:", r); return r; }),
+      saveProfile(cleanData.profile),
+      saveProjects(cleanData.projects),
+      saveExperiences(cleanData.experiences),
+      saveTechStack(cleanData.techStack),
+      saveSocials(cleanData.socials),
+      saveSectionContent(cleanData.sectionContent),
+      saveFooterSettings(cleanData.footerSettings),
     ]);
 
-    const success = results.every((r) => r === true);
-    console.log("🔥 Firebase Save Complete:", success ? "SUCCESS" : "FAILED", results);
-    return success;
+    return results.every((r) => r === true);
   } catch (error) {
-    console.error("❌ Error saving all data:", error);
+    console.error("Error saving all data:", error);
     return false;
   }
 };
