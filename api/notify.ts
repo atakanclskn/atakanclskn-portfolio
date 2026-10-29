@@ -8,12 +8,11 @@
 //                     Resend account's own address until a domain is verified
 
 import { corsHeaders, json, preflight } from './_shared.js';
+import { renderMessageEmail } from './_email.js';
 
 const LIMITS = { name: 100, email: 200, message: 5000 };
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export const OPTIONS = preflight;
 
@@ -47,19 +46,12 @@ export async function POST(request: Request) {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: process.env.NOTIFY_FROM || 'Portfolio <onboarding@resend.dev>',
+      from: process.env.NOTIFY_FROM || 'atakanclskn.me <onboarding@resend.dev>',
       to,
       reply_to: email,
       subject: `Yeni mesaj: ${name}`,
       text: `${name} <${email}>\n\n${message}\n\n— https://atakanclskn.me/admin`,
-      html: `
-        <div style="font-family:-apple-system,Segoe UI,sans-serif;max-width:560px">
-          <p style="margin:0 0 4px;font-size:13px;color:#6b7280">atakanclskn.me iletişim formu</p>
-          <h2 style="margin:0 0 16px;font-size:20px">${escapeHtml(name)}</h2>
-          <p style="margin:0 0 16px"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
-          <p style="white-space:pre-wrap;line-height:1.6;margin:0 0 24px">${escapeHtml(message)}</p>
-          <a href="https://atakanclskn.me/admin" style="font-size:13px;color:#6b7280">Admin panelinde aç →</a>
-        </div>`,
+      html: renderMessageEmail({ name, email, message }),
     }),
   });
 
