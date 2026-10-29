@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  // Firebase environment variables will go here
+  readonly VITE_NOTIFY_URL?: string;
 }
 
 interface ImportMeta {

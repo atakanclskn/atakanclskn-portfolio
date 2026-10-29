@@ -9,6 +9,7 @@ import { loadAllData, saveAllData } from './firestore.service';
 import { saveContactMessage, getContactMessages, updateContactMessage, deleteContactMessage } from './firestore.service';
 import { signInWithGoogle, logOut, onAuthChange } from './firebase';
 import { OWNER_FLAG_KEY } from './analytics.service';
+import { notifyNewMessage } from './notify';
 import { User } from 'firebase/auth';
 
 // Default Data Constants (Moved from App.tsx)
@@ -457,6 +458,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       isArchived: false,
     };
     const saved = await saveContactMessage(newMessage);
+    if (saved) notifyNewMessage({ name, email, message });
     if (saved && isLoggedIn) setMessagesState(prev => [newMessage, ...prev]);
     return saved;
   };
