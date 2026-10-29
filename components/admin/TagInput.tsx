@@ -5,11 +5,10 @@ interface TagInputProps {
   tags: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
-  theme: 'light' | 'dark';
   inputClass: string;
 }
 
-export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder, theme, inputClass }) => {
+export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder, inputClass }) => {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -64,21 +63,13 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder,
   return (
     <div>
       <div
-        className={`flex flex-wrap gap-2 border rounded-xl p-2.5 min-h-[44px] cursor-text transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 ${
-          theme === 'dark'
-            ? 'bg-gray-800 border-gray-700 hover:border-gray-600'
-            : 'bg-white border-gray-200 hover:border-gray-300'
-        }`}
+        className={`flex flex-wrap gap-2 border rounded-xl p-2.5 min-h-[44px] cursor-text transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/50 bg-white/70 border-black/[0.08] hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:hover:border-white/25`}
         onClick={() => inputRef.current?.focus()}
       >
         {tags.map((tag, i) => (
           <span
             key={i}
-            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-              theme === 'dark'
-                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-medium transition-all bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/10 dark:text-gray-200 dark:hover:bg-white/15`}
           >
             {tag}
             <button
@@ -86,11 +77,7 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder,
                 e.stopPropagation();
                 removeTag(i);
               }}
-              className={`rounded-full p-0.5 transition-colors ${
-                theme === 'dark'
-                  ? 'hover:bg-gray-500 text-gray-400 hover:text-white'
-                  : 'hover:bg-gray-300 text-gray-500 hover:text-gray-700'
-              }`}
+              className={`rounded-full p-0.5 transition-colors hover:bg-gray-300 text-gray-500 hover:text-gray-700 dark:hover:bg-white/20 dark:text-gray-400 dark:hover:text-white`}
             >
               <X size={12} />
             </button>
@@ -109,14 +96,10 @@ export const TagInput: React.FC<TagInputProps> = ({ tags, onChange, placeholder,
             }
           }}
           placeholder={tags.length === 0 ? placeholder : ''}
-          className={`flex-1 min-w-[120px] bg-transparent border-none outline-none text-sm ${
-            theme === 'dark'
-              ? 'text-white placeholder-gray-500'
-              : 'text-gray-900 placeholder-gray-400'
-          }`}
+          className={`flex-1 min-w-[120px] bg-transparent border-none outline-none text-sm text-gray-900 placeholder-gray-400 dark:text-white dark:placeholder-gray-500`}
         />
       </div>
-      <p className={`text-[10px] mt-1.5 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`}>
+      <p className={`text-[10px] mt-1.5 text-gray-400 dark:text-gray-500`}>
         Press Enter or comma to add • Backspace to remove last
       </p>
     </div>

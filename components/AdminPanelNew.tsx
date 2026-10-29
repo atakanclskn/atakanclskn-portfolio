@@ -1,54 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Settings, Briefcase, Code, Share2,
   Layers, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom,
-  Cloud, CloudOff, Download, Upload, Loader2, Check, BarChart3
+  Loader2, Check, BarChart3, RotateCcw, AlertCircle
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
+import { setTheme, useIsDark } from '../lib/theme';
 import { AdminSidebar, TabItem } from './admin/AdminSidebar';
 import { AdminLogin } from './admin/AdminLogin';
-import { 
-  GeneralTab, AboutTab, HobbiesTab, 
+import {
+  GeneralTab, AboutTab, HobbiesTab,
   TechTab, ProjectsTab, ExperienceTab, SocialsTab,
   SectionsTab, FooterTab, AnalyticsTab
 } from './admin/tabs';
 import { MessagesTab } from './admin/tabs/MessagesTab';
 import { adminTranslations, getTranslation } from '../lib/adminTranslations';
+import { ConfirmProvider, useConfirm } from './admin/ui';
 
 const isAdminPath = (path: string) => path.startsWith('/admin');
 
-export const AdminPanel: React.FC = () => {
-  const [visible, setVisible] = useState(isAdminPath(window.location.pathname));
+const AdminPanelContent: React.FC<{
+  editLang: 'EN' | 'TR';
+  setEditLang: (lang: 'EN' | 'TR') => void;
+}> = ({ editLang, setEditLang }) => {
   const [isOpen, setIsOpen] = useState(isAdminPath(window.location.pathname));
-  const [activeTab, setActiveTab] = useState('general');
-  const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
-  const [adminTheme, setAdminTheme] = useState<'light' | 'dark'>('dark');
+  const [activeTab, setActiveTab] = useState('sections');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { isLoggedIn, loginWithGoogle, logout, primaryColor, setPrimaryColor, unreadCount, 
-    saveToFirebase, loadFromFirebase, isSaving, isLoading, lastSyncTime, isAuthLoading, currentUser } = useAdmin();
-  
-  const [tempColor, setTempColor] = useState<string>(primaryColor);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [saveError, setSaveError] = useState(false);
+  const isDark = useIsDark();
+  const confirm = useConfirm();
+  const { isLoggedIn, loginWithGoogle, logout, unreadCount, navbarSettings,
+    saveToFirebase, discardChanges, isDirty, isSaving, isLoading, lastSyncTime, isAuthLoading, currentUser } = useAdmin();
 
-  // Sync tempColor when primaryColor changes or panel opens
-  useEffect(() => {
-    setTempColor(primaryColor);
-  }, [primaryColor, isOpen]);
+  const tr = editLang === 'TR';
 
   // Disable body scroll when admin panel is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
+    document.body.style.overflow = isOpen ? 'hidden' : 'unset';
     return () => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
-
-  // No need for auto-open effect — isOpen initializes from URL
 
   // Sync URL when panel opens/closes
   useEffect(() => {
@@ -63,299 +55,275 @@ export const AdminPanel: React.FC = () => {
 
   // Handle browser back button
   useEffect(() => {
-    const handlePopState = () => {
-      if (isAdminPath(window.location.pathname)) {
-        setIsOpen(true);
-      } else {
-        setIsOpen(false);
-      }
-    };
+    const handlePopState = () => setIsOpen(isAdminPath(window.location.pathname));
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Scroll Detection to show button only at bottom (skip when panel is open)
+  // Warn before leaving the page with unsaved edits
   useEffect(() => {
-    const handleScroll = () => {
-      if (isOpen) return; // Don't change visibility while admin is open
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollY = window.scrollY;
-      
-      if (windowHeight + scrollY >= documentHeight - 100) {
-        setVisible(true);
-      } else {
-        setVisible(false);
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  const handleSave = async () => {
+    if (isSaving) return;
+    setSaveError(false);
+    const ok = await saveToFirebase();
+    setSaveError(!ok);
+  };
+
+  // Ctrl/Cmd + S saves
+  useEffect(() => {
+    if (!isOpen || !isLoggedIn) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (isDirty) handleSave();
       }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isOpen]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  });
+
+  const confirmLoseChanges = async () => !isDirty || confirm({
+    title: tr ? 'Kaydedilmemiş değişiklikler' : 'Unsaved changes',
+    message: tr ? 'Kaydetmeden çıkarsanız yaptığınız düzenlemeler kaybolur.' : 'If you leave now, your edits will be lost.',
+    confirmLabel: tr ? 'Kaydetmeden çık' : 'Leave without saving',
+  });
+
+  const handleDiscard = async () => {
+    const ok = await confirm({
+      title: tr ? 'Değişiklikler geri alınsın mı?' : 'Discard changes?',
+      message: tr ? 'Son kayıttan sonraki tüm düzenlemeler silinecek.' : 'Everything since your last save will be reverted.',
+      confirmLabel: tr ? 'Geri al' : 'Discard',
+    });
+    if (!ok) return;
+    setSaveError(false);
+    await discardChanges();
+  };
+
+  const handleClose = async () => {
+    if (await confirmLoseChanges()) setIsOpen(false);
+  };
+
+  const handleLogout = async () => {
+    if (!(await confirmLoseChanges())) return;
+    logout();
+    setIsOpen(false);
+  };
+
+  const groups = {
+    content: tr ? 'İçerik' : 'Content',
+    site: tr ? 'Site' : 'Site',
+    inbox: tr ? 'Gelen' : 'Inbox',
+  };
 
   const tabs: TabItem[] = [
-    { id: 'messages', label: getTranslation(adminTranslations.tabs.messages, editLang), icon: Mail, badge: unreadCount },
-    { id: 'general', label: getTranslation(adminTranslations.tabs.general, editLang), icon: Settings },
-    { id: 'sections', label: getTranslation(adminTranslations.tabs.sections, editLang), icon: Layout },
-    { id: 'about', label: getTranslation(adminTranslations.tabs.about, editLang), icon: FileText },
-    { id: 'hobbies', label: getTranslation(adminTranslations.tabs.hobbies, editLang), icon: Heart },
-    { id: 'tech', label: getTranslation(adminTranslations.tabs.tech, editLang), icon: Layers },
-    { id: 'projects', label: getTranslation(adminTranslations.tabs.projects, editLang), icon: Code },
-    { id: 'experience', label: getTranslation(adminTranslations.tabs.experience, editLang), icon: Briefcase },
-    { id: 'socials', label: getTranslation(adminTranslations.tabs.socials, editLang), icon: Share2 },
-    { id: 'footer', label: getTranslation(adminTranslations.tabs.footer, editLang), icon: PanelBottom },
-    { id: 'analytics', label: getTranslation(adminTranslations.tabs.analytics, editLang), icon: BarChart3 },
+    { id: 'sections', group: groups.content, label: getTranslation(adminTranslations.tabs.sections, editLang), icon: Layout },
+    { id: 'about', group: groups.content, label: getTranslation(adminTranslations.tabs.about, editLang), icon: FileText },
+    { id: 'hobbies', group: groups.content, label: getTranslation(adminTranslations.tabs.hobbies, editLang), icon: Heart },
+    { id: 'tech', group: groups.content, label: getTranslation(adminTranslations.tabs.tech, editLang), icon: Layers },
+    { id: 'projects', group: groups.content, label: getTranslation(adminTranslations.tabs.projects, editLang), icon: Code },
+    { id: 'experience', group: groups.content, label: getTranslation(adminTranslations.tabs.experience, editLang), icon: Briefcase },
+    { id: 'general', group: groups.site, label: getTranslation(adminTranslations.tabs.general, editLang), icon: Settings },
+    { id: 'socials', group: groups.site, label: getTranslation(adminTranslations.tabs.socials, editLang), icon: Share2 },
+    { id: 'footer', group: groups.site, label: getTranslation(adminTranslations.tabs.footer, editLang), icon: PanelBottom },
+    { id: 'messages', group: groups.inbox, label: getTranslation(adminTranslations.tabs.messages, editLang), icon: Mail, badge: unreadCount },
+    { id: 'analytics', group: groups.inbox, label: getTranslation(adminTranslations.tabs.analytics, editLang), icon: BarChart3 },
   ];
-
-  const handleApplyColor = () => {
-    setPrimaryColor(tempColor);
-  };
-
-  const handleSaveToFirebase = async () => {
-    setSaveStatus('saving');
-    const result = await saveToFirebase();
-    setSaveStatus(result ? 'success' : 'error');
-    setTimeout(() => setSaveStatus('idle'), 3000);
-  };
-
-  const handleLoadFromFirebase = async () => {
-    if (window.confirm(editLang === 'TR' 
-      ? 'Firebase\'den veri yüklenecek. Mevcut değişiklikler kaybolabilir. Devam etmek istiyor musunuz?' 
-      : 'Data will be loaded from Firebase. Current changes may be lost. Continue?')) {
-      await loadFromFirebase();
-    }
-  };
+  const activeTabItem = tabs.find(tab => tab.id === activeTab) ?? tabs[0];
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'messages':
-        return <MessagesTab theme={adminTheme} editLang={editLang} />;
+        return <MessagesTab editLang={editLang} />;
       case 'general':
-        return (
-          <GeneralTab 
-            editLang={editLang}
-            tempColor={tempColor}
-            setTempColor={setTempColor}
-            onApplyColor={handleApplyColor}
-            theme={adminTheme}
-          />
-        );
+        return <GeneralTab editLang={editLang} />;
       case 'about':
-        return <AboutTab editLang={editLang} theme={adminTheme} />;
+        return <AboutTab editLang={editLang} />;
       case 'hobbies':
-        return <HobbiesTab editLang={editLang} theme={adminTheme} />;
+        return <HobbiesTab editLang={editLang} />;
       case 'tech':
-        return <TechTab editLang={editLang} theme={adminTheme} />;
+        return <TechTab editLang={editLang} />;
       case 'projects':
-        return <ProjectsTab editLang={editLang} theme={adminTheme} />;
+        return <ProjectsTab editLang={editLang} />;
       case 'experience':
-        return <ExperienceTab editLang={editLang} theme={adminTheme} onTabChange={setActiveTab} />;
+        return <ExperienceTab editLang={editLang} onTabChange={setActiveTab} />;
       case 'socials':
-        return <SocialsTab editLang={editLang} theme={adminTheme} />;
+        return <SocialsTab editLang={editLang} />;
       case 'sections':
-        return <SectionsTab editLang={editLang} theme={adminTheme} />;
+        return <SectionsTab editLang={editLang} />;
       case 'footer':
-        return <FooterTab editLang={editLang} theme={adminTheme} />;
+        return <FooterTab editLang={editLang} />;
       case 'analytics':
-        return <AnalyticsTab editLang={editLang} theme={adminTheme} />;
+        return <AnalyticsTab editLang={editLang} />;
       default:
         return null;
     }
   };
 
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString(tr ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+
+  const saveStatus = isSaving
+    ? { dot: 'bg-gray-400 animate-pulse', text: tr ? 'Kaydediliyor…' : 'Saving…' }
+    : saveError
+    ? { dot: 'bg-red-500', text: tr ? 'Kaydedilemedi, tekrar deneyin' : 'Save failed, try again' }
+    : isDirty
+    ? { dot: 'bg-amber-500', text: tr ? 'Kaydedilmemiş değişiklikler' : 'Unsaved changes' }
+    : { dot: 'bg-green-500', text: lastSyncTime
+        ? `${tr ? 'Kaydedildi' : 'Saved'} · ${formatTime(lastSyncTime)}`
+        : (tr ? 'Tüm değişiklikler kayıtlı' : 'All changes saved') };
+
+  const roundButton = 'p-2.5 rounded-full border border-black/[0.08] bg-white/60 text-gray-600 hover:text-gray-900 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:text-white dark:hover:bg-white/10 transition-colors';
+
+  if (!isOpen) return null;
+
   return (
-    <>
-      {/* Hidden Admin Trigger - Almost Invisible Dot */}
-      {visible && !isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-4 right-4 z-50 w-2 h-2 bg-white/5 hover:bg-white/20 rounded-full transition-all duration-500 hover:w-3 hover:h-3"
-          title="Admin"
-        />
-      )}
+    <div lang={tr ? 'tr' : 'en'} className="admin-root fixed inset-0 z-[9999] bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-white overflow-hidden transition-colors duration-300">
+      {/* Ambient glow, echoing the site's background */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-48 -left-32 w-[560px] h-[560px] rounded-full bg-primary/20 blur-[140px]" />
+        <div className="absolute -bottom-56 -right-32 w-[560px] h-[560px] rounded-full bg-[#d946ef]/10 blur-[160px]" />
+      </div>
 
-      {/* Full Screen Admin Panel */}
-      {isOpen && (
-        <div className={`fixed inset-0 z-[9999] ${adminTheme === 'dark' ? 'bg-gray-950' : 'bg-gray-50'} transition-colors duration-300`}>
-          {/* Top Header Bar */}
-          <div className={`h-16 border-b ${
-            adminTheme === 'dark' 
-              ? 'bg-gray-900 border-gray-800' 
-              : 'bg-white border-gray-200'
-          } flex items-center justify-between px-6 shadow-lg`}>
-            <div className="flex items-center gap-4">
-              <div className={`p-2 rounded-lg ${
-                adminTheme === 'dark' ? 'bg-primary/20' : 'bg-primary/10'
-              }`}>
-                <Settings className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className={`text-lg font-bold ${
-                  adminTheme === 'dark' ? 'text-white' : 'text-gray-900'
-                }`}>
-                  {getTranslation(adminTranslations.adminPanel, editLang)}
-                </h1>
-                <p className={`text-xs ${
-                  adminTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                }`}>
-                  {getTranslation(adminTranslations.siteConfig, editLang)}
-                </p>
-              </div>
-            </div>
+      <div className="relative flex h-full">
+        {isLoggedIn && (
+          <AdminSidebar
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onLogout={handleLogout}
+            onViewSite={handleClose}
+            editLang={editLang}
+            logoText={navbarSettings.logoText || 'Admin'}
+            userEmail={currentUser?.email}
+            isCollapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          />
+        )}
 
-            <div className="flex items-center gap-3">
-              {/* Firebase Sync Buttons - Only when logged in */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Top Bar */}
+          <header className="m-3 mb-0 flex items-center gap-2 md:gap-3 min-h-16 px-4 md:px-5 py-2 rounded-3xl border border-black/[0.08] bg-white/60 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display font-bold text-lg tracking-tight truncate">
+                {isLoggedIn ? activeTabItem.label : getTranslation(adminTranslations.adminPanel, editLang)}
+              </h1>
               {isLoggedIn && (
-                <div className="flex items-center gap-2">
-                  {/* Load from Firebase */}
-                  <button
-                    onClick={handleLoadFromFirebase}
-                    disabled={isLoading}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      adminTheme === 'dark'
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50'
-                    }`}
-                    title={editLang === 'TR' ? 'Firebase\'den Yükle' : 'Load from Firebase'}
-                  >
-                    {isLoading ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Download size={14} />
-                    )}
-                    <span className="hidden md:inline">{editLang === 'TR' ? 'Yükle' : 'Load'}</span>
-                  </button>
-
-                  {/* Save to Firebase */}
-                  <button
-                    onClick={handleSaveToFirebase}
-                    disabled={isSaving}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      saveStatus === 'success'
-                        ? 'bg-green-500 text-white'
-                        : saveStatus === 'error'
-                        ? 'bg-red-500 text-white'
-                        : 'bg-primary text-black hover:opacity-90 disabled:opacity-50'
-                    }`}
-                    title={editLang === 'TR' ? 'Firebase\'e Kaydet' : 'Save to Firebase'}
-                  >
-                    {isSaving ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : saveStatus === 'success' ? (
-                      <Check size={14} />
-                    ) : (
-                      <Upload size={14} />
-                    )}
-                    <span className="hidden md:inline">
-                      {isSaving 
-                        ? (editLang === 'TR' ? 'Kaydediliyor...' : 'Saving...') 
-                        : saveStatus === 'success'
-                        ? (editLang === 'TR' ? 'Kaydedildi!' : 'Saved!')
-                        : (editLang === 'TR' ? 'Kaydet' : 'Save')}
-                    </span>
-                  </button>
-                </div>
+                <p className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
+                  <span className={`w-1.5 h-1.5 rounded-full ${saveStatus.dot}`} />
+                  <span className="truncate">{saveStatus.text}</span>
+                </p>
               )}
-
-              {/* Language Switcher */}
-              <div className={`flex items-center gap-1 rounded-lg p-1 ${
-                adminTheme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-              }`}>
-                <button 
-                  onClick={() => setEditLang('EN')} 
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                    editLang === 'EN' 
-                      ? 'bg-primary text-black shadow-md' 
-                      : adminTheme === 'dark'
-                        ? 'text-gray-400 hover:text-white'
-                        : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  EN
-                </button>
-                <button 
-                  onClick={() => setEditLang('TR')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
-                    editLang === 'TR' 
-                      ? 'bg-primary text-black shadow-md' 
-                      : adminTheme === 'dark'
-                        ? 'text-gray-400 hover:text-white'
-                        : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  TR
-                </button>
-              </div>
-
-              {/* Theme Toggle */}
-              <button
-                onClick={() => setAdminTheme(adminTheme === 'dark' ? 'light' : 'dark')}
-                className={`p-2 rounded-lg transition-colors ${
-                  adminTheme === 'dark' 
-                    ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                {adminTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
-
-              {/* Close Button */}
-              <button 
-                onClick={() => setIsOpen(false)}
-                className={`p-2 rounded-lg transition-colors ${
-                  adminTheme === 'dark'
-                    ? 'text-gray-400 hover:text-white hover:bg-gray-800'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
-                }`}
-              >
-                <X size={20} />
-              </button>
             </div>
-          </div>
 
-          {/* Main Content Area */}
-          <div className="flex h-[calc(100vh-4rem)]">
-            {/* Login Screen */}
-            {!isLoggedIn ? (
-              <div className="flex-1 flex items-center justify-center">
-                <AdminLogin onLoginWithGoogle={loginWithGoogle} theme={adminTheme} editLang={editLang} isLoading={isAuthLoading} />
-              </div>
-            ) : (
+            {isLoggedIn && (
               <>
-                {/* Sidebar */}
-                <AdminSidebar
-                  tabs={tabs}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                  onLogout={() => {
-                    logout();
-                    setIsOpen(false);
-                  }}
-                  theme={adminTheme}
-                  editLang={editLang}
-                  isCollapsed={sidebarCollapsed}
-                  onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-                />
-
-                {/* Content Area */}
-                <div className={`flex-1 overflow-y-auto ${
-                  adminTheme === 'dark' ? 'bg-gray-950' : 'bg-gray-50'
-                }`}>
-                  {activeTab === 'messages' ? (
-                    <div className="h-full p-6">
-                      {renderTabContent()}
-                    </div>
-                  ) : (
-                    <div className="max-w-6xl mx-auto p-8">
-                      {renderTabContent()}
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={handleDiscard}
+                  disabled={!isDirty || isLoading || isSaving}
+                  className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold border border-black/[0.08] bg-white/60 text-gray-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  title={tr ? 'Kaydedilmemiş değişiklikleri geri al' : 'Revert unsaved changes'}
+                >
+                  {isLoading ? <Loader2 size={16} className="animate-spin" /> : <RotateCcw size={16} />}
+                  <span className="hidden lg:inline">{tr ? 'Geri Al' : 'Discard'}</span>
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={!isDirty || isSaving}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-black text-white dark:bg-white dark:text-black shadow-lg hover:scale-[1.03] disabled:opacity-40 disabled:shadow-none disabled:pointer-events-none transition-all"
+                  title={tr ? 'Kaydet (Ctrl+S)' : 'Save (Ctrl+S)'}
+                >
+                  {isSaving ? <Loader2 size={16} className="animate-spin" />
+                    : saveError ? <AlertCircle size={16} /> : <Check size={16} />}
+                  <span>{tr ? 'Kaydet' : 'Save'}</span>
+                </button>
               </>
             )}
-          </div>
+
+            {/* Edit language */}
+            <div className="flex items-center p-1 rounded-full border border-black/[0.08] bg-white/60 dark:border-white/10 dark:bg-white/5" title={tr ? 'Düzenleme dili' : 'Editing language'}>
+              {(['EN', 'TR'] as const).map(code => (
+                <button
+                  key={code}
+                  onClick={() => setEditLang(code)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold font-mono transition-all ${
+                    editLang === code
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {code}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              className={roundButton}
+              aria-label={tr ? 'Temayı değiştir' : 'Toggle theme'}
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
+            <button onClick={handleClose} className={roundButton} aria-label={tr ? 'Paneli kapat' : 'Close panel'}>
+              <X size={16} />
+            </button>
+          </header>
+
+          {/* Mobile tab bar */}
+          {isLoggedIn && (
+            <nav className="md:hidden flex gap-2 overflow-x-auto px-3 pt-3">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white'
+                      : 'border-black/[0.08] bg-white/60 text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-300'
+                  }`}
+                >
+                  <tab.icon size={14} />
+                  {tab.label}
+                  {tab.badge ? <span className="w-1.5 h-1.5 rounded-full bg-primary" /> : null}
+                </button>
+              ))}
+            </nav>
+          )}
+
+          {/* Content */}
+          <main className="flex-1 overflow-y-auto">
+            {!isLoggedIn ? (
+              <div className="min-h-full flex items-center justify-center p-6">
+                {isAuthLoading
+                  ? <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                  : <AdminLogin onLoginWithGoogle={loginWithGoogle} editLang={editLang} isLoading={isAuthLoading} />}
+              </div>
+            ) : activeTab === 'messages' ? (
+              <div className="h-full p-3 md:p-6">{renderTabContent()}</div>
+            ) : (
+              <div key={activeTab} className="max-w-5xl mx-auto px-3 py-6 md:px-8 md:py-8">{renderTabContent()}</div>
+            )}
+          </main>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 
+export const AdminPanel: React.FC = () => {
+  const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
+  return (
+    <ConfirmProvider lang={editLang}>
+      <AdminPanelContent editLang={editLang} setEditLang={setEditLang} />
+    </ConfirmProvider>
+  );
+};

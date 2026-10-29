@@ -7,13 +7,19 @@ import {
   AlignLeft, Quote, Plus, Trash2, ChevronDown, ChevronUp,
   Type, FileText, BarChart3, GripVertical, Hash, Tag
 } from 'lucide-react';
+import { NumberStepper, Segmented, useConfirm } from '../ui';
 
 interface AboutTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
 }
 
-export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
+export const AboutTab: React.FC<AboutTabProps> = ({ editLang }) => {
+  const confirm = useConfirm();
+  const confirmRemove = (title: string) => confirm({
+    title,
+    message: editLang === 'TR' ? 'Kaydettiğinizde sitede de kaldırılır.' : 'It will also disappear from the site once you save.',
+    confirmLabel: editLang === 'TR' ? 'Sil' : 'Delete',
+  });
   const { aboutContent, setAboutContent, statsContent, setStatsContent } = useAdmin();
   const t = adminTranslations.about;
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
@@ -29,19 +35,11 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
   const [dragOverStat, setDragOverStat] = useState<number | null>(null);
 
   // Styling helpers
-  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-  }`;
+  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25`;
 
-  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-  }`;
+  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`;
 
-  const cardClass = `p-6 rounded-2xl border ${
-    theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-  }`;
+  const cardClass = `p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`;
 
   const addParagraph = (type: 'text' | 'quote') => {
     const newParagraph: AboutParagraph = {
@@ -55,8 +53,8 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
     });
   };
 
-  const removeParagraph = (id: string) => {
-    if (window.confirm(editLang === 'TR' ? 'Bu paragrafı silmek istiyor musunuz?' : 'Remove this paragraph?')) {
+  const removeParagraph = async (id: string) => {
+    if (await confirmRemove(editLang === 'TR' ? 'Bu paragraf silinsin mi?' : 'Remove this paragraph?')) {
       setAboutContent({
         ...aboutContent,
         paragraphs: aboutContent.paragraphs.filter(p => p._id !== id)
@@ -112,8 +110,8 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
     setExpandedStats(new Set([...expandedStats, newStat._id]));
   };
 
-  const removeStat = (id: string) => {
-    if (window.confirm(editLang === 'TR' ? 'Bu istatistiği silmek istiyor musunuz?' : 'Remove this stat?')) {
+  const removeStat = async (id: string) => {
+    if (await confirmRemove(editLang === 'TR' ? 'Bu istatistik silinsin mi?' : 'Remove this stat?')) {
       setStatsContent({ stats: statsContent.stats.filter(s => s._id !== id) });
     }
   };
@@ -142,10 +140,10 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
       <div className={cardClass}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
               {getText(t.title)}
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {editLang === 'TR' ? 'Hakkımda bölümünün içeriğini düzenleyin' : 'Edit your about section content'}
             </p>
           </div>
@@ -154,9 +152,7 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
 
       {/* About Section Header */}
       <div className={cardClass}>
-        <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${
-          theme === 'dark' ? 'text-white' : 'text-gray-900'
-        }`}>
+        <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900 dark:text-white`}>
           <Type size={18} className="text-primary" />
           {editLang === 'TR' ? 'Bölüm Başlıkları' : 'Section Headers'}
         </h3>
@@ -195,31 +191,21 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
       {/* Paragraphs Section */}
       <div className={cardClass}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className={`text-lg font-semibold flex items-center gap-2 ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}>
+          <h3 className={`text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white`}>
             <FileText size={18} className="text-primary" />
             {getText(t.paragraphs)}
           </h3>
           <div className="flex gap-2">
             <button
               onClick={() => addParagraph('text')}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
-                theme === 'dark'
-                  ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10`}
             >
               <AlignLeft size={16} />
               {editLang === 'TR' ? 'Metin' : 'Text'}
             </button>
             <button
               onClick={() => addParagraph('quote')}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
-                theme === 'dark'
-                  ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30'
-                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-              }`}
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:hover:bg-purple-500/30`}
             >
               <Quote size={16} />
               {editLang === 'TR' ? 'Alıntı' : 'Quote'}
@@ -228,14 +214,12 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
         </div>
 
         {aboutContent.paragraphs.length === 0 ? (
-          <div className={`p-12 rounded-xl border-2 border-dashed text-center ${
-            theme === 'dark' ? 'border-gray-700' : 'border-gray-300'
-          }`}>
-            <FileText size={40} className={`mx-auto mb-3 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
-            <p className={theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}>
+          <div className={`p-12 rounded-xl border-2 border-dashed text-center border-black/10 dark:border-white/10`}>
+            <FileText size={40} className={`mx-auto mb-3 text-gray-400 dark:text-gray-500`} />
+            <p className={'text-gray-500'}>
               {editLang === 'TR' ? 'Henüz paragraf eklenmedi' : 'No paragraphs added yet'}
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`}>
+            <p className={`text-sm mt-1 text-gray-400 dark:text-gray-500`}>
               {editLang === 'TR' ? 'Metin veya Alıntı eklemek için yukarıdaki butonları kullanın' : 'Use the buttons above to add Text or Quote'}
             </p>
           </div>
@@ -256,26 +240,26 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                     ? 'opacity-50 scale-[0.98]'
                     : isPDragOver
                       ? 'border-primary ring-2 ring-primary/30'
-                      : theme === 'dark' ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
-                } ${theme === 'dark' ? 'bg-gray-800/30' : 'bg-gray-50'}`}
+                      : 'border-black/[0.08] bg-white/60 dark:border-white/10 dark:bg-white/[0.03]'
+                } bg-white/60 dark:bg-white/[0.03]`}
               >
                 <div className="p-4 flex items-start gap-3">
                   <div className="pt-2">
-                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                   </div>
 
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
+                      <span className={`px-2.5 py-1 rounded-xl text-xs font-medium ${
                         paragraph.type === 'quote'
-                          ? theme === 'dark' ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-600'
-                          : theme === 'dark' ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'
+                          ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400'
+                          : 'bg-primary/10 text-primary dark:bg-primary/20'
                       }`}>
                         {paragraph.type === 'quote' 
                           ? (editLang === 'TR' ? '💬 Alıntı' : '💬 Quote')
                           : (editLang === 'TR' ? '📝 Metin' : '📝 Text')}
                       </span>
-                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                      <span className={`text-xs text-gray-500`}>
                         {editLang === 'TR' ? 'Düzenleniyor:' : 'Editing:'} {editLang}
                       </span>
                     </div>
@@ -292,9 +276,7 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
 
                   <button
                     onClick={() => removeParagraph(paragraph._id)}
-                    className={`p-2 rounded-lg transition-colors text-red-500 ${
-                      theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                    }`}
+                    className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -309,15 +291,13 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
       {/* Stats Section */}
       <div className={cardClass}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className={`text-lg font-semibold flex items-center gap-2 ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}>
+          <h3 className={`text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-white`}>
             <BarChart3 size={18} className="text-primary" />
             {getText(t.stats)}
           </h3>
           <button
             onClick={addStat}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-black rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <Plus size={18} />
             {getText(t.addStat)}
@@ -325,11 +305,9 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
         </div>
 
         {statsContent.stats.length === 0 ? (
-          <div className={`p-12 rounded-xl border-2 border-dashed text-center ${
-            theme === 'dark' ? 'border-gray-700' : 'border-gray-300'
-          }`}>
-            <BarChart3 size={40} className={`mx-auto mb-3 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
-            <p className={theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}>
+          <div className={`p-12 rounded-xl border-2 border-dashed text-center border-black/10 dark:border-white/10`}>
+            <BarChart3 size={40} className={`mx-auto mb-3 text-gray-400 dark:text-gray-500`} />
+            <p className={'text-gray-500'}>
               {editLang === 'TR' ? 'Henüz istatistik eklenmedi' : 'No stats added yet'}
             </p>
           </div>
@@ -351,17 +329,15 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                       ? 'opacity-50 scale-[0.98]'
                       : isSDragOver
                         ? 'border-primary ring-2 ring-primary/30'
-                        : theme === 'dark' ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
-                  } ${theme === 'dark' ? 'bg-gray-800/30' : 'bg-gray-50'}`}
+                        : 'border-black/[0.08] bg-white/60 dark:border-white/10 dark:bg-white/[0.03]'
+                  } bg-white/60 dark:bg-white/[0.03]`}
                 >
                   {/* Header */}
                   <div 
-                    className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
-                      theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-100'
-                    }`}
+                    className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.04] dark:hover:bg-white/[0.06]`}
                     onClick={() => toggleStatExpand(stat._id)}
                   >
-                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                     
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                       stat.type === 'number' 
@@ -376,12 +352,12 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h4 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      <h4 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                         {stat.type === 'number' 
                           ? `${stat.count || 0}+ ${typeof stat.label === 'string' ? stat.label : (stat.label?.[editLang] || '')}`
                           : (typeof stat.title === 'string' ? stat.title : (stat.title?.[editLang] || 'New Stat'))}
                       </h4>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <p className={`text-sm text-gray-600 dark:text-gray-400`}>
                         {stat.type === 'number' ? (editLang === 'TR' ? 'Sayısal' : 'Number') : (editLang === 'TR' ? 'Metin' : 'Text')}
                       </p>
                     </div>
@@ -392,13 +368,11 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                           e.stopPropagation();
                           removeStat(stat._id);
                         }}
-                        className={`p-2 rounded-lg transition-colors text-red-500 ${
-                          theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                        }`}
+                        className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                       >
                         <Trash2 size={18} />
                       </button>
-                      <div className={`p-2 rounded-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className={`p-2 rounded-xl text-gray-600 dark:text-gray-400`}>
                         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                       </div>
                     </div>
@@ -406,21 +380,19 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
 
                   {/* Expanded Content */}
                   {isExpanded && (
-                    <div className={`p-4 border-t space-y-4 ${
-                      theme === 'dark' ? 'border-gray-700 bg-gray-900/30' : 'border-gray-200 bg-white'
-                    }`}>
+                    <div className={`p-4 border-t space-y-4 border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
                       <div>
                         <label className={labelClass}>
                           {editLang === 'TR' ? 'İstatistik Tipi' : 'Stat Type'}
                         </label>
-                        <select
+                        <Segmented
                           value={stat.type}
-                          onChange={(e) => updateStat(stat._id, 'type', e.target.value)}
-                          className={inputClass}
-                        >
-                          <option value="number">{editLang === 'TR' ? 'Sayısal' : 'Number'}</option>
-                          <option value="text">{editLang === 'TR' ? 'Metin' : 'Text'}</option>
-                        </select>
+                          onChange={(type) => updateStat(stat._id, 'type', type)}
+                          options={[
+                            { value: 'number', label: editLang === 'TR' ? 'Sayısal' : 'Number' },
+                            { value: 'text', label: editLang === 'TR' ? 'Metin' : 'Text' },
+                          ]}
+                        />
                       </div>
 
                       {stat.type === 'number' ? (
@@ -430,11 +402,9 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang, theme }) => {
                               <Hash size={14} />
                               {editLang === 'TR' ? 'Sayı' : 'Count'}
                             </label>
-                            <input
-                              type="number"
+                            <NumberStepper
                               value={stat.count || 0}
-                              onChange={(e) => updateStat(stat._id, 'count', parseInt(e.target.value))}
-                              className={inputClass}
+                              onChange={(count) => updateStat(stat._id, 'count', count)}
                             />
                           </div>
                           <div>

@@ -16,13 +16,17 @@ export interface Profile {
   location?: string;
 }
 
+// Bento grid slot: featured = 2x2, wide = 2x1, standard = 1x1
+export type ProjectLayout = 'featured' | 'wide' | 'standard';
+
 export interface Project {
   _id: string;
   title: MultiLangText;
   category: string;
   description: MultiLangText;
   mainImage: string;
-  size: 'large' | 'small';
+  size?: 'large' | 'small'; // legacy, no longer used for layout
+  layout?: ProjectLayout;
   link?: string;
   githubUrl?: string;
   stars?: number;

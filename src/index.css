@@ -99,8 +99,20 @@
 @utility bg-primary\/50 {
   background-color: rgb(var(--primary) / 0.5);
 }
+@utility bg-primary\/15 {
+  background-color: rgb(var(--primary) / 0.15);
+}
+@utility border-primary\/30 {
+  border-color: rgb(var(--primary) / 0.3);
+}
 @utility border-primary\/50 {
   border-color: rgb(var(--primary) / 0.5);
+}
+@utility ring-primary\/20 {
+  --tw-ring-color: rgb(var(--primary) / 0.2);
+}
+@utility ring-primary\/30 {
+  --tw-ring-color: rgb(var(--primary) / 0.3);
 }
 @utility shadow-primary\/20 {
   --tw-shadow-color: rgb(var(--primary) / 0.2);
@@ -173,6 +185,16 @@ html {
 
 *::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* ── Admin panel: no native widget chrome ── */
+.admin-root textarea {
+  resize: none;
+  field-sizing: content;
+  min-height: 6rem;
+}
+.admin-root ::selection {
+  background: rgb(var(--primary) / 0.3);
 }
 
 /* ── Accessibility: Reduced Motion ── */

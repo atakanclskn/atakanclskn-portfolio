@@ -4,12 +4,13 @@ import { Menu, X, Sun, Moon, ChevronDown, Globe } from 'lucide-react';
 import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
 import { getText } from '../lib/multiLangHelper';
+import { setTheme, useIsDark } from '../lib/theme';
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const isDark = useIsDark();
   const [isLangOpen, setIsLangOpen] = useState(false);
   const langDropdownRef = useRef<HTMLDivElement>(null);
   
@@ -18,13 +19,6 @@ export const Navbar: React.FC = () => {
   const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize theme based on HTML class
-    if (document.documentElement.classList.contains('dark')) {
-      setIsDark(true);
-    } else {
-      setIsDark(false);
-    }
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
@@ -86,16 +80,7 @@ export const Navbar: React.FC = () => {
     }
   };
 
-  const toggleTheme = () => {
-    const html = document.documentElement;
-    if (isDark) {
-      html.classList.remove('dark');
-      setIsDark(false);
-    } else {
-      html.classList.add('dark');
-      setIsDark(true);
-    }
-  };
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   // Use admin panel nav links if available, otherwise fallback to defaults
   const navLinks = (navbarSettings.navLinks && navbarSettings.navLinks.length > 0)

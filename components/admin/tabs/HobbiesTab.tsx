@@ -3,6 +3,7 @@ import { useAdmin } from '../../../lib/adminContext';
 import { updateMultiLangText } from '../../../lib/multiLangHelper';
 import { t, adminTranslations } from '../../../lib/adminTranslations';
 import * as LucideIcons from 'lucide-react';
+import { useConfirm } from '../ui';
 import { 
   Plus, Trash2, Search, GripVertical, 
   ChevronDown, ChevronUp, Tag
@@ -10,7 +11,6 @@ import {
 
 interface HobbiesTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
 }
 
 // Categorized hobby icons
@@ -134,7 +134,13 @@ const CATEGORY_KEYS: Record<string, string> = {
   'Pets & Animals': 'pets',
 };
 
-export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
+export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang }) => {
+  const confirm = useConfirm();
+  const confirmRemove = (title: string) => confirm({
+    title,
+    message: editLang === 'TR' ? 'Kaydettiğinizde sitede de kaldırılır.' : 'It will also disappear from the site once you save.',
+    confirmLabel: editLang === 'TR' ? 'Sil' : 'Delete',
+  });
   const { hobbies, setHobbies } = useAdmin();
 
   // Helper to get category translation
@@ -192,8 +198,8 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
     setExpandedItems(new Set([...expandedItems, newHobby._id]));
   };
 
-  const removeHobby = (id: string) => {
-    if (window.confirm(t('hobbies.removeConfirm', editLang))) {
+  const removeHobby = async (id: string) => {
+    if (await confirmRemove(t('hobbies.removeConfirm', editLang))) {
       setHobbies(hobbies.filter(h => h._id !== id));
     }
   };
@@ -215,17 +221,9 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
   };
 
   // Styling helpers
-  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-  }`;
+  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25`;
 
-  const cardClass = `rounded-2xl border overflow-hidden transition-all duration-300 ${
-    theme === 'dark' 
-      ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
-      : 'bg-white border-gray-200 hover:border-gray-300'
-  }`;
+  const cardClass = `rounded-2xl border overflow-hidden transition-all duration-300 bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20`;
 
   // Get icon component
   const getIconComponent = (iconName: string) => {
@@ -235,15 +233,13 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className={`p-6 rounded-2xl border ${
-        theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-      }`}>
+      <div className={`p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
               {t('hobbies.title', editLang)}
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {hobbies.length} {t('hobbies.hobbiesCount', editLang)}
             </p>
           </div>
@@ -253,10 +249,8 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
               onClick={() => setShowAddPanel(!showAddPanel)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 showAddPanel
-                  ? 'bg-primary text-black'
-                  : theme === 'dark'
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
               }`}
             >
               <Plus size={18} />
@@ -268,15 +262,11 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
 
       {/* Add Panel */}
       {showAddPanel && (
-        <div className={`p-6 rounded-2xl border ${
-          theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-        }`}>
+        <div className={`p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
           <div className="space-y-4">
             {/* Search */}
             <div className="relative">
-              <Search size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-              }`} />
+              <Search size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500`} />
               <input
                 type="text"
                 placeholder={t('hobbies.searchPlaceholder', editLang)}
@@ -290,12 +280,10 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedCategory('All')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                   selectedCategory === 'All'
-                    ? 'bg-primary text-black'
-                    : theme === 'dark'
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary text-white'
+                    : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
                 }`}
               >
                 {t('hobbies.all', editLang)}
@@ -304,12 +292,10 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                     selectedCategory === category
-                      ? 'bg-primary text-black'
-                      : theme === 'dark'
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-white'
+                      : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
                   }`}
                 >
                   {getCategoryName(category)}
@@ -325,11 +311,7 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                   <button
                     key={`${hobby.category}-${hobby.icon}`}
                     onClick={() => addHobby(hobby)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105 ${
-                      theme === 'dark'
-                        ? 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
-                        : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105 bg-white/60 border-black/[0.08] hover:border-black/15 dark:bg-white/[0.05] dark:border-white/10 dark:hover:border-white/25`}
                   >
                     <div 
                       className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -337,9 +319,7 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                     >
                       <IconComponent size={22} style={{ color: `#${hobby.color}` }} />
                     </div>
-                    <span className={`text-xs font-medium text-center ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
+                    <span className={`text-xs font-medium text-center text-gray-700 dark:text-gray-300`}>
                       {hobby.name}
                     </span>
                   </button>
@@ -348,7 +328,7 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
             </div>
 
             {filteredHobbies.length === 0 && (
-              <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <div className={`text-center py-8 text-gray-400 dark:text-gray-500`}>
                 {t('hobbies.noHobbiesFound', editLang)}
               </div>
             )}
@@ -356,11 +336,7 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
             {/* Custom Hobby Button */}
             <button
               onClick={addCustomHobby}
-              className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed transition-all ${
-                theme === 'dark'
-                  ? 'border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300'
-                  : 'border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600'
-              }`}
+              className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed transition-all border-black/10 text-gray-500 hover:border-gray-400 hover:text-gray-600 dark:border-white/10 dark:text-gray-400 dark:hover:border-white/25 dark:hover:text-gray-300`}
             >
               <Plus size={18} />
               {t('hobbies.addCustomHobby', editLang)}
@@ -372,18 +348,14 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
       {/* Added Hobbies */}
       <div className="space-y-3">
         {hobbies.length === 0 ? (
-          <div className={`p-12 rounded-2xl border text-center ${
-            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-            }`}>
-              <LucideIcons.Heart size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+          <div className={`p-12 rounded-2xl border text-center bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.06]`}>
+              <LucideIcons.Heart size={32} className={'text-gray-400 dark:text-gray-500'} />
             </div>
-            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-lg font-medium text-gray-600 dark:text-gray-400`}>
               {t('hobbies.noHobbiesAdded', editLang)}
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-1 text-gray-500`}>
               {t('hobbies.clickToStart', editLang)}
             </p>
           </div>
@@ -407,24 +379,18 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                   isDragging
                     ? 'opacity-50 scale-[0.98]'
                     : isDragOver
-                      ? theme === 'dark'
-                        ? 'border-primary ring-2 ring-primary/30'
-                        : 'border-primary ring-2 ring-primary/20'
-                      : theme === 'dark'
-                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+                      ? 'border-primary ring-2 ring-primary/20 dark:ring-primary/30'
+                      : 'bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20'
+                } bg-white/70 backdrop-blur-xl dark:bg-white/[0.04]`}
               >
                 {/* Card Header */}
                 <div 
-                  className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
-                    theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'
-                  }`}
+                  className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.03] dark:hover:bg-white/[0.06]`}
                   onClick={() => toggleExpand(hobby._id)}
                 >
                   {/* Drag Handle & Icon */}
                   <div className="flex items-center gap-3">
-                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                     <div 
                       className="w-12 h-12 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: `#${iconColor}20` }}
@@ -435,10 +401,10 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
 
                   {/* Title */}
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                       {typeof hobby.label === 'string' ? hobby.label : hobby.label[editLang]}
                     </h3>
-                    <p className={`text-sm truncate ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <p className={`text-sm truncate text-gray-600 dark:text-gray-400`}>
                       {hobby.icon}
                     </p>
                   </div>
@@ -450,13 +416,11 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                         e.stopPropagation();
                         removeHobby(hobby._id);
                       }}
-                      className={`p-2 rounded-lg transition-colors text-red-500 ${
-                        theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                      }`}
+                      className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                     >
                       <Trash2 size={18} />
                     </button>
-                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-2 rounded-xl text-gray-600 dark:text-gray-400`}>
                       {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
                   </div>
@@ -464,14 +428,10 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className={`p-6 border-t space-y-4 ${
-                    theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-100 bg-gray-50/50'
-                  }`}>
+                  <div className={`p-6 border-t space-y-4 border-black/[0.05] bg-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`}>
                           <Tag size={14} />
                           {t('hobbies.labelEN', editLang)}
                         </label>
@@ -486,9 +446,7 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                         />
                       </div>
                       <div>
-                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`}>
                           <Tag size={14} />
                           {t('hobbies.labelTR', editLang)}
                         </label>
@@ -506,14 +464,10 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
 
                     {/* Icon Selector */}
                     <div>
-                      <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-                        theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
+                      <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`}>
                         {t('hobbies.icon', editLang)}
                       </label>
-                      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 max-h-40 overflow-y-auto p-2 rounded-xl border ${
-                        theme === 'dark' ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50'
-                      }">
+                      <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2 max-h-40 overflow-y-auto p-2 rounded-xl border border-black/[0.08] bg-white/60 dark:border-white/10 dark:bg-white/[0.05]">
                         {ALL_HOBBIES.map(h => {
                           const HobbyIcon = getIconComponent(h.icon);
                           const isSelected = hobby.icon === h.icon;
@@ -521,12 +475,10 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                             <button
                               key={`${h.category}-${h.icon}`}
                               onClick={() => updateHobby(hobby._id, 'icon', h.icon)}
-                              className={`p-2 rounded-lg transition-all ${
+                              className={`p-2 rounded-xl transition-all ${
                                 isSelected
                                   ? 'bg-primary/20 ring-2 ring-primary'
-                                  : theme === 'dark'
-                                    ? 'hover:bg-gray-700'
-                                    : 'hover:bg-gray-200'
+                                  : 'hover:bg-black/[0.06] dark:hover:bg-white/10'
                               }`}
                               title={h.name}
                             >
@@ -538,8 +490,8 @@ export const HobbiesTab: React.FC<HobbiesTabProps> = ({ editLang, theme }) => {
                     </div>
 
                     {/* Preview */}
-                    <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                      <p className={`text-xs font-medium mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-4 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]`}>
+                      <p className={`text-xs font-medium mb-3 text-gray-600 dark:text-gray-400`}>
                         {t('hobbies.preview', editLang)}
                       </p>
                       <div className="flex items-center gap-3">

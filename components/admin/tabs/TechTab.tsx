@@ -4,10 +4,10 @@ import {
   Plus, Trash2, Search, GripVertical, 
   ChevronDown, ChevronUp, Tag, Code2
 } from 'lucide-react';
+import { Slider, useConfirm } from '../ui';
 
 interface TechTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
 }
 
 // Comprehensive list of tech icons - using Devicon names
@@ -194,7 +194,13 @@ const getIconUrlWithFallback = (iconName: string): string => {
   return `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${resolvedIcon}/${resolvedIcon}-original.svg`;
 };
 
-export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
+export const TechTab: React.FC<TechTabProps> = ({ editLang }) => {
+  const confirm = useConfirm();
+  const confirmRemove = (title: string) => confirm({
+    title,
+    message: editLang === 'TR' ? 'Kaydettiğinizde sitede de kaldırılır.' : 'It will also disappear from the site once you save.',
+    confirmLabel: editLang === 'TR' ? 'Sil' : 'Delete',
+  });
   const { techStack, setTechStack, siteSettings, setSiteSettings } = useAdmin();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -248,8 +254,8 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
     setExpandedItems(new Set([...expandedItems, newTech._id]));
   };
 
-  const removeTech = (id: string) => {
-    if (window.confirm('Remove this technology?')) {
+  const removeTech = async (id: string) => {
+    if (await confirmRemove(editLang === 'TR' ? 'Bu teknoloji silinsin mi?' : 'Remove this technology?')) {
       setTechStack(techStack.filter(t => t._id !== id));
     }
   };
@@ -271,30 +277,20 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
   };
 
   // Styling helpers
-  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-  }`;
+  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25`;
 
-  const cardClass = `rounded-2xl border overflow-hidden transition-all duration-300 ${
-    theme === 'dark' 
-      ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
-      : 'bg-white border-gray-200 hover:border-gray-300'
-  }`;
+  const cardClass = `rounded-2xl border overflow-hidden transition-all duration-300 bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20`;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className={`p-6 rounded-2xl border ${
-        theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-      }`}>
+      <div className={`p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
               Tech Stack
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {techStack.length} technologies added
             </p>
           </div>
@@ -304,10 +300,8 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
               onClick={() => setShowAddPanel(!showAddPanel)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 showAddPanel
-                  ? 'bg-primary text-black'
-                  : theme === 'dark'
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
               }`}
             >
               <Plus size={18} />
@@ -318,30 +312,23 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
       </div>
 
       {/* Animation Speed Control */}
-      <div className={`p-6 rounded-2xl border ${
-        theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-      }`}>
+      <div className={`p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <div className="space-y-4">
           <div>
-            <label className={`block text-sm font-semibold mb-3 ${
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>
+            <label className={`block text-sm font-semibold mb-3 text-gray-900 dark:text-white`}>
               {editLang === 'TR' ? '⚡ Animasyon Hızı' : '⚡ Animation Speed'}
             </label>
-            <input 
-              type="range"
-              min="0.2"
-              max="3"
-              step="0.1"
+            <Slider
+              min={0.2}
+              max={3}
+              step={0.1}
               value={siteSettings.techStackSpeed || 0.5}
-              onChange={(e) => setSiteSettings({...siteSettings, techStackSpeed: parseFloat(e.target.value)})}
-              className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-primary"
+              onChange={(techStackSpeed) => setSiteSettings({...siteSettings, techStackSpeed})}
+              ariaLabel={editLang === 'TR' ? 'Animasyon hızı' : 'Animation speed'}
             />
-            <div className={`flex justify-between text-xs mt-2 ${
-              theme === 'dark' ? 'text-gray-500' : 'text-gray-600'
-            }`}>
+            <div className={`flex justify-between text-xs mt-2 text-gray-600 dark:text-gray-500`}>
               <span>{editLang === 'TR' ? '🐌 Yavaş' : '🐌 Slow'}</span>
-              <span className={`font-bold text-base ${theme === 'dark' ? 'text-primary' : 'text-primary'}`}>
+              <span className={`font-bold text-base text-primary`}>
                 {(siteSettings.techStackSpeed || 0.5).toFixed(1)}x
               </span>
               <span>{editLang === 'TR' ? '🚀 Hızlı' : '🚀 Fast'}</span>
@@ -352,15 +339,11 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
 
       {/* Add Panel */}
       {showAddPanel && (
-        <div className={`p-6 rounded-2xl border ${
-          theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-        }`}>
+        <div className={`p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
           <div className="space-y-4">
             {/* Search */}
             <div className="relative">
-              <Search size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-              }`} />
+              <Search size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500`} />
               <input
                 type="text"
                 placeholder="Search technologies..."
@@ -374,12 +357,10 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedCategory('All')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                   selectedCategory === 'All'
-                    ? 'bg-primary text-black'
-                    : theme === 'dark'
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary text-white'
+                    : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
                 }`}
               >
                 All
@@ -388,12 +369,10 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                     selectedCategory === category
-                      ? 'bg-primary text-black'
-                      : theme === 'dark'
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-white'
+                      : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
                   }`}
                 >
                   {category}
@@ -407,11 +386,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                 <button
                   key={tech.icon}
                   onClick={() => addTech(tech)}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105 ${
-                    theme === 'dark'
-                      ? 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
-                      : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                  }`}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:scale-105 bg-white/60 border-black/[0.08] hover:border-black/15 dark:bg-white/[0.05] dark:border-white/10 dark:hover:border-white/25`}
                 >
                   <img
                     src={`https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${tech.icon}/${tech.icon}-original.svg`}
@@ -421,9 +396,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                       (e.target as HTMLImageElement).src = `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${tech.icon}/${tech.icon}-plain.svg`;
                     }}
                   />
-                  <span className={`text-xs font-medium text-center ${
-                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
+                  <span className={`text-xs font-medium text-center text-gray-700 dark:text-gray-300`}>
                     {tech.name}
                   </span>
                 </button>
@@ -431,7 +404,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
             </div>
 
             {filteredTechs.length === 0 && (
-              <div className={`text-center py-8 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <div className={`text-center py-8 text-gray-400 dark:text-gray-500`}>
                 No technologies found. Try a different search or add a custom one.
               </div>
             )}
@@ -439,11 +412,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
             {/* Custom Tech Button */}
             <button
               onClick={addCustomTech}
-              className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed transition-all ${
-                theme === 'dark'
-                  ? 'border-gray-700 text-gray-400 hover:border-gray-600 hover:text-gray-300'
-                  : 'border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600'
-              }`}
+              className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed transition-all border-black/10 text-gray-500 hover:border-gray-400 hover:text-gray-600 dark:border-white/10 dark:text-gray-400 dark:hover:border-white/25 dark:hover:text-gray-300`}
             >
               <Code2 size={18} />
               Add Custom Technology
@@ -455,18 +424,14 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
       {/* Added Technologies */}
       <div className="space-y-3">
         {techStack.length === 0 ? (
-          <div className={`p-12 rounded-2xl border text-center ${
-            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-            }`}>
-              <Code2 size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+          <div className={`p-12 rounded-2xl border text-center bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.06]`}>
+              <Code2 size={32} className={'text-gray-400 dark:text-gray-500'} />
             </div>
-            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-lg font-medium text-gray-600 dark:text-gray-400`}>
               No technologies added yet
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-1 text-gray-500`}>
               Click "Add Technology" to get started
             </p>
           </div>
@@ -487,26 +452,20 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                   isDragging
                     ? 'opacity-50 scale-[0.98]'
                     : isDragOver
-                      ? theme === 'dark'
-                        ? 'border-primary ring-2 ring-primary/30'
-                        : 'border-primary ring-2 ring-primary/20'
-                      : theme === 'dark'
-                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+                      ? 'border-primary ring-2 ring-primary/20 dark:ring-primary/30'
+                      : 'bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20'
+                } bg-white/70 backdrop-blur-xl dark:bg-white/[0.04]`}
               >
                 {/* Card Header */}
                 <div 
-                  className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
-                    theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'
-                  }`}
+                  className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.03] dark:hover:bg-white/[0.06]`}
                   onClick={() => toggleExpand(tech._id)}
                 >
                   {/* Drag Handle & Icon */}
                   <div className="flex items-center gap-3">
-                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
+                    <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                     <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center bg-black/[0.04] dark:bg-white/[0.06]"
                     >
                       <img
                         src={getIconUrl(tech.iconName)}
@@ -525,10 +484,10 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
 
                   {/* Title & Category */}
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                       {tech.title}
                     </h3>
-                    <p className={`text-sm truncate ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <p className={`text-sm truncate text-gray-600 dark:text-gray-400`}>
                       {tech.tech}
                     </p>
                   </div>
@@ -540,13 +499,11 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                         e.stopPropagation();
                         removeTech(tech._id);
                       }}
-                      className={`p-2 rounded-lg transition-colors text-red-500 ${
-                        theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                      }`}
+                      className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                     >
                       <Trash2 size={18} />
                     </button>
-                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-2 rounded-xl text-gray-600 dark:text-gray-400`}>
                       {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
                   </div>
@@ -554,14 +511,10 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className={`p-6 border-t space-y-4 ${
-                    theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-100 bg-gray-50/50'
-                  }`}>
+                  <div className={`p-6 border-t space-y-4 border-black/[0.05] bg-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`}>
                           <Tag size={14} />
                           Technology Name
                         </label>
@@ -573,9 +526,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                         />
                       </div>
                       <div>
-                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`}>
                           <Tag size={14} />
                           Category
                         </label>
@@ -590,9 +541,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-                          theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <label className={`text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`}>
                           <Code2 size={14} />
                           Icon Name (Devicon)
                         </label>
@@ -603,20 +552,20 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                           placeholder="e.g., react, typescript, python"
                           className={inputClass}
                         />
-                        <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                        <p className={`text-xs mt-1 text-gray-400 dark:text-gray-500`}>
                           Find icons at <a href="https://devicon.dev" target="_blank" rel="noreferrer" className="text-primary hover:underline">devicon.dev</a>
                         </p>
                       </div>
                     </div>
 
                     {/* Preview */}
-                    <div className={`p-4 rounded-xl ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                      <p className={`text-xs font-medium mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-4 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]`}>
+                      <p className={`text-xs font-medium mb-3 text-gray-600 dark:text-gray-400`}>
                         Preview
                       </p>
                       <div className="flex items-center gap-4">
                         <div 
-                          className="w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-200 dark:bg-gray-700"
+                          className="w-16 h-16 rounded-2xl flex items-center justify-center bg-black/[0.06] dark:bg-white/10"
                         >
                           <img
                             src={getIconUrl(tech.iconName)}
@@ -634,10 +583,10 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang, theme }) => {
                           />
                         </div>
                         <div>
-                          <p className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                          <p className={`font-semibold text-gray-900 dark:text-white`}>
                             {tech.title}
                           </p>
-                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <p className={`text-sm text-gray-600 dark:text-gray-400`}>
                             {tech.tech}
                           </p>
                         </div>

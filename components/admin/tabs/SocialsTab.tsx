@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAdmin } from '../../../lib/adminContext';
 import { adminTranslations, getTranslation } from '../../../lib/adminTranslations';
 import * as LucideIcons from 'lucide-react';
+import { useConfirm } from '../ui';
 import { 
   Plus, Trash2, ChevronDown, ChevronUp, GripVertical, 
   Link, Globe, Search, Check, ExternalLink, AtSign
@@ -9,7 +10,6 @@ import {
 
 interface SocialsTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
 }
 
 // Categorized social icons for better UX
@@ -43,7 +43,13 @@ const ALL_SOCIAL_ICONS = [
   'MapPin', 'ExternalLink', 'Share2', 'Rss', 'Bookmark', 'AtSign'
 ];
 
-export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
+export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang }) => {
+  const confirm = useConfirm();
+  const confirmRemove = (title: string) => confirm({
+    title,
+    message: editLang === 'TR' ? 'Kaydettiğinizde sitede de kaldırılır.' : 'It will also disappear from the site once you save.',
+    confirmLabel: editLang === 'TR' ? 'Sil' : 'Delete',
+  });
   const { socials, setSocials } = useAdmin();
   const t = adminTranslations.socials;
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
@@ -69,19 +75,11 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
   };
 
   // Styling helpers
-  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-  }`;
+  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25`;
 
-  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-  }`;
+  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`;
 
-  const cardClass = `p-6 rounded-2xl border ${
-    theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-  }`;
+  const cardClass = `p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`;
 
   const addSocial = () => {
     const newSocial = {
@@ -95,8 +93,8 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
     setExpandedItems(new Set([...expandedItems, newSocial._id]));
   };
 
-  const removeSocial = (id: string) => {
-    if (window.confirm(getText(t.removeConfirm))) {
+  const removeSocial = async (id: string) => {
+    if (await confirmRemove(getText(t.removeConfirm))) {
       setSocials(socials.filter(s => s._id !== id));
     }
   };
@@ -140,17 +138,17 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
       <div className={cardClass}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
               {getText(t.title)}
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {socials.length} {getText(t.linksCount)}
             </p>
           </div>
           
           <button
             onClick={addSocial}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-black rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <Plus size={18} />
             {getText(t.addSocial)}
@@ -161,18 +159,14 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
       {/* Socials List */}
       <div className="space-y-3">
         {socials.length === 0 ? (
-          <div className={`p-12 rounded-2xl border text-center ${
-            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-            }`}>
-              <Globe size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+          <div className={`p-12 rounded-2xl border text-center bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.06]`}>
+              <Globe size={32} className={'text-gray-400 dark:text-gray-500'} />
             </div>
-            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-lg font-medium text-gray-600 dark:text-gray-400`}>
               {getText(t.noLinksAdded)}
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-1 text-gray-500`}>
               {getText(t.clickToStart)}
             </p>
           </div>
@@ -195,22 +189,16 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                   isDragging
                     ? 'opacity-50 scale-[0.98]'
                     : isDragOver
-                      ? theme === 'dark'
-                        ? 'border-primary ring-2 ring-primary/30'
-                        : 'border-primary ring-2 ring-primary/20'
-                      : theme === 'dark'
-                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+                      ? 'border-primary ring-2 ring-primary/20 dark:ring-primary/30'
+                      : 'bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20'
+                } bg-white/70 backdrop-blur-xl dark:bg-white/[0.04]`}
               >
                 {/* Card Header */}
                 <div 
-                  className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
-                    theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'
-                  }`}
+                  className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.03] dark:hover:bg-white/[0.06]`}
                   onClick={() => toggleExpand(social._id)}
                 >
-                  <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
+                  <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                   
                   {/* Social Icon */}
                   <div className="p-3 bg-primary/20 rounded-xl">
@@ -219,10 +207,10 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
 
                   {/* Platform & URL */}
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                       {social.platform}
                     </h3>
-                    <p className={`text-sm truncate ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+                    <p className={`text-sm truncate text-gray-500`}>
                       {social.url || getText(t.urlPlaceholder)}
                     </p>
                   </div>
@@ -235,9 +223,7 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className={`p-2 rounded-lg transition-colors ${
-                          theme === 'dark' ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'
-                        }`}
+                        className={`p-2 rounded-xl transition-colors hover:bg-black/[0.04] text-gray-500 dark:hover:bg-white/10 dark:text-gray-400`}
                       >
                         <ExternalLink size={18} />
                       </a>
@@ -247,13 +233,11 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                         e.stopPropagation();
                         removeSocial(social._id);
                       }}
-                      className={`p-2 rounded-lg transition-colors text-red-500 ${
-                        theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                      }`}
+                      className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                     >
                       <Trash2 size={18} />
                     </button>
-                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-2 rounded-xl text-gray-600 dark:text-gray-400`}>
                       {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
                   </div>
@@ -261,9 +245,7 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className={`p-6 border-t space-y-5 ${
-                    theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-100 bg-gray-50/50'
-                  }`}>
+                  <div className={`p-6 border-t space-y-5 border-black/[0.05] bg-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
                     {/* Platform Name & Username */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -318,18 +300,18 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                       
                       {/* Current Icon & Select Button */}
                       <div className="flex items-center gap-3 mb-3">
-                        <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                        <div className={`p-3 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]`}>
                           <IconComponent size={24} className="text-primary" />
                         </div>
-                        <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>
+                        <span className={'text-gray-700 dark:text-gray-300'}>
                           {social.iconName}
                         </span>
                         <button
                           onClick={() => setSelectingIconFor(isSelectingIcon ? null : social._id)}
-                          className={`px-3 py-1.5 text-xs rounded-lg font-medium ${
+                          className={`px-3 py-1.5 text-xs rounded-xl font-medium ${
                             isSelectingIcon
-                              ? 'bg-primary text-black'
-                              : theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                              ? 'bg-primary text-white'
+                              : 'bg-black/[0.06] text-gray-700 hover:bg-gray-300 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/15'
                           }`}
                         >
                           {isSelectingIcon ? getText(t.close || adminTranslations.actions.close) : getText(t.changeIcon)}
@@ -338,24 +320,16 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
 
                       {/* Icon Selector Panel */}
                       {isSelectingIcon && (
-                        <div className={`p-4 rounded-xl border ${
-                          theme === 'dark' ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'
-                        }`}>
+                        <div className={`p-4 rounded-xl border bg-white/70 border-black/[0.08] dark:bg-white/[0.05] dark:border-white/10`}>
                           {/* Search */}
                           <div className="relative mb-4">
-                            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                              theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                            }`} />
+                            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500`} />
                             <input
                               type="text"
                               value={iconSearch}
                               onChange={(e) => setIconSearch(e.target.value)}
                               placeholder={editLang === 'TR' ? 'İkon ara...' : 'Search icons...'}
-                              className={`w-full pl-10 pr-4 py-2 text-sm rounded-lg border ${
-                                theme === 'dark'
-                                  ? 'bg-gray-900 border-gray-600 text-white placeholder-gray-500'
-                                  : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
-                              }`}
+                              className={`w-full pl-10 pr-4 py-2 text-sm rounded-xl border bg-white/60 border-black/[0.08] text-gray-900 placeholder-gray-400 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/20 dark:text-white dark:placeholder-gray-500`}
                             />
                           </div>
 
@@ -363,10 +337,10 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                           <div className="flex flex-wrap gap-2 mb-4">
                             <button
                               onClick={() => setActiveCategory('all')}
-                              className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                              className={`px-3 py-1.5 text-xs rounded-xl font-medium transition-colors ${
                                 activeCategory === 'all'
-                                  ? 'bg-primary text-black'
-                                  : theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                  ? 'bg-primary text-white'
+                                  : 'bg-black/[0.04] text-gray-600 hover:bg-black/[0.06] dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/15'
                               }`}
                             >
                               {editLang === 'TR' ? 'Tümü' : 'All'}
@@ -375,10 +349,10 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                               <button
                                 key={key}
                                 onClick={() => setActiveCategory(key)}
-                                className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                                className={`px-3 py-1.5 text-xs rounded-xl font-medium transition-colors ${
                                   activeCategory === key
-                                    ? 'bg-primary text-black'
-                                    : theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    ? 'bg-primary text-white'
+                                    : 'bg-black/[0.04] text-gray-600 hover:bg-black/[0.06] dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/15'
                                 }`}
                               >
                                 {getText(cat.label)}
@@ -402,10 +376,8 @@ export const SocialsTab: React.FC<SocialsTabProps> = ({ editLang, theme }) => {
                                   title={iconName}
                                   className={`relative p-3 rounded-xl flex items-center justify-center transition-all ${
                                     isSelected
-                                      ? 'bg-primary text-black scale-110'
-                                      : theme === 'dark' 
-                                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:scale-105' 
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105'
+                                      ? 'bg-primary text-white scale-110'
+                                      : 'bg-black/[0.04] text-gray-600 hover:bg-black/[0.06] hover:scale-105 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/15'
                                   }`}
                                 >
                                   <Icon size={20} />

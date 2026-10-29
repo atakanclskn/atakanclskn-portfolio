@@ -6,14 +6,22 @@ import {
   Plus, Trash2, ChevronDown, ChevronUp, GripVertical, 
   FolderKanban, Image, Link, Github, Tag, FileText, Layers
 } from 'lucide-react';
+import { MonthPicker, Select, Toggle, useConfirm } from '../ui';
 import { TagInput } from '../TagInput';
+import { getProjectLayout } from '../../../lib/projectLayout';
+import { ProjectLayout } from '../../../types';
 
 interface ProjectsTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
 }
 
-export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => {
+export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang }) => {
+  const confirm = useConfirm();
+  const confirmRemove = (title: string) => confirm({
+    title,
+    message: editLang === 'TR' ? 'Kaydettiğinizde sitede de kaldırılır.' : 'It will also disappear from the site once you save.',
+    confirmLabel: editLang === 'TR' ? 'Sil' : 'Delete',
+  });
   const { projects, setProjects } = useAdmin();
   const t = adminTranslations.projects;
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
@@ -23,19 +31,11 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   // Styling helpers
-  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-  }`;
+  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25`;
 
-  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-  }`;
+  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`;
 
-  const cardClass = `p-6 rounded-2xl border ${
-    theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-  }`;
+  const cardClass = `p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`;
 
   const addProject = () => {
     const newProject = {
@@ -44,7 +44,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
       category: 'Web',
       description: { EN: 'Description', TR: 'Açıklama' },
       mainImage: '',
-      size: 'small' as const,
+      layout: 'standard' as const,
       link: '',
       githubUrl: '',
       startDate: new Date().toISOString().slice(0, 7),
@@ -57,8 +57,8 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
     setExpandedItems(new Set([...expandedItems, newProject._id]));
   };
 
-  const removeProject = (id: string) => {
-    if (window.confirm(editLang === 'TR' ? 'Bu projeyi silmek istiyor musunuz?' : 'Remove this project?')) {
+  const removeProject = async (id: string) => {
+    if (await confirmRemove(editLang === 'TR' ? 'Bu proje silinsin mi?' : 'Remove this project?')) {
       setProjects(projects.filter(p => p._id !== id));
     }
   };
@@ -67,6 +67,11 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
     setProjects(projects.map(p => 
       p._id === id ? { ...p, [field]: value } : p
     ));
+  };
+
+  // The first edit pins every project's current slot, so nothing else moves on the live grid
+  const setLayout = (index: number, layout: ProjectLayout) => {
+    setProjects(projects.map((p, i) => ({ ...p, layout: i === index ? layout : getProjectLayout(projects, i) })));
   };
 
   const toggleExpand = (id: string) => {
@@ -109,17 +114,17 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
       <div className={cardClass}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
               {getText(t.title)}
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {projects.length} {editLang === 'TR' ? 'proje eklendi' : 'projects added'}
             </p>
           </div>
           
           <button
             onClick={addProject}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-black rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <Plus size={18} />
             {getText(t.addProject)}
@@ -130,18 +135,14 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
       {/* Projects List */}
       <div className="space-y-3">
         {projects.length === 0 ? (
-          <div className={`p-12 rounded-2xl border text-center ${
-            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-            }`}>
-              <FolderKanban size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+          <div className={`p-12 rounded-2xl border text-center bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.06]`}>
+              <FolderKanban size={32} className={'text-gray-400 dark:text-gray-500'} />
             </div>
-            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-lg font-medium text-gray-600 dark:text-gray-400`}>
               {editLang === 'TR' ? 'Henüz proje eklenmedi' : 'No projects added yet'}
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-1 text-gray-500`}>
               {editLang === 'TR' ? 'Proje eklemek için yukarıdaki butona tıklayın' : 'Click the button above to add a project'}
             </p>
           </div>
@@ -161,51 +162,41 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                   isDragging 
                     ? 'opacity-50 scale-[0.98]' 
                     : isDragOver 
-                      ? theme === 'dark' 
-                        ? 'border-primary ring-2 ring-primary/30' 
-                        : 'border-primary ring-2 ring-primary/20'
-                      : theme === 'dark' 
-                        ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
-                        : 'bg-white border-gray-200 hover:border-gray-300'
-                } ${theme === 'dark' ? 'bg-gray-900/50' : 'bg-white'}`}
+                      ? 'border-primary ring-2 ring-primary/20 dark:ring-primary/30'
+                      : 'bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20'
+                } bg-white/70 backdrop-blur-xl dark:bg-white/[0.04]`}
               >
                 {/* Card Header */}
                 <div 
-                  className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
-                    theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'
-                  }`}
+                  className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.03] dark:hover:bg-white/[0.06]`}
                   onClick={() => toggleExpand(project._id)}
                 >
-                  <GripVertical size={18} className={`cursor-grab active:cursor-grabbing ${theme === 'dark' ? 'text-gray-600 hover:text-gray-400' : 'text-gray-400 hover:text-gray-600'}`} />
+                  <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                   
                   {/* Project Image Preview */}
-                  <div className={`w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center ${
-                    theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
-                  }`}>
+                  <div className={`w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center bg-black/[0.04] dark:bg-white/[0.06]`}>
                     {project.mainImage ? (
                       <img src={project.mainImage} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <Image size={24} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+                      <Image size={24} className={'text-gray-400 dark:text-gray-500'} />
                     )}
                   </div>
 
                   {/* Title & Category */}
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                    <h3 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                       {getValue(project.title)}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'
-                      }`}>
+                      <span className={`text-xs px-2 py-0.5 rounded bg-black/[0.06] text-gray-600 dark:bg-white/10 dark:text-gray-300`}>
                         {project.category}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded ${
-                        project.size === 'large' 
-                          ? theme === 'dark' ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary'
-                          : theme === 'dark' ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                        getProjectLayout(projects, index) === 'standard'
+                          ? 'bg-black/[0.04] text-gray-500 dark:bg-white/10 dark:text-gray-400'
+                          : 'bg-primary/10 text-primary dark:bg-primary/20'
                       }`}>
-                        {project.size === 'large' ? (editLang === 'TR' ? 'Büyük' : 'Large') : (editLang === 'TR' ? 'Küçük' : 'Small')}
+                        {getText(t.layouts[getProjectLayout(projects, index)])}
                       </span>
                     </div>
                   </div>
@@ -217,13 +208,11 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                         e.stopPropagation();
                         removeProject(project._id);
                       }}
-                      className={`p-2 rounded-lg transition-colors text-red-500 ${
-                        theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                      }`}
+                      className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                     >
                       <Trash2 size={18} />
                     </button>
-                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-2 rounded-xl text-gray-600 dark:text-gray-400`}>
                       {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
                   </div>
@@ -231,9 +220,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className={`p-6 border-t space-y-4 ${
-                    theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-100 bg-gray-50/50'
-                  }`}>
+                  <div className={`p-6 border-t space-y-4 border-black/[0.05] bg-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
                     {/* Title & Category */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -293,11 +280,11 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                         placeholder="https://example.com/image.jpg"
                       />
                       {project.mainImage && (
-                        <div className="mt-2 p-2 rounded-lg bg-gray-800/30">
+                        <div className="mt-2 p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03]">
                           <img 
                             src={project.mainImage} 
                             alt="Preview" 
-                            className="w-full h-32 object-cover rounded-lg"
+                            className="w-full h-32 object-cover rounded-xl"
                             onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
                           />
                         </div>
@@ -311,11 +298,10 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                           <Tag size={14} />
                           {editLang === 'TR' ? 'Başlangıç Tarihi' : 'Start Date'}
                         </label>
-                        <input
-                          type="month"
-                          value={project.startDate || ''}
-                          onChange={(e) => updateProject(project._id, 'startDate', e.target.value)}
-                          className={inputClass}
+                        <MonthPicker
+                          value={project.startDate}
+                          onChange={(value) => updateProject(project._id, 'startDate', value)}
+                          lang={editLang}
                         />
                       </div>
                       <div>
@@ -323,33 +309,23 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                           <Tag size={14} />
                           {editLang === 'TR' ? 'Bitiş Tarihi' : 'End Date'}
                         </label>
-                        <input
-                          type="month"
-                          value={project.endDate || ''}
-                          onChange={(e) => updateProject(project._id, 'endDate', e.target.value)}
-                          className={inputClass}
-                          disabled={project.isCurrent}
+                        <MonthPicker
+                          value={project.endDate}
+                          onChange={(value) => updateProject(project._id, 'endDate', value)}
+                          lang={editLang}
                         />
                       </div>
                       <div className="flex flex-col gap-3">
-                        <label className={`flex items-center gap-2 cursor-pointer mt-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <input
-                            type="checkbox"
-                            checked={project.isCurrent || false}
-                            onChange={(e) => updateProject(project._id, 'isCurrent', e.target.checked)}
-                            className="w-4 h-4 rounded accent-primary"
-                          />
-                          <span className="text-sm">{editLang === 'TR' ? 'Devam Ediyor' : 'Ongoing'}</span>
-                        </label>
-                        <label className={`flex items-center gap-2 cursor-pointer ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                          <input
-                            type="checkbox"
-                            checked={project.showInTimeline !== false}
-                            onChange={(e) => updateProject(project._id, 'showInTimeline', e.target.checked)}
-                            className="w-4 h-4 rounded accent-primary"
-                          />
-                          <span className="text-sm">{editLang === 'TR' ? 'Timeline\'da Göster' : 'Show in Timeline'}</span>
-                        </label>
+                        <Toggle className="mt-6"
+                          checked={project.isCurrent || false}
+                          onChange={(checked) => updateProject(project._id, 'isCurrent', checked)}
+                          label={editLang === 'TR' ? 'Devam Ediyor' : 'Ongoing'}
+                        />
+                        <Toggle
+                          checked={project.showInTimeline !== false}
+                          onChange={(checked) => updateProject(project._id, 'showInTimeline', checked)}
+                          label={editLang === 'TR' ? 'Timeline\'da Göster' : 'Show in Timeline'}
+                        />
                       </div>
                     </div>
 
@@ -363,26 +339,25 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang, theme }) => 
                         tags={project.skills || []}
                         onChange={(skills) => updateProject(project._id, 'skills', skills)}
                         placeholder="React, TypeScript, Firebase"
-                        theme={theme}
                         inputClass={inputClass}
                       />
                     </div>
 
-                    {/* Size, Link, GitHub */}
+                    {/* Layout, Link, GitHub */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className={labelClass}>
                           <Layers size={14} />
                           {getText(t.size)}
                         </label>
-                        <select
-                          value={project.size}
-                          onChange={(e) => updateProject(project._id, 'size', e.target.value)}
-                          className={inputClass}
-                        >
-                          <option value="small">{getText(t.sizeSmall)}</option>
-                          <option value="large">{getText(t.sizeLarge)}</option>
-                        </select>
+                        <Select
+                          value={getProjectLayout(projects, index)}
+                          onChange={(layout) => setLayout(index, layout)}
+                          options={(['featured', 'wide', 'standard'] as ProjectLayout[]).map(layout => ({
+                            value: layout,
+                            label: getText(t.layouts[layout]),
+                          }))}
+                        />
                       </div>
                       <div>
                         <label className={labelClass}>

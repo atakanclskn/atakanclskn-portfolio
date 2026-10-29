@@ -125,9 +125,12 @@ export const adminTranslations = {
     image: { EN: 'Image URL', TR: 'Görsel URL' },
     link: { EN: 'Project Link', TR: 'Proje Linki' },
     githubUrl: { EN: 'GitHub URL', TR: 'GitHub URL' },
-    size: { EN: 'Card Size', TR: 'Kart Boyutu' },
-    sizeLarge: { EN: 'Large', TR: 'Büyük' },
-    sizeSmall: { EN: 'Small', TR: 'Küçük' },
+    size: { EN: 'Grid Layout', TR: 'Grid Yerleşimi' },
+    layouts: {
+      featured: { EN: 'Featured (2×2)', TR: 'Öne çıkan (2×2)' },
+      wide: { EN: 'Wide (2×1)', TR: 'Geniş (2×1)' },
+      standard: { EN: 'Standard (1×1)', TR: 'Standart (1×1)' },
+    },
     addProject: { EN: 'Add Project', TR: 'Proje Ekle' },
   },
   

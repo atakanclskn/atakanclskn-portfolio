@@ -44,6 +44,17 @@
       gtag('config', 'G-1Y2GC2HC87');
     </script>
 
+    <!-- Apply the saved theme before first paint (see lib/theme.ts) -->
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem('site_theme') || localStorage.getItem('site_default_theme') || 'dark';
+          var mode = pref === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : pref;
+          document.documentElement.classList.toggle('dark', mode === 'dark');
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
@@ -107,51 +118,6 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
   <body class="bg-gray-50 dark:bg-[#050505] text-gray-900 dark:text-[#e5e5e5]">
-    <!-- Dynamic SEO & Analytics Loader -->
-    <script>
-      // Load SEO settings from localStorage and update meta tags
-      (function() {
-        try {
-          const seoSettings = localStorage.getItem('site_siteSettings');
-          if (seoSettings) {
-            const settings = JSON.parse(seoSettings);
-            const lang = localStorage.getItem('site_language') || 'EN';
-            
-            // Update title
-            if (settings.metaTitle) {
-              const title = typeof settings.metaTitle === 'string' ? settings.metaTitle : settings.metaTitle[lang];
-              document.title = title;
-              document.querySelector('meta[name="title"]')?.setAttribute('content', title);
-              document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
-              document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
-            }
-            
-            // Update description
-            if (settings.metaDescription) {
-              const desc = typeof settings.metaDescription === 'string' ? settings.metaDescription : settings.metaDescription[lang];
-              document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
-              document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
-              document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
-            }
-            
-            // Update keywords
-            if (settings.metaKeywords) {
-              const keywords = typeof settings.metaKeywords === 'string' ? settings.metaKeywords : settings.metaKeywords[lang];
-              document.querySelector('meta[name="keywords"]')?.setAttribute('content', keywords);
-            }
-            
-            // Update OG image
-            if (settings.ogImage) {
-              document.querySelector('meta[property="og:image"]')?.setAttribute('content', settings.ogImage);
-              document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', settings.ogImage);
-            }
-          }
-        } catch (e) {
-          console.error('SEO settings load error:', e);
-        }
-      })();
-    </script>
-    
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

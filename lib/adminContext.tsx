@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { 
   Project, ExperienceItem, Social, Profile, TechItem,
   HeroContent, AboutContent, StatsContent, StatItem, HobbyItem, NavbarSettings, SiteSettings,
@@ -292,7 +292,8 @@ interface AdminContextType {
 
   // Firebase Operations
   saveToFirebase: () => Promise<boolean>;
-  loadFromFirebase: () => Promise<boolean>;
+  discardChanges: () => Promise<boolean>;
+  isDirty: boolean;
   isSaving: boolean;
   isLoading: boolean;
   isDataReady: boolean; // true once the initial Firebase load has finished (or failed)
@@ -306,7 +307,6 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   
-  // Initialize state from LocalStorage or defaults
   const [primaryColor, setPrimaryColorState] = useState<string>('6 182 212');
   const [profile, setProfileState] = useState<Profile>(DEFAULT_PROFILE);
   const [projects, setProjectsState] = useState<Project[]>(DEFAULT_PROJECTS);
@@ -339,42 +339,37 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return () => unsubscribe();
   }, []);
 
+  type LoadedData = NonNullable<Awaited<ReturnType<typeof loadAllData>>>;
+
+  const applyData = (data: LoadedData) => {
+    if (data.profile) {
+      const p = data.profile as any;
+      setProfileState(p);
+      if (p.heroContent) setHeroContentState(p.heroContent);
+      if (p.aboutContent) setAboutContentState(p.aboutContent);
+      if (p.statsContent) setStatsContentState(p.statsContent);
+      if (p.hobbies) setHobbiesState(p.hobbies);
+      if (p.navbarSettings) setNavbarSettingsState(p.navbarSettings);
+      if (p.siteSettings) setSiteSettingsState(p.siteSettings);
+      if (p.primaryColor) setPrimaryColorState(p.primaryColor);
+    }
+    if (data.projects && data.projects.length > 0) setProjectsState(data.projects);
+    if (data.experiences && data.experiences.length > 0) setExperiencesState(data.experiences);
+    if (data.techStack && data.techStack.length > 0) setTechStackState(data.techStack);
+    if (data.socials && data.socials.length > 0) setSocialsState(data.socials);
+    if (data.sectionContent) setSectionContentState(data.sectionContent);
+    if (data.footerSettings) setFooterSettingsState(data.footerSettings);
+  };
+
   // Load from Firebase on mount (PUBLIC DATA)
   useEffect(() => {
-    const loadFromFirebaseOnMount = async () => {
-      try {
-        const data = await loadAllData();
-        
-        if (data) {
-          if (data.profile) {
-            const p = data.profile as any;
-            setProfileState(p);
-            if (p.heroContent) setHeroContentState(p.heroContent);
-            if (p.aboutContent) setAboutContentState(p.aboutContent);
-            if (p.statsContent) setStatsContentState(p.statsContent);
-            if (p.hobbies) setHobbiesState(p.hobbies);
-            if (p.navbarSettings) setNavbarSettingsState(p.navbarSettings);
-            if (p.siteSettings) setSiteSettingsState(p.siteSettings);
-            if (p.primaryColor) {
-              setPrimaryColorState(p.primaryColor);
-              document.documentElement.style.setProperty('--primary', p.primaryColor);
-            }
-          }
-          if (data.projects && data.projects.length > 0) setProjectsState(data.projects);
-          if (data.experiences && data.experiences.length > 0) setExperiencesState(data.experiences);
-          if (data.techStack && data.techStack.length > 0) setTechStackState(data.techStack);
-          if (data.socials && data.socials.length > 0) setSocialsState(data.socials);
-          if (data.sectionContent) setSectionContentState(data.sectionContent);
-          if (data.footerSettings) setFooterSettingsState(data.footerSettings);
-        }
-      } catch (error) {
-        console.error("Error loading from Firebase, using defaults:", error);
-      } finally {
+    loadAllData()
+      .then(data => { if (data) applyData(data); })
+      .catch(error => console.error("Error loading from Firebase, using defaults:", error))
+      .finally(() => {
+        setNeedsBaseline(true);
         setIsDataReady(true);
-      }
-    };
-
-    loadFromFirebaseOnMount();
+      });
   }, []);
 
   // Messages are private: only fetch them once the admin is signed in
@@ -386,125 +381,51 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     getContactMessages().then(setMessagesState);
   }, [isLoggedIn]);
 
-  // Load from LocalStorage on mount (fallback/override for admin)
+  // Edits used to be mirrored to localStorage as drafts; clear what older versions left behind
   useEffect(() => {
-    const savedColor = localStorage.getItem('site_primaryColor');
-    if (savedColor) setPrimaryColorState(savedColor);
-
-    const savedProfile = localStorage.getItem('site_profile');
-    if (savedProfile) setProfileState(JSON.parse(savedProfile));
-
-    const savedProjects = localStorage.getItem('site_projects');
-    if (savedProjects) setProjectsState(JSON.parse(savedProjects));
-    
-    const savedExp = localStorage.getItem('site_experiences');
-    if (savedExp) setExperiencesState(JSON.parse(savedExp));
-
-    const savedTech = localStorage.getItem('site_techStack');
-    if (savedTech) setTechStackState(JSON.parse(savedTech));
-
-    const savedSocials = localStorage.getItem('site_socials');
-    if (savedSocials) setSocialsState(JSON.parse(savedSocials));
-
-    const savedHero = localStorage.getItem('site_heroContent');
-    if (savedHero) setHeroContentState(JSON.parse(savedHero));
-
-    const savedAbout = localStorage.getItem('site_aboutContent');
-    if (savedAbout) setAboutContentState(JSON.parse(savedAbout));
-
-    const savedStats = localStorage.getItem('site_statsContent');
-    if (savedStats) setStatsContentState(JSON.parse(savedStats));
-
-    const savedHobbies = localStorage.getItem('site_hobbies');
-    if (savedHobbies) setHobbiesState(JSON.parse(savedHobbies));
-
-    const savedNavbar = localStorage.getItem('site_navbarSettings');
-    if (savedNavbar) setNavbarSettingsState(JSON.parse(savedNavbar));
-
-    const savedSettings = localStorage.getItem('site_siteSettings');
-    if (savedSettings) setSiteSettingsState(JSON.parse(savedSettings));
-
-    const savedSectionContent = localStorage.getItem('site_sectionContent');
-    if (savedSectionContent) setSectionContentState(JSON.parse(savedSectionContent));
-
-    const savedFooter = localStorage.getItem('site_footerSettings');
-    if (savedFooter) setFooterSettingsState(JSON.parse(savedFooter));
-
-    // Messages used to be cached here; drop any copy left in visitors' browsers
-    localStorage.removeItem('site_messages');
+    ['primaryColor', 'profile', 'projects', 'experiences', 'techStack', 'socials', 'heroContent',
+      'aboutContent', 'statsContent', 'hobbies', 'navbarSettings', 'siteSettings', 'sectionContent',
+      'footerSettings', 'messages', 'lastSyncTime'].forEach(key => {
+      try { localStorage.removeItem(`site_${key}`); } catch { /* storage unavailable */ }
+    });
   }, []);
 
   // Update CSS Variable whenever primaryColor changes
   useEffect(() => {
     document.documentElement.style.setProperty('--primary', primaryColor);
-    localStorage.setItem('site_primaryColor', primaryColor);
   }, [primaryColor]);
 
-  // Wrappers to save to LocalStorage
-  const updateProfile = (p: Profile) => {
-    setProfileState(p);
-    localStorage.setItem('site_profile', JSON.stringify(p));
-  };
+  // Unsaved-changes tracking: compare everything the admin can edit with the last saved/loaded state
+  const snapshot = useMemo(() => JSON.stringify({
+    primaryColor, profile, projects, experiences, techStack, socials, heroContent, aboutContent,
+    statsContent, hobbies, navbarSettings, siteSettings, sectionContent, footerSettings,
+  }), [primaryColor, profile, projects, experiences, techStack, socials, heroContent, aboutContent,
+    statsContent, hobbies, navbarSettings, siteSettings, sectionContent, footerSettings]);
+  const [savedSnapshot, setSavedSnapshot] = useState<string | null>(null);
+  const [needsBaseline, setNeedsBaseline] = useState(false);
 
-  const setProjects = (p: Project[]) => {
-    setProjectsState(p);
-    localStorage.setItem('site_projects', JSON.stringify(p));
-  };
+  // Runs after freshly loaded data has rendered, so the baseline is the loaded state
+  useEffect(() => {
+    if (!needsBaseline) return;
+    setSavedSnapshot(snapshot);
+    setNeedsBaseline(false);
+  }, [needsBaseline, snapshot]);
 
-  const setExperiences = (e: ExperienceItem[]) => {
-    setExperiencesState(e);
-    localStorage.setItem('site_experiences', JSON.stringify(e));
-  };
+  const isDirty = savedSnapshot !== null && snapshot !== savedSnapshot;
 
-  const setTechStack = (t: TechItem[]) => {
-    setTechStackState(t);
-    localStorage.setItem('site_techStack', JSON.stringify(t));
-  };
-
-  const setSocials = (s: Social[]) => {
-    setSocialsState(s);
-    localStorage.setItem('site_socials', JSON.stringify(s));
-  };
-
-  const setHeroContent = (h: HeroContent) => {
-    setHeroContentState(h);
-    localStorage.setItem('site_heroContent', JSON.stringify(h));
-  };
-
-  const setAboutContent = (a: AboutContent) => {
-    setAboutContentState(a);
-    localStorage.setItem('site_aboutContent', JSON.stringify(a));
-  };
-
-  const setStatsContent = (s: StatsContent) => {
-    setStatsContentState(s);
-    localStorage.setItem('site_statsContent', JSON.stringify(s));
-  };
-
-  const setHobbies = (h: HobbyItem[]) => {
-    setHobbiesState(h);
-    localStorage.setItem('site_hobbies', JSON.stringify(h));
-  };
-
-  const setNavbarSettings = (n: NavbarSettings) => {
-    setNavbarSettingsState(n);
-    localStorage.setItem('site_navbarSettings', JSON.stringify(n));
-  };
-
-  const setSiteSettings = (s: SiteSettings) => {
-    setSiteSettingsState(s);
-    localStorage.setItem('site_siteSettings', JSON.stringify(s));
-  };
-
-  const setSectionContent = (s: SectionContent) => {
-    setSectionContentState(s);
-    localStorage.setItem('site_sectionContent', JSON.stringify(s));
-  };
-
-  const setFooterSettings = (f: FooterSettings) => {
-    setFooterSettingsState(f);
-    localStorage.setItem('site_footerSettings', JSON.stringify(f));
-  };
+  const updateProfile = setProfileState;
+  const setProjects = setProjectsState;
+  const setExperiences = setExperiencesState;
+  const setTechStack = setTechStackState;
+  const setSocials = setSocialsState;
+  const setHeroContent = setHeroContentState;
+  const setAboutContent = setAboutContentState;
+  const setStatsContent = setStatsContentState;
+  const setHobbies = setHobbiesState;
+  const setNavbarSettings = setNavbarSettingsState;
+  const setSiteSettings = setSiteSettingsState;
+  const setSectionContent = setSectionContentState;
+  const setFooterSettings = setFooterSettingsState;
 
   // Messages Functions
   const setMessages = (m: ContactMessage[]) => setMessagesState(m);
@@ -556,6 +477,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Firebase Operations
   const saveToFirebase = async (): Promise<boolean> => {
     setIsSaving(true);
+    const savingSnapshot = snapshot;
     try {
       // Profile'ı Experience formatına dönüştür (Firestore için)
       const profileForFirebase = {
@@ -580,9 +502,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
 
       if (result) {
-        const now = new Date().toISOString();
-        setLastSyncTime(now);
-        localStorage.setItem('site_lastSyncTime', now);
+        setSavedSnapshot(savingSnapshot);
+        setLastSyncTime(new Date().toISOString());
       }
       return result;
     } catch (error) {
@@ -593,35 +514,15 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   };
 
-  const loadFromFirebase = async (): Promise<boolean> => {
+  // Throws away unsaved edits by reloading the saved state from Firebase
+  const discardChanges = async (): Promise<boolean> => {
     setIsLoading(true);
     try {
       const data = await loadAllData();
-      if (data) {
-        if (data.profile) {
-          const p = data.profile as any;
-          setProfileState(p);
-          if (p.heroContent) setHeroContentState(p.heroContent);
-          if (p.aboutContent) setAboutContentState(p.aboutContent);
-          if (p.statsContent) setStatsContentState(p.statsContent);
-          if (p.hobbies) setHobbiesState(p.hobbies);
-          if (p.navbarSettings) setNavbarSettingsState(p.navbarSettings);
-          if (p.siteSettings) setSiteSettingsState(p.siteSettings);
-          if (p.primaryColor) setPrimaryColorState(p.primaryColor);
-        }
-        if (data.projects && data.projects.length > 0) setProjectsState(data.projects);
-        if (data.experiences && data.experiences.length > 0) setExperiencesState(data.experiences);
-        if (data.techStack && data.techStack.length > 0) setTechStackState(data.techStack);
-        if (data.socials && data.socials.length > 0) setSocialsState(data.socials);
-        if (data.sectionContent) setSectionContentState(data.sectionContent);
-        if (data.footerSettings) setFooterSettingsState(data.footerSettings);
-
-        const now = new Date().toISOString();
-        setLastSyncTime(now);
-        localStorage.setItem('site_lastSyncTime', now);
-        return true;
-      }
-      return false;
+      if (!data) return false;
+      applyData(data);
+      setNeedsBaseline(true);
+      return true;
     } catch (error) {
       console.error('Error loading from Firebase:', error);
       return false;
@@ -662,7 +563,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       footerSettings, setFooterSettings,
       messages, addMessage, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount,
       // Firebase
-      saveToFirebase, loadFromFirebase, isSaving, isLoading, isDataReady, lastSyncTime
+      saveToFirebase, discardChanges, isDirty, isSaving, isLoading, isDataReady, lastSyncTime
     }}>
       {children}
     </AdminContext.Provider>

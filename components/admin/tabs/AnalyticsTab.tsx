@@ -8,7 +8,6 @@ import { getAnalyticsSummary } from '../../../lib/analytics.service';
 
 interface AnalyticsTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
 }
 
 interface AnalyticsSummary {
@@ -34,7 +33,7 @@ interface AnalyticsSummary {
   browserBreakdown: Record<string, number>;
 }
 
-export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) => {
+export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang }) => {
   const [data, setData] = useState<AnalyticsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<string>('');
@@ -79,13 +78,9 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
     loadData();
   }, []);
 
-  const cardClass = `rounded-2xl border p-6 ${
-    theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-  }`;
+  const cardClass = `rounded-2xl border p-6 bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`;
 
-  const statCardClass = `rounded-xl border p-4 ${
-    theme === 'dark' ? 'bg-gray-800/50 border-gray-700' : 'bg-gray-50 border-gray-200'
-  }`;
+  const statCardClass = `rounded-xl border p-4 bg-white/60 border-black/[0.08] dark:bg-white/[0.05] dark:border-white/10`;
 
   // Simple bar chart renderer
   const renderBarChart = (stats: { date: string; pageViews: number }[]) => {
@@ -101,9 +96,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
           return (
             <div key={stat.date} className="flex-1 flex flex-col items-center gap-1 group relative">
               {/* Tooltip */}
-              <div className={`absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity text-xs px-2 py-1 rounded-lg whitespace-nowrap z-10 ${
-                theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-800 text-white'
-              }`}>
+              <div className={`absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity text-xs px-2 py-1 rounded-xl whitespace-nowrap z-10 bg-gray-900 text-white dark:bg-white dark:text-black`}>
                 {stat.pageViews} {t.views}
               </div>
               <div 
@@ -113,7 +106,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
                   background: `linear-gradient(to top, rgb(var(--primary) / 0.6), rgb(var(--primary)))`
                 }}
               />
-              <span className={`text-[9px] ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'} ${last14.length > 10 ? 'hidden md:block' : ''}`}>
+              <span className={`text-[9px] text-gray-400 dark:text-gray-500 ${last14.length > 10 ? 'hidden md:block' : ''}`}>
                 {dayLabel}
               </span>
             </div>
@@ -149,11 +142,11 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
             <div key={name} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${colors[i % colors.length]}`} />
-                <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{name}</span>
+                <span className={`text-sm text-gray-700 dark:text-gray-300`}>{name}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{count}</span>
-                <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                <span className={`text-sm font-semibold text-gray-900 dark:text-white`}>{count}</span>
+                <span className={`text-xs text-gray-400 dark:text-gray-500`}>
                   ({((count / total) * 100).toFixed(0)}%)
                 </span>
               </div>
@@ -186,13 +179,13 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
           <div key={country} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Globe size={14} className="text-primary" />
-              <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{country}</span>
+              <span className={`text-sm text-gray-700 dark:text-gray-300`}>{country}</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className={`h-1.5 rounded-full ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`} style={{ width: '60px' }}>
+              <div className={`h-1.5 rounded-full bg-black/[0.06] dark:bg-white/10`} style={{ width: '60px' }}>
                 <div className="h-full bg-primary rounded-full" style={{ width: `${(count / sorted[0][1]) * 100}%` }} />
               </div>
-              <span className={`text-sm font-medium w-8 text-right ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{count}</span>
+              <span className={`text-sm font-medium w-8 text-right text-gray-900 dark:text-white`}>{count}</span>
             </div>
           </div>
         ))}
@@ -214,26 +207,24 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
       <div className={cardClass}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold flex items-center gap-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold flex items-center gap-2 text-gray-900 dark:text-white`}>
               <BarChart3 size={24} className="text-primary" />
               {t.title}
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {t.subtitle}
             </p>
           </div>
           <div className="flex items-center gap-3">
             {lastRefresh && (
-              <span className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+              <span className={`text-xs text-gray-400 dark:text-gray-500`}>
                 <Clock size={12} className="inline mr-1" />
                 {t.lastUpdated}: {lastRefresh}
               </span>
             )}
             <button 
               onClick={loadData}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10`}
             >
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               {t.refresh}
@@ -258,10 +249,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
             <Eye size={18} className="text-blue-500" />
             <TrendingUp size={14} className="text-emerald-500" />
           </div>
-          <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
             {data?.totalPageViews?.toLocaleString() || 0}
           </p>
-          <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{t.totalViews}</p>
+          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.totalViews}</p>
         </div>
 
         <div className={statCardClass}>
@@ -269,44 +260,44 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
             <Users size={18} className="text-emerald-500" />
             <TrendingUp size={14} className="text-emerald-500" />
           </div>
-          <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
             {data?.totalVisitors?.toLocaleString() || 0}
           </p>
-          <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{t.totalVisitors}</p>
+          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.totalVisitors}</p>
         </div>
 
         <div className={statCardClass}>
           <div className="flex items-center justify-between mb-2">
             <Calendar size={18} className="text-amber-500" />
           </div>
-          <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
             {data?.todayPageViews?.toLocaleString() || 0}
           </p>
-          <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{t.todayViews}</p>
+          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.todayViews}</p>
         </div>
 
         <div className={statCardClass}>
           <div className="flex items-center justify-between mb-2">
             <Users size={18} className="text-pink-500" />
           </div>
-          <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
             {data?.todayVisitors?.toLocaleString() || 0}
           </p>
-          <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{t.todayVisitors}</p>
+          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.todayVisitors}</p>
         </div>
       </div>
 
       {/* Week/Month Summary */}
       <div className="grid grid-cols-2 gap-4">
         <div className={statCardClass}>
-          <p className={`text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>📅 {t.thisWeek}</p>
-          <p className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-sm font-medium mb-1 text-gray-600 dark:text-gray-400`}>📅 {t.thisWeek}</p>
+          <p className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
             {data?.weekPageViews?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-500">{t.views}</span>
           </p>
         </div>
         <div className={statCardClass}>
-          <p className={`text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>📆 {t.thisMonth}</p>
-          <p className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-sm font-medium mb-1 text-gray-600 dark:text-gray-400`}>📆 {t.thisMonth}</p>
+          <p className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
             {data?.monthPageViews?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-500">{t.views}</span>
           </p>
         </div>
@@ -315,7 +306,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
       {/* Daily Chart */}
       {data?.dailyStats && data.dailyStats.length > 0 && (
         <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <h3 className={`text-sm font-bold uppercase text-gray-600 dark:text-gray-400`}>
             📊 {t.dailyChart}
           </h3>
           {renderBarChart(data.dailyStats)}
@@ -326,35 +317,35 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Devices */}
         <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 text-gray-600 dark:text-gray-400`}>
             <Monitor size={16} />
             {t.devices}
           </h3>
           {data?.deviceBreakdown && Object.keys(data.deviceBreakdown).length > 0 
             ? renderBreakdown(data.deviceBreakdown, <Monitor size={14} />)
-            : <p className={`text-sm mt-3 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>—</p>
+            : <p className={`text-sm mt-3 text-gray-400 dark:text-gray-500`}>—</p>
           }
         </div>
 
         {/* Browsers */}
         <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 text-gray-600 dark:text-gray-400`}>
             <Globe size={16} />
             {t.browsers}
           </h3>
           {data?.browserBreakdown && Object.keys(data.browserBreakdown).length > 0
             ? renderBreakdown(data.browserBreakdown, <Globe size={14} />)
-            : <p className={`text-sm mt-3 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>—</p>
+            : <p className={`text-sm mt-3 text-gray-400 dark:text-gray-500`}>—</p>
           }
         </div>
 
         {/* Countries */}
         <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 text-gray-600 dark:text-gray-400`}>
             <Globe size={16} />
             {t.countries}
           </h3>
-          {renderCountries() || <p className={`text-sm mt-3 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>—</p>}
+          {renderCountries() || <p className={`text-sm mt-3 text-gray-400 dark:text-gray-500`}>—</p>}
         </div>
       </div>
 
@@ -362,7 +353,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Top Pages */}
         <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <h3 className={`text-sm font-bold uppercase mb-3 text-gray-600 dark:text-gray-400`}>
             🔗 {t.topPages}
           </h3>
           {data?.topPages && data.topPages.length > 0 ? (
@@ -370,25 +361,25 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
               {data.topPages.map((page, i) => (
                 <div key={page.path} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-mono w-5 text-center ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <span className={`text-xs font-mono w-5 text-center text-gray-400 dark:text-gray-500`}>
                       {i + 1}
                     </span>
-                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{page.path}</span>
+                    <span className={`text-sm text-gray-700 dark:text-gray-300`}>{page.path}</span>
                   </div>
-                  <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className={`text-sm font-semibold text-gray-900 dark:text-white`}>
                     {page.views}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>—</p>
+            <p className={`text-sm text-gray-400 dark:text-gray-500`}>—</p>
           )}
         </div>
 
         {/* Top Referrers */}
         <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <h3 className={`text-sm font-bold uppercase mb-3 text-gray-600 dark:text-gray-400`}>
             🌐 {t.topReferrers}
           </h3>
           {data?.topReferrers && data.topReferrers.length > 0 ? (
@@ -396,21 +387,21 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
               {data.topReferrers.map((ref, i) => (
                 <div key={ref.referrer} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-mono w-5 text-center ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                    <span className={`text-xs font-mono w-5 text-center text-gray-400 dark:text-gray-500`}>
                       {i + 1}
                     </span>
-                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <span className={`text-sm text-gray-700 dark:text-gray-300`}>
                       {ref.referrer === 'Direct' ? (editLang === 'TR' ? '🔗 Doğrudan' : '🔗 Direct') : ref.referrer}
                     </span>
                   </div>
-                  <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <span className={`text-sm font-semibold text-gray-900 dark:text-white`}>
                     {ref.count}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>—</p>
+            <p className={`text-sm text-gray-400 dark:text-gray-500`}>—</p>
           )}
         </div>
       </div>
@@ -418,8 +409,8 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang, theme }) =
       {/* No data message */}
       {(!data?.dailyStats || data.dailyStats.length === 0) && (
         <div className={`${cardClass} text-center py-12`}>
-          <BarChart3 size={48} className={`mx-auto mb-4 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-300'}`} />
-          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          <BarChart3 size={48} className={`mx-auto mb-4 text-gray-300 dark:text-gray-500`} />
+          <p className={`text-sm text-gray-600 dark:text-gray-400`}>
             {t.noData}
           </p>
         </div>

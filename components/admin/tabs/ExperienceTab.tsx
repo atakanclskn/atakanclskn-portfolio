@@ -8,11 +8,11 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, ExternalLink,
   Building2, MapPin, Calendar, Link as LinkIcon, Hash, Star, ArrowRight
 } from 'lucide-react';
+import { MonthPicker, Segmented, Select, Toggle, useConfirm } from '../ui';
 import { TagInput } from '../TagInput';
 
 interface ExperienceTabProps {
   editLang: 'EN' | 'TR';
-  theme: 'light' | 'dark';
   onTabChange?: (tab: string) => void;
 }
 
@@ -30,7 +30,13 @@ const typeColors = {
   project: 'from-emerald-500 to-emerald-600',
 };
 
-export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, onTabChange }) => {
+export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabChange }) => {
+  const confirm = useConfirm();
+  const confirmRemove = (title: string) => confirm({
+    title,
+    message: editLang === 'TR' ? 'Kaydettiğinizde sitede de kaldırılır.' : 'It will also disappear from the site once you save.',
+    confirmLabel: editLang === 'TR' ? 'Sil' : 'Delete',
+  });
   const { experiences, setExperiences, projects } = useAdmin();
   const t = adminTranslations.experience;
   const getText = (obj: { EN: string; TR: string }) => getTranslation(obj, editLang);
@@ -96,8 +102,8 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
     setExpandedItems(new Set([...expandedItems, baseExp._id]));
   };
 
-  const removeExperience = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
+  const removeExperience = async (id: string) => {
+    if (await confirmRemove(editLang === 'TR' ? 'Bu kayıt silinsin mi?' : 'Delete this entry?')) {
       setExperiences(experiences.filter(e => e._id !== id));
     }
   };
@@ -132,27 +138,13 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
   });
 
   // Input class helpers
-  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 hover:border-gray-300'
-  }`;
+  const inputClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25`;
 
-  const selectClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-primary/50 ${
-    theme === 'dark'
-      ? 'bg-gray-800 border-gray-700 text-white hover:border-gray-600'
-      : 'bg-white border-gray-200 text-gray-900 hover:border-gray-300'
-  }`;
+  const selectClass = `w-full border rounded-xl p-3 text-sm transition-all duration-200 cursor-pointer focus:ring-2 focus:ring-primary/50 bg-white/70 border-black/[0.08] text-gray-900 hover:border-black/15 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:hover:border-white/25`;
 
-  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 ${
-    theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-  }`;
+  const labelClass = `text-xs font-medium mb-1.5 flex items-center gap-1.5 text-gray-600 dark:text-gray-400`;
 
-  const cardClass = `rounded-2xl border overflow-hidden transition-all duration-300 ${
-    theme === 'dark' 
-      ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
-      : 'bg-white border-gray-200 hover:border-gray-300'
-  }`;
+  const cardClass = `rounded-2xl border overflow-hidden transition-all duration-300 bg-white/70 border-black/[0.08] hover:border-black/15 backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10 dark:hover:border-white/20`;
 
   const renderTypeSpecificFields = (exp: ExperienceItem) => {
     switch (exp.type) {
@@ -179,32 +171,32 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Building2 size={14} />
                   {getText(t.workType)}
                 </label>
-                <select
+                <Segmented
                   value={exp.workType || 'onsite'}
-                  onChange={(e) => updateExperience(exp._id, 'workType', e.target.value)}
-                  className={selectClass}
-                >
-                  <option value="remote">{getText(t.remote)}</option>
-                  <option value="hybrid">{getText(t.hybrid)}</option>
-                  <option value="onsite">{getText(t.onsite)}</option>
-                </select>
+                  onChange={(workType) => updateExperience(exp._id, 'workType', workType)}
+                  options={[
+                    { value: 'remote', label: getText(t.remote) },
+                    { value: 'hybrid', label: getText(t.hybrid) },
+                    { value: 'onsite', label: getText(t.onsite) },
+                  ]}
+                />
               </div>
               <div>
                 <label className={labelClass}>
                   <Briefcase size={14} />
                   {getText(t.employmentType)}
                 </label>
-                <select
+                <Select
                   value={exp.employmentType || 'full-time'}
-                  onChange={(e) => updateExperience(exp._id, 'employmentType', e.target.value)}
-                  className={selectClass}
-                >
-                  <option value="full-time">{getText(t.fullTime)}</option>
-                  <option value="part-time">{getText(t.partTime)}</option>
-                  <option value="contract">{getText(t.contract)}</option>
-                  <option value="freelance">{getText(t.freelance)}</option>
-                  <option value="internship">{getText(t.internship)}</option>
-                </select>
+                  onChange={(employmentType) => updateExperience(exp._id, 'employmentType', employmentType)}
+                  options={[
+                    { value: 'full-time', label: getText(t.fullTime) },
+                    { value: 'part-time', label: getText(t.partTime) },
+                    { value: 'contract', label: getText(t.contract) },
+                    { value: 'freelance', label: getText(t.freelance) },
+                    { value: 'internship', label: getText(t.internship) },
+                  ]}
+                />
               </div>
             </div>
 
@@ -245,11 +237,10 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Calendar size={14} />
                   {getText(t.startDate)}
                 </label>
-                <input
-                  type="month"
-                  value={exp.startDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'startDate', e.target.value)}
-                  className={inputClass}
+                <MonthPicker
+                  value={exp.startDate}
+                  onChange={(value) => updateExperience(exp._id, 'startDate', value)}
+                  lang={editLang}
                 />
               </div>
               <div>
@@ -257,33 +248,21 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Calendar size={14} />
                   {getText(t.endDate)}
                 </label>
-                <input
-                  type="month"
-                  value={exp.endDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'endDate', e.target.value)}
+                <MonthPicker
+                  value={exp.endDate}
+                  onChange={(value) => updateExperience(exp._id, 'endDate', value)}
+                  lang={editLang}
                   disabled={exp.isCurrent}
-                  className={`${inputClass} ${exp.isCurrent ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               </div>
               <div className="flex items-end">
-                <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all w-full ${
-                  exp.isCurrent 
-                    ? 'bg-primary/10 border-primary text-primary' 
-                    : theme === 'dark' ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300'
-                }`}>
-                  <input
-                    type="checkbox"
+                <div className="flex items-center w-full min-h-[46px] px-3 rounded-xl border border-black/[0.08] bg-white/60 dark:border-white/10 dark:bg-white/[0.03]">
+                  <Toggle
                     checked={exp.isCurrent}
-                    onChange={(e) => updateExperience(exp._id, 'isCurrent', e.target.checked)}
-                    className="sr-only"
+                    onChange={(checked) => updateExperience(exp._id, 'isCurrent', checked)}
+                    label={getText(t.present)}
                   />
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                    exp.isCurrent ? 'bg-primary border-primary' : 'border-gray-400'
-                  }`}>
-                    {exp.isCurrent && <div className="w-2 h-2 bg-white rounded-sm" />}
-                  </div>
-                  <span className="text-sm font-medium">{getText(t.present)}</span>
-                </label>
+                </div>
               </div>
             </div>
           </div>
@@ -359,11 +338,10 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Calendar size={14} />
                   {getText(t.startDate)}
                 </label>
-                <input
-                  type="month"
-                  value={exp.startDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'startDate', e.target.value)}
-                  className={inputClass}
+                <MonthPicker
+                  value={exp.startDate}
+                  onChange={(value) => updateExperience(exp._id, 'startDate', value)}
+                  lang={editLang}
                 />
               </div>
               <div>
@@ -371,33 +349,21 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Calendar size={14} />
                   {getText(t.endDate)}
                 </label>
-                <input
-                  type="month"
-                  value={exp.endDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'endDate', e.target.value)}
+                <MonthPicker
+                  value={exp.endDate}
+                  onChange={(value) => updateExperience(exp._id, 'endDate', value)}
+                  lang={editLang}
                   disabled={exp.isCurrent}
-                  className={`${inputClass} ${exp.isCurrent ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               </div>
               <div className="flex items-end">
-                <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all w-full ${
-                  exp.isCurrent 
-                    ? 'bg-primary/10 border-primary text-primary' 
-                    : theme === 'dark' ? 'border-gray-700 hover:border-gray-600' : 'border-gray-200 hover:border-gray-300'
-                }`}>
-                  <input
-                    type="checkbox"
+                <div className="flex items-center w-full min-h-[46px] px-3 rounded-xl border border-black/[0.08] bg-white/60 dark:border-white/10 dark:bg-white/[0.03]">
+                  <Toggle
                     checked={exp.isCurrent}
-                    onChange={(e) => updateExperience(exp._id, 'isCurrent', e.target.checked)}
-                    className="sr-only"
+                    onChange={(checked) => updateExperience(exp._id, 'isCurrent', checked)}
+                    label={getText(t.present)}
                   />
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                    exp.isCurrent ? 'bg-primary border-primary' : 'border-gray-400'
-                  }`}>
-                    {exp.isCurrent && <div className="w-2 h-2 bg-white rounded-sm" />}
-                  </div>
-                  <span className="text-sm font-medium">{getText(t.ongoing)}</span>
-                </label>
+                </div>
               </div>
             </div>
           </div>
@@ -428,26 +394,24 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Calendar size={14} />
                   {getText(t.issueDate)}
                 </label>
-                <input
-                  type="month"
-                  value={exp.issueDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'issueDate', e.target.value)}
-                  className={inputClass}
+                <MonthPicker
+                  value={exp.issueDate}
+                  onChange={(value) => updateExperience(exp._id, 'issueDate', value)}
+                  lang={editLang}
                 />
               </div>
               <div>
                 <label className={labelClass}>
                   <Calendar size={14} />
                   {getText(t.expirationDate)}
-                  <span className={`text-xs ml-2 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+                  <span className={`text-xs ml-2 text-gray-400 dark:text-gray-500`}>
                     ({getText(t.noExpiration)})
                   </span>
                 </label>
-                <input
-                  type="month"
-                  value={exp.expirationDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'expirationDate', e.target.value)}
-                  className={inputClass}
+                <MonthPicker
+                  value={exp.expirationDate}
+                  onChange={(value) => updateExperience(exp._id, 'expirationDate', value)}
+                  lang={editLang}
                 />
               </div>
             </div>
@@ -494,11 +458,10 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <Calendar size={14} />
                   {getText(t.projectDate)}
                 </label>
-                <input
-                  type="month"
-                  value={exp.projectDate || ''}
-                  onChange={(e) => updateExperience(exp._id, 'projectDate', e.target.value)}
-                  className={inputClass}
+                <MonthPicker
+                  value={exp.projectDate}
+                  onChange={(value) => updateExperience(exp._id, 'projectDate', value)}
+                  lang={editLang}
                 />
               </div>
               <div>
@@ -556,7 +519,6 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                 tags={exp.technologies || []}
                 onChange={(techs) => updateExperience(exp._id, 'technologies', techs)}
                 placeholder="React, Node.js, PostgreSQL..."
-                theme={theme}
                 inputClass={inputClass}
               />
             </div>
@@ -571,15 +533,13 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header with Type Filter */}
-      <div className={`p-6 rounded-2xl border ${
-        theme === 'dark' ? 'bg-gray-900/50 border-gray-800' : 'bg-white border-gray-200'
-      }`}>
+      <div className={`p-6 rounded-2xl border bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h2 className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
               {getText(t.title)}
             </h2>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
               {experiences.length} items total
             </p>
           </div>
@@ -602,10 +562,8 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   onClick={() => setSelectedType(type)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-primary text-black'
-                      : theme === 'dark'
-                        ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-white'
+                      : 'bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10'
                   }`}
                 >
                   {Icon && <Icon size={16} />}
@@ -615,7 +573,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   <span className={`px-1.5 py-0.5 rounded-md text-xs ${
                     isActive
                       ? 'bg-black/20'
-                      : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'
+                      : 'bg-black/[0.06] dark:bg-white/10'
                   }`}>
                     {count}
                   </span>
@@ -627,10 +585,8 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
       </div>
 
       {/* Add New Buttons */}
-      <div className={`p-4 rounded-2xl border ${
-        theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-      }`}>
-        <p className={`text-sm font-medium mb-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+      <div className={`p-4 rounded-2xl border bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+        <p className={`text-sm font-medium mb-3 text-gray-600 dark:text-gray-400`}>
           {getText(t.addExperience)}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -665,34 +621,26 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
       {/* Experience Items */}
       <div className="space-y-4">
         {sortedExperiences.length === 0 && !(selectedType === 'project' || selectedType === 'all') ? (
-          <div className={`p-12 rounded-2xl border text-center ${
-            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-            }`}>
-              <Briefcase size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+          <div className={`p-12 rounded-2xl border text-center bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.06]`}>
+              <Briefcase size={32} className={'text-gray-400 dark:text-gray-500'} />
             </div>
-            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-lg font-medium text-gray-600 dark:text-gray-400`}>
               {editLang === 'TR' ? 'Henüz deneyim eklenmedi' : 'No experiences yet'}
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-1 text-gray-500`}>
               {editLang === 'TR' ? 'Yukarıdaki butonlardan ekleyin' : 'Add your first experience using the buttons above'}
             </p>
           </div>
         ) : sortedExperiences.length === 0 && selectedType === 'all' && projects.filter(p => p.showInTimeline !== false).length === 0 ? (
-          <div className={`p-12 rounded-2xl border text-center ${
-            theme === 'dark' ? 'bg-gray-900/30 border-gray-800' : 'bg-gray-50 border-gray-200'
-          }`}>
-            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
-            }`}>
-              <Briefcase size={32} className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'} />
+          <div className={`p-12 rounded-2xl border text-center bg-white/60 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10`}>
+            <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-black/[0.06] dark:bg-white/[0.06]`}>
+              <Briefcase size={32} className={'text-gray-400 dark:text-gray-500'} />
             </div>
-            <p className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-lg font-medium text-gray-600 dark:text-gray-400`}>
               {editLang === 'TR' ? 'Henüz deneyim eklenmedi' : 'No experiences yet'}
             </p>
-            <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>
+            <p className={`text-sm mt-1 text-gray-500`}>
               {editLang === 'TR' ? 'Yukarıdaki butonlardan ekleyin' : 'Add your first experience using the buttons above'}
             </p>
           </div>
@@ -707,14 +655,12 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
               <div key={exp._id} className={cardClass}>
                 {/* Card Header */}
                 <div 
-                  className={`p-4 flex items-center gap-4 cursor-pointer select-none ${
-                    theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'
-                  }`}
+                  className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.03] dark:hover:bg-white/[0.06]`}
                   onClick={() => toggleExpand(exp._id)}
                 >
                   {/* Drag Handle & Icon */}
                   <div className="flex items-center gap-2">
-                    <GripVertical size={18} className={`cursor-grab ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
+                    <GripVertical size={18} className={`cursor-grab text-gray-400 dark:text-gray-500`} />
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${colorClass} flex items-center justify-center text-white`}>
                       <Icon size={20} />
                     </div>
@@ -723,14 +669,14 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                   {/* Title & Meta */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      <h3 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                         {roleText || 'Untitled'}
                       </h3>
                       {!exp.isVisible && (
                         <EyeOff size={14} className="text-gray-500" />
                       )}
                     </div>
-                    <p className={`text-sm truncate ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <p className={`text-sm truncate text-gray-600 dark:text-gray-400`}>
                       {exp.company || (exp.type === 'certification' ? exp.issuer : 'No company')}
                       {exp.type === 'work' && exp.location && ` • ${exp.location}`}
                       {exp.type === 'certification' && exp.issueDate && ` • ${exp.issueDate}`}
@@ -745,9 +691,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                         e.stopPropagation();
                         updateExperience(exp._id, 'isVisible', !exp.isVisible);
                       }}
-                      className={`p-2 rounded-lg transition-colors ${
-                        theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-200'
-                      }`}
+                      className={`p-2 rounded-xl transition-colors hover:bg-black/[0.06] dark:hover:bg-white/10`}
                     >
                       {exp.isVisible !== false ? (
                         <Eye size={18} className="text-green-500" />
@@ -760,13 +704,11 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                         e.stopPropagation();
                         removeExperience(exp._id);
                       }}
-                      className={`p-2 rounded-lg transition-colors text-red-500 ${
-                        theme === 'dark' ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                      }`}
+                      className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10`}
                     >
                       <Trash2 size={18} />
                     </button>
-                    <div className={`p-2 rounded-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <div className={`p-2 rounded-xl text-gray-600 dark:text-gray-400`}>
                       {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
                   </div>
@@ -774,14 +716,10 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
 
                 {/* Expanded Content */}
                 {isExpanded && (
-                  <div className={`p-6 border-t space-y-6 ${
-                    theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-100 bg-gray-50/50'
-                  }`}>
+                  <div className={`p-6 border-t space-y-6 border-black/[0.05] bg-black/[0.02] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
                     {/* Basic Info Section */}
                     <div className="space-y-4">
-                      <h4 className={`text-sm font-semibold uppercase tracking-wider ${
-                        theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                      }`}>
+                      <h4 className={`text-sm font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500`}>
                         {getText(t.basicInfo)}
                       </h4>
                       
@@ -831,9 +769,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
 
                     {/* Type-specific Fields */}
                     <div className="space-y-4">
-                      <h4 className={`text-sm font-semibold uppercase tracking-wider ${
-                        theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                      }`}>
+                      <h4 className={`text-sm font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500`}>
                         {getText(t.details)}
                       </h4>
                       {renderTypeSpecificFields(exp)}
@@ -842,16 +778,13 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                     {/* Skills Section (for work and education) */}
                     {(exp.type === 'work' || exp.type === 'education') && (
                       <div className="space-y-4">
-                        <h4 className={`text-sm font-semibold uppercase tracking-wider ${
-                          theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                        }`}>
+                        <h4 className={`text-sm font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500`}>
                           {getText(t.skills)}
                         </h4>
                         <TagInput
                           tags={exp.skills || []}
                           onChange={(skills) => updateExperience(exp._id, 'skills', skills)}
                           placeholder="JavaScript, React, Node.js..."
-                          theme={theme}
                           inputClass={inputClass}
                         />
                       </div>
@@ -866,12 +799,12 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
         {/* Projects from Projects Tab (passive, read-only) */}
         {(selectedType === 'all' || selectedType === 'project') && projects.filter(p => p.showInTimeline !== false).length > 0 && (
           <>
-            <div className={`flex items-center gap-3 mt-6 mb-3 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`}>
+            <div className={`flex items-center gap-3 mt-6 mb-3 text-gray-400 dark:text-gray-500`}>
               <FolderGit2 size={16} />
               <span className="text-xs font-semibold uppercase tracking-wider">
                 {editLang === 'TR' ? 'Projeler (Projeler Sekmesinden)' : 'Projects (from Projects Tab)'}
               </span>
-              <div className={`flex-1 h-px ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-px bg-black/[0.06] dark:bg-white/[0.06]`} />
               <button
                 onClick={() => onTabChange?.('projects')}
                 className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
@@ -885,11 +818,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
               return (
                 <div
                   key={`proj-${project._id}`}
-                  className={`rounded-2xl border overflow-hidden transition-all duration-300 opacity-70 cursor-pointer ${
-                    theme === 'dark'
-                      ? 'bg-gray-900/30 border-gray-800 hover:border-emerald-800 hover:opacity-100'
-                      : 'bg-white/50 border-gray-200 hover:border-emerald-300 hover:opacity-100'
-                  }`}
+                  className={`rounded-2xl border overflow-hidden transition-all duration-300 opacity-70 cursor-pointer bg-white/50 border-black/[0.08] hover:border-emerald-300 hover:opacity-100 backdrop-blur-xl dark:bg-white/[0.02] dark:border-white/10 dark:hover:border-emerald-800`}
                   onClick={() => onTabChange?.('projects')}
                 >
                   <div className={`p-4 flex items-center gap-4`}>
@@ -897,10 +826,10 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                       <FolderGit2 size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className={`font-semibold truncate ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                      <h3 className={`font-semibold truncate text-gray-900 dark:text-white`}>
                         {titleText}
                       </h3>
-                      <p className={`text-sm truncate ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <p className={`text-sm truncate text-gray-600 dark:text-gray-400`}>
                         {project.category}{project.startDate ? ` • ${project.startDate}` : ''}
                       </p>
                     </div>
@@ -908,9 +837,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, theme, o
                       {project.skills && project.skills.length > 0 && (
                         <div className="hidden md:flex gap-1">
                           {project.skills.slice(0, 3).map((skill, i) => (
-                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded ${
-                              theme === 'dark' ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
-                            }`}>{skill}</span>
+                            <span key={i} className={`text-[10px] px-2 py-0.5 rounded bg-black/[0.04] text-gray-500 dark:bg-white/[0.06] dark:text-gray-400`}>{skill}</span>
                           ))}
                         </div>
                       )}

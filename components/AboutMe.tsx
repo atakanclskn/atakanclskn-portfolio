@@ -164,19 +164,16 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                 containerRef={containerRef} fromRef={div1Ref} toRef={div4Ref} curvature={-75} endYOffset={-10} 
                 gradientStartColor={beamColors[0]} gradientStopColor={beamColors[0]}
                 reverse={beams[0].reverse} duration={beams[0].duration} pathWidth={3} pathOpacity={0.3}
-                className="z-10"
             />
             <AnimatedBeam 
                 containerRef={containerRef} fromRef={div2Ref} toRef={div4Ref} curvature={0} 
                 gradientStartColor={beamColors[1]} gradientStopColor={beamColors[1]} 
                 reverse={beams[1].reverse} duration={beams[1].duration} pathWidth={3} pathOpacity={0.3}
-                className="z-10"
             />
             <AnimatedBeam 
                 containerRef={containerRef} fromRef={div3Ref} toRef={div4Ref} curvature={75} endYOffset={10} 
                 gradientStartColor={beamColors[2]} gradientStopColor={beamColors[2]} 
                 reverse={beams[2].reverse} duration={beams[2].duration} pathWidth={3} pathOpacity={0.3}
-                className="z-10"
             />
             
             {/* Right Side Connections */}
@@ -184,19 +181,16 @@ export const AboutMe: React.FC<AboutMeProps> = ({ profile }) => {
                 containerRef={containerRef} fromRef={div5Ref} toRef={div4Ref} curvature={-75} endYOffset={-10} 
                 gradientStartColor={beamColors[3]} gradientStopColor={beamColors[3]} 
                 reverse={beams[3].reverse} duration={beams[3].duration} pathWidth={3} pathOpacity={0.3}
-                className="z-10"
             />
             <AnimatedBeam 
                 containerRef={containerRef} fromRef={div6Ref} toRef={div4Ref} 
                 gradientStartColor={beamColors[4]} gradientStopColor={beamColors[4]} 
                 reverse={beams[4].reverse} duration={beams[4].duration} pathWidth={3} pathOpacity={0.3}
-                className="z-10"
             />
             <AnimatedBeam 
                 containerRef={containerRef} fromRef={div7Ref} toRef={div4Ref} curvature={75} endYOffset={10} 
                 gradientStartColor={beamColors[5]} gradientStopColor={beamColors[5]} 
                 reverse={beams[5].reverse} duration={beams[5].duration} pathWidth={3} pathOpacity={0.3}
-                className="z-10"
             />
 
             {/* Content Container (Icons & Profile) - z-20 to sit above beams */}

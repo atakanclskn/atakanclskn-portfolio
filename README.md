@@ -117,11 +117,10 @@ firebase deploy --only hosting
 
 ##  Admin Panel
 
-Access the admin panel by pressing `Ctrl + K` or clicking the admin button. Sign in with Google (admin email only).
+Open [`/admin`](https://atakanclskn.me/admin) and sign in with Google (admin email only). Edits are previewed live; press **Save** (or `Ctrl + S`) to publish them.
 
 **Admin features:**
 - Edit all sections (Hero, About, Tech Stack, Projects, Experience, Contact)
-- Upload Resume/CV (PDF) to Firebase Storage
 - Manage contact form messages (read/star/archive/delete)
 - Drag-and-drop reordering for projects and experiences
 - Multi-language content editing (EN/TR)

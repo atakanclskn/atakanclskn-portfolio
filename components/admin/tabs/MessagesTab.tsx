@@ -7,13 +7,12 @@ import {
 import { adminTranslations, getTranslation } from '../../../lib/adminTranslations';
 
 interface MessagesTabProps {
-  theme: 'light' | 'dark';
   editLang: 'EN' | 'TR';
 }
 
 type MailboxView = 'inbox' | 'starred' | 'archived' | 'all';
 
-export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => {
+export const MessagesTab: React.FC<MessagesTabProps> = ({ editLang }) => {
   const { 
     messages, markAsRead, toggleStar, archiveMessage, deleteMessage, unreadCount 
   } = useAdmin();
@@ -105,30 +104,22 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
   ];
 
   return (
-    <div className={`h-[calc(100vh-120px)] flex animate-fade-in-up rounded-xl overflow-hidden border ${
-      theme === 'dark' ? 'border-gray-800' : 'border-gray-200'
-    }`}>
+    <div className={`h-full min-h-[480px] flex animate-fade-in-up rounded-3xl overflow-hidden border border-black/[0.08] dark:border-white/10`}>
       
       {/* Mail Sidebar - Collapsible */}
-      <div className={`${mailSidebarCollapsed ? 'w-14' : 'w-48'} flex-shrink-0 border-r transition-all duration-300 ${
-        theme === 'dark' ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-50'
-      }`}>
+      <div className={`${mailSidebarCollapsed ? 'w-14' : 'w-48'} flex-shrink-0 border-r transition-all duration-300 border-black/[0.08] bg-white/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]`}>
         <div className="p-2">
           {/* Collapse Toggle */}
           <button
             onClick={() => setMailSidebarCollapsed(!mailSidebarCollapsed)}
-            className={`w-full flex items-center justify-center p-2 mb-2 rounded-lg transition-colors ${
-              theme === 'dark' 
-                ? 'hover:bg-gray-800 text-gray-400 hover:text-white' 
-                : 'hover:bg-gray-200 text-gray-500 hover:text-gray-900'
-            }`}
+            className={`w-full flex items-center justify-center p-2 mb-2 rounded-xl transition-colors hover:bg-black/[0.06] text-gray-500 hover:text-gray-900 dark:hover:bg-white/[0.06] dark:text-gray-400 dark:hover:text-white`}
             title={mailSidebarCollapsed ? (editLang === 'TR' ? 'Genişlet' : 'Expand') : (editLang === 'TR' ? 'Daralt' : 'Collapse')}
           >
             {mailSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
 
           {!mailSidebarCollapsed && (
-            <h3 className={`text-lg font-bold mb-4 px-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            <h3 className={`text-lg font-display font-bold mb-4 px-2 text-gray-900 dark:text-white`}>
               {getTranslation(t.title, editLang)}
             </h3>
           )}
@@ -142,14 +133,10 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                   key={item.id}
                   onClick={() => { setActiveView(item.id); setSelectedMessage(null); }}
                   title={mailSidebarCollapsed ? item.label : undefined}
-                  className={`relative w-full flex items-center ${mailSidebarCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`relative w-full flex items-center ${mailSidebarCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? theme === 'dark'
-                        ? 'bg-primary/20 text-primary'
-                        : 'bg-primary/10 text-primary'
-                      : theme === 'dark'
-                        ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                        : 'text-gray-600 hover:bg-gray-200 hover:text-gray-900'
+                      ? 'bg-primary/10 text-primary dark:bg-primary/20'
+                      : 'text-gray-600 hover:bg-black/[0.06] hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.06] dark:hover:text-white'
                   }`}
                 >
                   <div className={`flex items-center ${mailSidebarCollapsed ? '' : 'gap-3'}`}>
@@ -159,8 +146,8 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                   {item.count > 0 && !mailSidebarCollapsed && (
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       isActive
-                        ? 'bg-primary text-black'
-                        : theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-300 text-gray-600'
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-300 text-gray-600 dark:bg-white/10 dark:text-gray-300'
                     }`}>
                       {item.count}
                     </span>
@@ -176,24 +163,18 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
       </div>
 
       {/* Message List */}
-      <div className={`w-72 lg:w-80 flex-shrink-0 border-r flex flex-col transition-all duration-300 ${
-        theme === 'dark' ? 'border-gray-800 bg-gray-900/30' : 'border-gray-200 bg-white'
-      }`}>
+      <div className={`w-72 lg:w-80 flex-shrink-0 border-r flex flex-col transition-all duration-300 border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.02]`}>
         {/* Search Bar */}
-        <div className={`p-3 border-b ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}>
+        <div className={`p-3 border-b border-black/[0.08] dark:border-white/10`}>
           <div className="flex items-center gap-2">
-            <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
-            }`}>
-              <Search className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
+            <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl bg-black/[0.04] dark:bg-white/[0.06]`}>
+              <Search className={`w-4 h-4 text-gray-400 dark:text-gray-500`} />
               <input
                 type="text"
                 placeholder={getTranslation(t.search, editLang)}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`flex-1 bg-transparent text-sm outline-none ${
-                  theme === 'dark' ? 'text-white placeholder:text-gray-500' : 'text-gray-900 placeholder:text-gray-400'
-                }`}
+                className={`flex-1 bg-transparent text-sm outline-none text-gray-900 placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500`}
               />
             </div>
           </div>
@@ -202,9 +183,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
         {/* Messages List */}
         <div className="flex-1 overflow-y-auto">
           {filteredMessages.length === 0 ? (
-            <div className={`flex flex-col items-center justify-center h-full p-6 text-center ${
-              theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-            }`}>
+            <div className={`flex flex-col items-center justify-center h-full p-6 text-center text-gray-400 dark:text-gray-500`}>
               <Mail className="w-12 h-12 mb-3 opacity-50" />
               <p className="text-sm">{getTranslation(t.noMessages, editLang)}</p>
             </div>
@@ -215,16 +194,16 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                 onClick={() => handleSelectMessage(message)}
                 className={`p-4 border-b cursor-pointer transition-all ${
                   selectedMessage?._id === message._id
-                    ? theme === 'dark' ? 'bg-gray-800' : 'bg-blue-50'
-                    : theme === 'dark' ? 'hover:bg-gray-800/50' : 'hover:bg-gray-50'
-                } ${theme === 'dark' ? 'border-gray-800' : 'border-gray-100'}`}
+                    ? 'bg-blue-50 dark:bg-white/[0.06]'
+                    : 'hover:bg-black/[0.03] dark:hover:bg-white/[0.06]'
+                } border-black/[0.05] dark:border-white/10`}
               >
                 <div className="flex items-start gap-3">
                   {/* Avatar */}
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
                     !message.isRead
-                      ? 'bg-primary text-black'
-                      : theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'
+                      ? 'bg-primary text-white'
+                      : 'bg-black/[0.06] text-gray-600 dark:bg-white/10 dark:text-gray-300'
                   }`}>
                     {message.name.charAt(0).toUpperCase()}
                   </div>
@@ -233,28 +212,24 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                     <div className="flex items-center justify-between gap-2">
                       <span className={`text-sm truncate ${
                         !message.isRead
-                          ? theme === 'dark' ? 'text-white font-bold' : 'text-gray-900 font-bold'
-                          : theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                          ? 'text-gray-900 font-bold dark:text-white'
+                          : 'text-gray-700 dark:text-gray-300'
                       }`}>
                         {message.name}
                       </span>
-                      <span className={`text-xs flex-shrink-0 ${
-                        theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
-                      }`}>
+                      <span className={`text-xs flex-shrink-0 text-gray-400 dark:text-gray-500`}>
                         {formatDate(message.createdAt)}
                       </span>
                     </div>
                     
-                    <p className={`text-xs truncate mt-0.5 ${
-                      theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
-                    }`}>
+                    <p className={`text-xs truncate mt-0.5 text-gray-500`}>
                       {message.email}
                     </p>
                     
                     <p className={`text-sm truncate mt-1 ${
                       !message.isRead
-                        ? theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                        : theme === 'dark' ? 'text-gray-500' : 'text-gray-500'
+                        ? 'text-gray-700 dark:text-gray-300'
+                        : 'text-gray-500'
                     }`}>
                       {message.message}
                     </p>
@@ -277,24 +252,22 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
       </div>
 
       {/* Message Detail / Preview */}
-      <div className={`flex-1 flex flex-col min-w-0 ${theme === 'dark' ? 'bg-gray-900/20' : 'bg-gray-50'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 bg-white/60 backdrop-blur-xl dark:bg-white/[0.02]`}>
         {selectedMessage ? (
           <>
             {/* Message Header */}
-            <div className={`p-4 border-b flex items-center justify-between ${
-              theme === 'dark' ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-white'
-            }`}>
+            <div className={`p-4 border-b flex items-center justify-between border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]`}>
               <div className="flex items-center gap-3">
                 
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold bg-primary text-black`}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-display font-bold bg-primary text-white`}>
                   {selectedMessage.name.charAt(0).toUpperCase()}
                 </div>
                 
                 <div>
-                  <h3 className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+                  <h3 className={`font-bold text-gray-900 dark:text-white`}>
                     {selectedMessage.name}
                   </h3>
-                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className={`text-sm text-gray-500 dark:text-gray-400`}>
                     {selectedMessage.email}
                   </p>
                 </div>
@@ -304,10 +277,10 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => toggleStar(selectedMessage._id)}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`p-2 rounded-xl transition-colors ${
                     selectedMessage.isStarred
                       ? 'text-yellow-500'
-                      : theme === 'dark' ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'
+                      : 'text-gray-500 hover:bg-black/[0.04] dark:text-gray-400 dark:hover:bg-white/[0.06]'
                   }`}
                   title={selectedMessage.isStarred ? getTranslation(t.unstar, editLang) : getTranslation(t.star, editLang)}
                 >
@@ -316,9 +289,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                 
                 <button
                   onClick={() => archiveMessage(selectedMessage._id)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    theme === 'dark' ? 'text-gray-400 hover:bg-gray-800' : 'text-gray-500 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-xl transition-colors text-gray-500 hover:bg-black/[0.04] dark:text-gray-400 dark:hover:bg-white/[0.06]`}
                   title={selectedMessage.isArchived ? getTranslation(t.unarchive, editLang) : getTranslation(t.archive, editLang)}
                 >
                   <Archive className="w-5 h-5" />
@@ -326,9 +297,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                 
                 <button
                   onClick={() => setShowDeleteConfirm(selectedMessage._id)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    theme === 'dark' ? 'text-red-400 hover:bg-red-900/30' : 'text-red-500 hover:bg-red-50'
-                  }`}
+                  className={`p-2 rounded-xl transition-colors text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30`}
                   title={getTranslation(adminTranslations.actions.delete, editLang)}
                 >
                   <Trash2 className="w-5 h-5" />
@@ -339,32 +308,24 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
             {/* Message Content */}
             <div className="flex-1 overflow-y-auto p-6">
               {/* Contact Info Card */}
-              <div className={`p-4 rounded-xl mb-6 ${
-                theme === 'dark' ? 'bg-gray-800/50' : 'bg-white shadow-sm'
-              }`}>
-                <h4 className={`text-sm font-semibold mb-3 ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+              <div className={`p-4 rounded-xl mb-6 bg-white/70 shadow-sm dark:bg-white/[0.05]`}>
+                <h4 className={`text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300`}>
                   {getTranslation(t.contactInfo, editLang)}
                 </h4>
                 <div className="flex items-center gap-2">
-                  <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <span className={`text-sm text-gray-500 dark:text-gray-400`}>
                     {selectedMessage.email}
                   </span>
                   <button
                     onClick={() => copyEmail(selectedMessage.email)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      theme === 'dark' ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
-                    }`}
+                    className={`p-1.5 rounded-xl transition-colors hover:bg-black/[0.04] text-gray-400 dark:hover:bg-white/10 dark:text-gray-500`}
                     title={getTranslation(t.copyEmail, editLang)}
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                   <a
                     href={`mailto:${selectedMessage.email}`}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      theme === 'dark' ? 'hover:bg-gray-700 text-gray-500' : 'hover:bg-gray-100 text-gray-400'
-                    }`}
+                    className={`p-1.5 rounded-xl transition-colors hover:bg-black/[0.04] text-gray-400 dark:hover:bg-white/10 dark:text-gray-500`}
                     title={getTranslation(t.sendEmail, editLang)}
                   >
                     <ExternalLink className="w-4 h-4" />
@@ -373,19 +334,15 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
               </div>
 
               {/* Message Content */}
-              <div className={`p-6 rounded-2xl ${
-                theme === 'dark' ? 'bg-gray-800/50' : 'bg-white shadow-sm'
-              }`}>
+              <div className={`p-6 rounded-2xl bg-white/70 shadow-sm dark:bg-white/[0.05]`}>
                 <div className="flex items-center gap-2 mb-4">
-                  <Clock className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-500' : 'text-gray-400'}`} />
-                  <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <Clock className={`w-4 h-4 text-gray-400 dark:text-gray-500`} />
+                  <span className={`text-sm text-gray-500 dark:text-gray-400`}>
                     {formatFullDate(selectedMessage.createdAt)}
                   </span>
                 </div>
                 
-                <p className={`text-base leading-relaxed whitespace-pre-wrap ${
-                  theme === 'dark' ? 'text-gray-200' : 'text-gray-700'
-                }`}>
+                <p className={`text-base leading-relaxed whitespace-pre-wrap text-gray-700 dark:text-gray-200`}>
                   {selectedMessage.message}
                 </p>
               </div>
@@ -393,12 +350,8 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
           </>
         ) : (
           // No message selected
-          <div className={`flex-1 flex flex-col items-center justify-center ${
-            theme === 'dark' ? 'text-gray-600' : 'text-gray-400'
-          }`}>
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 ${
-              theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'
-            }`}>
+          <div className={`flex-1 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500`}>
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-black/[0.04] dark:bg-white/[0.06]`}>
               <Mail className="w-8 h-8" />
             </div>
             <p className="text-lg font-medium mb-1">{getTranslation(t.selectMessage, editLang)}</p>
@@ -410,23 +363,17 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className={`p-6 rounded-2xl max-w-sm w-full mx-4 ${
-            theme === 'dark' ? 'bg-gray-900' : 'bg-white'
-          }`}>
-            <h3 className={`text-lg font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <div className={`p-6 rounded-2xl max-w-sm w-full mx-4 bg-white/70 backdrop-blur-xl dark:bg-white/[0.04]`}>
+            <h3 className={`text-lg font-display font-bold mb-2 text-gray-900 dark:text-white`}>
               {getTranslation(t.deleteMessage, editLang)}
             </h3>
-            <p className={`text-sm mb-6 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mb-6 text-gray-600 dark:text-gray-400`}>
               {getTranslation(t.deleteConfirm, editLang)}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(null)}
-                className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                className={`flex-1 py-2 rounded-xl font-medium transition-colors bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10`}
               >
                 {getTranslation(adminTranslations.actions.cancel, editLang)}
               </button>
@@ -436,7 +383,7 @@ export const MessagesTab: React.FC<MessagesTabProps> = ({ theme, editLang }) => 
                   setShowDeleteConfirm(null);
                   setSelectedMessage(null);
                 }}
-                className="flex-1 py-2 rounded-lg font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+                className="flex-1 py-2 rounded-xl font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
               >
                 {getTranslation(adminTranslations.actions.delete, editLang)}
               </button>

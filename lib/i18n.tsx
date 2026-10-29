@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 
 export type Language = 'EN' | 'TR';
 
@@ -176,8 +176,28 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const LANG_KEY = 'site_language';
+
+// Saved choice first, then the browser's language
+const getInitialLanguage = (): Language => {
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved === 'EN' || saved === 'TR') return saved;
+  } catch { /* storage unavailable */ }
+  return navigator.language?.toLowerCase().startsWith('tr') ? 'TR' : 'EN';
+};
+
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [lang, setLang] = useState<Language>('EN');
+  const [lang, setLangState] = useState<Language>(getInitialLanguage);
+
+  useEffect(() => {
+    document.documentElement.lang = lang === 'TR' ? 'tr' : 'en';
+  }, [lang]);
+
+  const setLang = (next: Language) => {
+    setLangState(next);
+    try { localStorage.setItem(LANG_KEY, next); } catch { /* storage unavailable */ }
+  };
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t: translations[lang] }}>

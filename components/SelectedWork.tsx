@@ -7,6 +7,7 @@ import { Reveal } from './Reveal';
 import { useLanguage } from '../lib/i18n';
 import { getText } from '../lib/multiLangHelper';
 import { useAdmin } from '../lib/adminContext';
+import { getProjectLayout } from '../lib/projectLayout';
 
 interface SelectedWorkProps {
   projects: Project[];
@@ -34,8 +35,9 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 auto-rows-[300px] gap-4">
           
           {projects?.map((project, index) => {
-            const isFeatured = index === 0;
-            const isWide = index === 3;
+            const layout = getProjectLayout(projects, index);
+            const isFeatured = layout === 'featured';
+            const isWide = layout === 'wide';
             
             // Handle both string URLs and Sanity image objects
             const imageUrl = typeof project.mainImage === 'string' 
@@ -71,7 +73,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects }) => {
                         alt={getText(project.title, lang)} 
                         loading="lazy"
                         decoding="async"
-                        sizes={isFeatured ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 25vw, 100vw"}
+                        sizes={isFeatured || isWide ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 25vw, 100vw"}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                     </>
