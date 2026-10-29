@@ -1,7 +1,9 @@
+import { apiUrl } from './api';
+
 // Asks the Vercel function (api/notify.ts) to email the owner about a new contact message.
 // Fire-and-forget: a failed notification never affects the visitor's submission.
 export const notifyNewMessage = (data: { name: string; email: string; message: string }) => {
-  const url = import.meta.env.VITE_NOTIFY_URL;
+  const url = apiUrl('notify');
   if (!url) return;
   fetch(url, {
     method: 'POST',

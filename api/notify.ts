@@ -7,30 +7,15 @@
 //   NOTIFY_FROM     – sender; defaults to Resend's test sender, which can only mail the
 //                     Resend account's own address until a domain is verified
 
-const ALLOWED_ORIGINS = [
-  'https://atakanclskn.me',
-  'https://www.atakanclskn.me',
-  'https://atakanclskn-portfolio.web.app',
-  'https://atakanclskn-portfolio.firebaseapp.com',
-];
+import { corsHeaders, json, preflight } from './_shared.js';
 
 const LIMITS = { name: 100, email: 200, message: 5000 };
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-const corsHeaders = (origin: string | null): Record<string, string> =>
-  origin && (ALLOWED_ORIGINS.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin))
-    ? { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' }
-    : {};
-
-const json = (status: number, body: object, headers: Record<string, string>) =>
-  new Response(JSON.stringify(body), { status, headers: { ...headers, 'Content-Type': 'application/json' } });
-
 const escapeHtml = (text: string) =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-export function OPTIONS(request: Request) {
-  return new Response(null, { status: 204, headers: corsHeaders(request.headers.get('origin')) });
-}
+export const OPTIONS = preflight;
 
 export async function POST(request: Request) {
   const headers = corsHeaders(request.headers.get('origin'));

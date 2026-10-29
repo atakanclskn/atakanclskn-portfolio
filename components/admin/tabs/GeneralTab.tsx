@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, GripVertical, Eye, EyeOff, Monitor, Sun, Moon } from 'lucide-react';
+import { ImageField } from '../ImageField';
 import { ColorPicker, Segmented, Toggle } from '../ui';
 import { useAdmin } from '../../../lib/adminContext';
 import { updateMultiLangText } from '../../../lib/multiLangHelper';
@@ -299,16 +300,13 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang, part }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={`block text-[11px] font-bold uppercase tracking-wider mb-2 text-gray-600 dark:text-gray-400`}>{getTranslation(t.ogImage, editLang)}</label>
-            <input 
-              type="text" 
-              value={siteSettings.ogImage || ''} 
-              onChange={(e) => setSiteSettings({...siteSettings, ogImage: e.target.value})}
-              className={`w-full border rounded-xl p-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-white/60 border-black/10 text-gray-900 dark:bg-white/[0.06] dark:border-white/10 dark:text-white`}
-              placeholder="https://atakanclskn.me/og-image.png"
+            <ImageField
+              value={siteSettings.ogImage}
+              onChange={(ogImage) => setSiteSettings({...siteSettings, ogImage})}
+              lang={editLang}
+              folder="og"
+              hint={editLang === 'TR' ? '1200×630 px önerilir' : '1200×630 px recommended'}
             />
-            <p className={`text-xs mt-1 text-gray-600 dark:text-gray-500`}>
-              {editLang === 'TR' ? '1200x630px görsel (sosyal medya paylaşımları için)' : '1200x630px image (for social media shares)'}
-            </p>
           </div>
         </div>
       </div>

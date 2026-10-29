@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { MonthPicker, Select, Toggle, useConfirm } from '../ui';
 import { TagInput } from '../TagInput';
+import { ImageField } from '../ImageField';
 import { getProjectLayout } from '../../../lib/projectLayout';
 import { ProjectLayout } from '../../../types';
 
@@ -272,23 +273,12 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ editLang }) => {
                         <Image size={14} />
                         {getText(t.image)}
                       </label>
-                      <input
-                        type="text"
+                      <ImageField
                         value={project.mainImage}
-                        onChange={(e) => updateProject(project._id, 'mainImage', e.target.value)}
-                        className={inputClass}
-                        placeholder="https://example.com/image.jpg"
+                        onChange={(url) => updateProject(project._id, 'mainImage', url)}
+                        lang={editLang}
+                        folder="projects"
                       />
-                      {project.mainImage && (
-                        <div className="mt-2 p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03]">
-                          <img 
-                            src={project.mainImage} 
-                            alt="Preview" 
-                            className="w-full h-32 object-cover rounded-xl"
-                            onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
-                          />
-                        </div>
-                      )}
                     </div>
 
                     {/* Dates & Timeline */}

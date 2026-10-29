@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, GripVertical, ExternalLink,
   Building2, MapPin, Calendar, Link as LinkIcon, Hash, Star, ArrowRight
 } from 'lucide-react';
+import { ImageField } from '../ImageField';
 import { MonthPicker, Segmented, Select, Toggle, useConfirm } from '../ui';
 import { TagInput } from '../TagInput';
 
@@ -201,12 +202,13 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
                   <LinkIcon size={14} />
                   {getText(t.companyLogo)}
                 </label>
-                <input
-                  type="url"
-                  placeholder="https://company.com/logo.png"
-                  value={exp.companyLogo || ''}
-                  onChange={(e) => updateExperience(exp._id, 'companyLogo', e.target.value)}
-                  className={inputClass}
+                <ImageField
+                  value={exp.companyLogo}
+                  onChange={(url) => updateExperience(exp._id, 'companyLogo', url)}
+                  lang={editLang}
+                  folder="logos"
+                  fit="contain"
+                  previewClassName="h-28"
                 />
               </div>
               <div>
@@ -463,12 +465,11 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
                   <LinkIcon size={14} />
                   {getText(t.projectImage)}
                 </label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/image.png"
-                  value={exp.projectImage || ''}
-                  onChange={(e) => updateExperience(exp._id, 'projectImage', e.target.value)}
-                  className={inputClass}
+                <ImageField
+                  value={exp.projectImage}
+                  onChange={(url) => updateExperience(exp._id, 'projectImage', url)}
+                  lang={editLang}
+                  folder="projects"
                 />
               </div>
             </div>
