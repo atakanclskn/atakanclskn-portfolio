@@ -8,10 +8,12 @@ import { SelectedWork } from './components/SelectedWork';
 import { Experience } from './components/Experience';
 import { Connect } from './components/Connect';
 import { NotFound } from './components/NotFound';
+import { UnsavedChangesBar } from './components/UnsavedChangesBar';
 import { InteractiveBackground } from './components/InteractiveBackground';
 import { LanguageProvider, useLanguage } from './lib/i18n';
 import { applyDefaultTheme } from './lib/theme';
 import { applySeo } from './lib/seo';
+import { HideableSection } from './types';
 import { AdminProvider, useAdmin } from './lib/adminContext';
 import { PageSkeleton } from './components/Skeleton';
 import { trackPageView } from './lib/analytics.service';
@@ -59,6 +61,8 @@ const AppContent: React.FC = () => {
     };
   }, []);
 
+  const isVisible = (section: HideableSection) => !siteSettings.hiddenSections?.includes(section);
+
   // Show skeleton while loading (only on non-admin route)
   if (!isAdminRoute && !isDataReady) {
     return <PageSkeleton />;
@@ -82,12 +86,13 @@ const AppContent: React.FC = () => {
           <a href="#about" className="skip-to-content">Skip to content</a>
           <InteractiveBackground />
           <Navbar />
+          <UnsavedChangesBar />
           <main className="relative z-10">
             <Hero profile={profile} />
-            <AboutMe profile={profile} />
-            <TechStack techStack={techStack} />
-            <SelectedWork projects={projects} />
-            <Experience experiences={experiences} projects={projects} />
+            {isVisible('about') && <AboutMe profile={profile} />}
+            {isVisible('tech-stack') && <TechStack techStack={techStack} />}
+            {isVisible('projects') && <SelectedWork projects={projects} />}
+            {isVisible('experience') && <Experience experiences={experiences} projects={projects} />}
             <Connect socials={socials} profile={profile} />
           </main>
         </>

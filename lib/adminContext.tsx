@@ -8,6 +8,7 @@ import {
 import { loadAllData, saveAllData } from './firestore.service';
 import { saveContactMessage, getContactMessages, updateContactMessage, deleteContactMessage } from './firestore.service';
 import { signInWithGoogle, logOut, onAuthChange } from './firebase';
+import { OWNER_FLAG_KEY } from './analytics.service';
 import { User } from 'firebase/auth';
 
 // Default Data Constants (Moved from App.tsx)
@@ -334,6 +335,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const unsubscribe = onAuthChange((user) => {
       setCurrentUser(user);
       setIsLoggedIn(!!user);
+      if (user) {
+        try { localStorage.setItem(OWNER_FLAG_KEY, '1'); } catch { /* storage unavailable */ }
+      }
       setIsAuthLoading(false);
     });
     return () => unsubscribe();
@@ -412,6 +416,17 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, [needsBaseline, snapshot]);
 
   const isDirty = savedSnapshot !== null && snapshot !== savedSnapshot;
+
+  // Unsaved edits live only in memory (also while previewing the site), so warn before a reload or tab close
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
 
   const updateProfile = setProfileState;
   const setProjects = setProjectsState;

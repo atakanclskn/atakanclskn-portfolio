@@ -8,6 +8,7 @@ import { NavLinkItem } from '../../../types';
 
 interface GeneralTabProps {
   editLang: 'EN' | 'TR';
+  part: 'appearance' | 'navigation' | 'seo';
 }
 
 // Accent presets as space-separated RGB, the format of the --primary CSS variable
@@ -16,7 +17,7 @@ const COLOR_PRESETS = [
   '6 182 212', '59 130 246', '139 92 246', '217 70 239',
 ];
 
-export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang }) => {
+export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang, part }) => {
   const { primaryColor, setPrimaryColor, siteSettings, setSiteSettings, navbarSettings, setNavbarSettings } = useAdmin();
 
 
@@ -88,6 +89,8 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang }) => {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
+      {part === 'appearance' && (
+      <>
       {/* Theme Settings */}
       <div className={`p-6 rounded-2xl border space-y-4 bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <h3 className={`text-lg font-display font-bold mb-4 text-gray-900 dark:text-white`}>{getTranslation(t.themeSettings, editLang)}</h3>
@@ -141,6 +144,10 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang }) => {
         </div>
       </div>
 
+      </>
+      )}
+      {part === 'navigation' && (
+      <>
       {/* Navbar Settings */}
       <div className={`p-6 rounded-2xl border space-y-4 bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <h3 className={`text-lg font-display font-bold mb-4 text-gray-900 dark:text-white`}>{getTranslation(t.navbarSettings, editLang)}</h3>
@@ -250,6 +257,10 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang }) => {
         </div>
       </div>
 
+      </>
+      )}
+      {part === 'seo' && (
+      <>
       {/* SEO & Metadata */}
       <div className={`p-6 rounded-2xl border space-y-4 bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`}>
         <h3 className={`text-lg font-display font-bold mb-4 text-gray-900 dark:text-white`}>{getTranslation(t.siteMetadata, editLang)}</h3>
@@ -301,6 +312,8 @@ export const GeneralTab: React.FC<GeneralTabProps> = ({ editLang }) => {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };

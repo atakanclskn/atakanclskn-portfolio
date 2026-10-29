@@ -67,7 +67,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       <nav className="flex-1 overflow-y-auto px-3 pb-3 space-y-5">
         {groups.map(group => (
           <div key={group}>
-            {!isCollapsed && (
+            {!isCollapsed && group && (
               <p className="px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">{group}</p>
             )}
             <div className="space-y-1">

@@ -98,9 +98,6 @@ export const FooterTab: React.FC<FooterTabProps> = ({ editLang }) => {
           className={`p-4 flex items-center gap-4 cursor-pointer select-none hover:bg-black/[0.03] dark:hover:bg-white/[0.06]`}
           onClick={() => setShowContentSection(!showContentSection)}
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-blue-100 dark:bg-blue-500/20`}>
-            <FileText size={20} className="text-blue-500" />
-          </div>
           
           <div className="flex-1">
             <h3 className={`font-semibold text-gray-900 dark:text-white`}>
@@ -202,9 +199,6 @@ export const FooterTab: React.FC<FooterTabProps> = ({ editLang }) => {
           onClick={() => setShowLinksSection(!showLinksSection)}
         >
           <div className="flex items-center gap-4">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-green-100 dark:bg-green-500/20`}>
-              <Link size={20} className="text-green-500" />
-            </div>
             
             <div>
               <h3 className={`font-semibold text-gray-900 dark:text-white`}>

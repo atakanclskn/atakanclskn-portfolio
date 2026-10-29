@@ -5,6 +5,7 @@ import { useLanguage } from '../lib/i18n';
 import { useAdmin } from '../lib/adminContext';
 import { getText } from '../lib/multiLangHelper';
 import { setTheme, useIsDark } from '../lib/theme';
+import { HideableSection } from '../types';
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -15,7 +16,7 @@ export const Navbar: React.FC = () => {
   const langDropdownRef = useRef<HTMLDivElement>(null);
   
   const { lang, setLang, t } = useLanguage();
-  const { navbarSettings } = useAdmin();
+  const { navbarSettings, siteSettings } = useAdmin();
   const progressBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,7 +84,9 @@ export const Navbar: React.FC = () => {
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   // Use admin panel nav links if available, otherwise fallback to defaults
-  const navLinks = (navbarSettings.navLinks && navbarSettings.navLinks.length > 0)
+  const isHiddenTarget = (href: string) =>
+    siteSettings.hiddenSections?.includes(href.replace('#', '') as HideableSection) ?? false;
+  const allNavLinks = (navbarSettings.navLinks && navbarSettings.navLinks.length > 0)
     ? navbarSettings.navLinks
         .filter(link => link.isVisible)
         .map(link => ({ name: getText(link.label, lang), href: link.href }))
@@ -92,6 +95,7 @@ export const Navbar: React.FC = () => {
         { name: t.nav.projects, href: '#projects' },
         { name: t.nav.experience, href: '#experience' },
       ];
+  const navLinks = allNavLinks.filter(link => !isHiddenTarget(link.href));
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();

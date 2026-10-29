@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { TechItem } from '../types';
 import { useAdmin } from '../lib/adminContext';
 import { useLanguage } from '../lib/i18n';
+import { getText } from '../lib/multiLangHelper';
 import { Reveal } from './Reveal';
 
 // Dynamic icon component that uses Devicon CDN (original colored logos)
@@ -96,8 +97,8 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
   const scrollPositionRef = useRef(0); // Keep scroll position persistent
   const [isHovered, setIsHovered] = useState(false);
   const [isDark, setIsDark] = useState(false);
-  const { siteSettings } = useAdmin();
-  const { t } = useLanguage();
+  const { siteSettings, sectionContent } = useAdmin();
+  const { t, lang } = useLanguage();
   
   // Check for dark mode
   useEffect(() => {
@@ -159,10 +160,10 @@ export const TechStack: React.FC<TechStackProps> = ({ techStack }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              {t.techStack.title}
+              {getText(sectionContent.techStack?.title, lang) || t.techStack.title}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              {t.techStack.desc}
+              {getText(sectionContent.techStack?.description, lang) || t.techStack.desc}
             </p>
           </div>
         </div>

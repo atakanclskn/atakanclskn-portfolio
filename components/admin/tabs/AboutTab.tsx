@@ -205,7 +205,7 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang }) => {
             </button>
             <button
               onClick={() => addParagraph('quote')}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-500/20 dark:text-purple-400 dark:hover:bg-purple-500/30`}
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10`}
             >
               <Quote size={16} />
               {editLang === 'TR' ? 'Alıntı' : 'Quote'}
@@ -252,12 +252,12 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang }) => {
                     <div className="flex items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-xl text-xs font-medium ${
                         paragraph.type === 'quote'
-                          ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400'
-                          : 'bg-primary/10 text-primary dark:bg-primary/20'
+                          ? 'border border-black/[0.08] text-gray-600 dark:border-white/10 dark:text-gray-300'
+                          : 'bg-black/[0.04] text-gray-600 dark:bg-white/[0.06] dark:text-gray-300'
                       }`}>
                         {paragraph.type === 'quote' 
-                          ? (editLang === 'TR' ? '💬 Alıntı' : '💬 Quote')
-                          : (editLang === 'TR' ? '📝 Metin' : '📝 Text')}
+                          ? (editLang === 'TR' ? 'Alıntı' : 'Quote')
+                          : (editLang === 'TR' ? 'Metin' : 'Text')}
                       </span>
                       <span className={`text-xs text-gray-500`}>
                         {editLang === 'TR' ? 'Düzenleniyor:' : 'Editing:'} {editLang}
@@ -339,16 +339,8 @@ export const AboutTab: React.FC<AboutTabProps> = ({ editLang }) => {
                   >
                     <GripVertical size={18} className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400`} />
                     
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      stat.type === 'number' 
-                        ? 'bg-blue-500/20' 
-                        : 'bg-purple-500/20'
-                    }`}>
-                      {stat.type === 'number' ? (
-                        <Hash size={20} className="text-blue-500" />
-                      ) : (
-                        <Tag size={20} className="text-purple-500" />
-                      )}
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-black/[0.04] text-gray-600 dark:bg-white/[0.06] dark:text-gray-300">
+                      {stat.type === 'number' ? <Hash size={20} /> : <Tag size={20} />}
                     </div>
 
                     <div className="flex-1 min-w-0">

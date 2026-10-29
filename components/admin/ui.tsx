@@ -10,6 +10,42 @@ const fieldClass = 'w-full flex items-center justify-between gap-2 rounded-xl bo
 const panelClass = 'rounded-2xl border border-black/[0.08] bg-white/90 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-[#0d0d0d]/90';
 const optionClass = 'w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-left transition-colors';
 
+export const inputClass = 'w-full rounded-xl border px-3 py-3 text-sm transition-all bg-white/70 border-black/[0.08] text-gray-900 placeholder-gray-400 hover:border-black/15 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 dark:bg-white/[0.06] dark:border-white/10 dark:text-white dark:placeholder-gray-500 dark:hover:border-white/25';
+
+// ==================== LAYOUT ====================
+
+export const Card: React.FC<{
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ title, description, action, children }) => (
+  <section className="p-6 rounded-3xl border border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
+    {(title || action) && (
+      <div className="flex items-start justify-between gap-4 mb-5">
+        <div>
+          {title && <h3 className="font-display text-lg font-bold text-gray-900 dark:text-white">{title}</h3>}
+          {description && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{description}</p>}
+        </div>
+        {action}
+      </div>
+    )}
+    <div className="space-y-5">{children}</div>
+  </section>
+);
+
+export const Field: React.FC<{
+  label: React.ReactNode;
+  hint?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ label, hint, children }) => (
+  <div>
+    <label className="block mb-2 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</label>
+    {children}
+    {hint && <p className="mt-1.5 text-xs text-gray-500">{hint}</p>}
+  </div>
+);
+
 // ==================== POPOVER ====================
 
 // Floating panel anchored to a trigger, portaled to <body> so card overflow never clips it

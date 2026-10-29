@@ -316,7 +316,7 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang }) => {
         <div className="space-y-4">
           <div>
             <label className={`block text-sm font-semibold mb-3 text-gray-900 dark:text-white`}>
-              {editLang === 'TR' ? '⚡ Animasyon Hızı' : '⚡ Animation Speed'}
+              {editLang === 'TR' ? 'Animasyon hızı' : 'Animation speed'}
             </label>
             <Slider
               min={0.2}
@@ -327,11 +327,11 @@ export const TechTab: React.FC<TechTabProps> = ({ editLang }) => {
               ariaLabel={editLang === 'TR' ? 'Animasyon hızı' : 'Animation speed'}
             />
             <div className={`flex justify-between text-xs mt-2 text-gray-600 dark:text-gray-500`}>
-              <span>{editLang === 'TR' ? '🐌 Yavaş' : '🐌 Slow'}</span>
+              <span>{editLang === 'TR' ? 'Yavaş' : 'Slow'}</span>
               <span className={`font-bold text-base text-primary`}>
                 {(siteSettings.techStackSpeed || 0.5).toFixed(1)}x
               </span>
-              <span>{editLang === 'TR' ? '🚀 Hızlı' : '🚀 Fast'}</span>
+              <span>{editLang === 'TR' ? 'Hızlı' : 'Fast'}</span>
             </div>
           </div>
         </div>

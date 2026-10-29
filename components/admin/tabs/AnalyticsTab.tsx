@@ -1,419 +1,286 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  BarChart3, Users, Eye, Monitor, Smartphone, Tablet,
-  Globe, ArrowUpRight, ArrowDownRight, TrendingUp, 
-  RefreshCw, ExternalLink, Loader2, Calendar, Clock
-} from 'lucide-react';
-import { getAnalyticsSummary } from '../../../lib/analytics.service';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ArrowUpRight, Loader2, RefreshCw } from 'lucide-react';
+import { getDailyStats, getTotalPageViews, DailyStats } from '../../../lib/analytics.service';
+import { Segmented } from '../ui';
+
+type Lang = 'EN' | 'TR';
 
 interface AnalyticsTabProps {
-  editLang: 'EN' | 'TR';
+  editLang: Lang;
 }
 
-interface AnalyticsSummary {
-  totalPageViews: number;
-  totalVisitors: number;
-  todayPageViews: number;
-  todayVisitors: number;
-  weekPageViews: number;
-  monthPageViews: number;
-  dailyStats: {
-    date: string;
-    pageViews: number;
-    uniqueVisitors: number;
-    pages?: Record<string, number>;
-    referrers?: Record<string, number>;
-    devices?: Record<string, number>;
-    browsers?: Record<string, number>;
-    countries?: Record<string, number>;
-  }[];
-  topPages: { path: string; views: number }[];
-  topReferrers: { referrer: string; count: number }[];
-  deviceBreakdown: Record<string, number>;
-  browserBreakdown: Record<string, number>;
-}
+const PERIODS = [7, 30, 90] as const;
+type Period = typeof PERIODS[number];
+
+const GA_URL = 'https://analytics.google.com/analytics/web/#/p476927206/reports/intelligenthome';
+
+// Hostnames that mean "came from this site itself" rather than a real referrer
+const OWN_HOSTS = ['atakanclskn.me', 'www.atakanclskn.me', 'atakanclskn-portfolio.web.app', 'atakanclskn-portfolio.firebaseapp.com'];
+const DEV_HOSTS = ['localhost', '127.0.0.1'];
+
+const isoDay = (offset: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().split('T')[0];
+};
+
+type Breakdown = { key: string; count: number }[];
+
+const sumField = (days: DailyStats[], field: 'pages' | 'referrers' | 'devices' | 'browsers' | 'countries') => {
+  const totals = new Map<string, number>();
+  days.forEach(day => Object.entries(day[field] || {}).forEach(([key, count]) => {
+    totals.set(key, (totals.get(key) ?? 0) + (count as number));
+  }));
+  return totals;
+};
+
+const toRanked = (totals: Map<string, number>): Breakdown =>
+  [...totals.entries()].map(([key, count]) => ({ key, count })).filter(r => r.count > 0).sort((a, b) => b.count - a.count);
+
+// Old data still contains admin and local-dev traffic; keep it out of the visitor lists
+const cleanPages = (totals: Map<string, number>) => {
+  const out = new Map<string, number>();
+  totals.forEach((count, path) => {
+    if (path.startsWith('/admin')) return;
+    const normalized = path.length > 1 ? path.replace(/\/+$/, '') : path;
+    out.set(normalized, (out.get(normalized) ?? 0) + count);
+  });
+  return out;
+};
+
+const cleanReferrers = (totals: Map<string, number>) => {
+  const out = new Map<string, number>();
+  totals.forEach((count, host) => {
+    if (DEV_HOSTS.includes(host)) return;
+    const key = host === 'Direct' || OWN_HOSTS.includes(host) ? 'Direct' : host.replace(/^www\./, '');
+    out.set(key, (out.get(key) ?? 0) + count);
+  });
+  return out;
+};
+
+const StatTile: React.FC<{ label: string; value: string; detail?: React.ReactNode }> = ({ label, value, detail }) => (
+  <div className="p-5 rounded-3xl border border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
+    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{label}</p>
+    <p className="mt-3 font-display text-4xl font-bold tracking-tight tabular-nums text-gray-900 dark:text-white">{value}</p>
+    {detail && <p className="mt-1 text-xs text-gray-500">{detail}</p>}
+  </div>
+);
+
+const RankedList: React.FC<{ title: string; rows: Breakdown; format: (n: number) => string; label?: (key: string) => string; empty: string; limit?: number }> = ({
+  title, rows, format, label = k => k, empty, limit = 6,
+}) => {
+  const total = rows.reduce((sum, r) => sum + r.count, 0);
+  return (
+    <section className="p-6 rounded-3xl border border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
+      <h3 className="mb-4 font-display text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
+      {rows.length === 0 ? (
+        <p className="text-sm text-gray-500">{empty}</p>
+      ) : (
+        <ul className="space-y-3">
+          {rows.slice(0, limit).map(row => {
+            const share = total ? row.count / total : 0;
+            return (
+              <li key={row.key}>
+                <div className="flex items-baseline justify-between gap-3 text-sm">
+                  <span className="truncate text-gray-700 dark:text-gray-300" title={label(row.key)}>{label(row.key)}</span>
+                  <span className="shrink-0 tabular-nums">
+                    <span className="font-semibold text-gray-900 dark:text-white">{format(row.count)}</span>
+                    <span className="ml-2 text-xs text-gray-500">{Math.round(share * 100)}%</span>
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1 rounded-full bg-black/[0.05] dark:bg-white/[0.06] overflow-hidden">
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(2, share * 100)}%` }} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+};
 
 export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({ editLang }) => {
-  const [data, setData] = useState<AnalyticsSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [lastRefresh, setLastRefresh] = useState<string>('');
+  const tr = editLang === 'TR';
+  const locale = tr ? 'tr-TR' : 'en-US';
+  const [period, setPeriod] = useState<Period>(30);
+  const [days, setDays] = useState<DailyStats[] | null>(null);
+  const [allTime, setAllTime] = useState<number | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
 
-  const t = {
-    title: editLang === 'TR' ? 'Analitik Dashboard' : 'Analytics Dashboard',
-    subtitle: editLang === 'TR' ? 'Ziyaretçi ve sayfa görüntüleme istatistikleri' : 'Visitor and page view statistics',
-    totalViews: editLang === 'TR' ? 'Toplam Görüntüleme' : 'Total Views',
-    totalVisitors: editLang === 'TR' ? 'Toplam Ziyaretçi' : 'Total Visitors',
-    todayViews: editLang === 'TR' ? 'Bugün Görüntüleme' : 'Today Views',
-    todayVisitors: editLang === 'TR' ? 'Bugün Ziyaretçi' : 'Today Visitors',
-    thisWeek: editLang === 'TR' ? 'Bu Hafta' : 'This Week',
-    thisMonth: editLang === 'TR' ? 'Bu Ay' : 'This Month',
-    dailyChart: editLang === 'TR' ? 'Günlük Görüntüleme (Son 14 Gün)' : 'Daily Views (Last 14 Days)',
-    topPages: editLang === 'TR' ? 'En Çok Görüntülenen Sayfalar' : 'Top Pages',
-    topReferrers: editLang === 'TR' ? 'Trafik Kaynakları' : 'Traffic Sources',
-    devices: editLang === 'TR' ? 'Cihazlar' : 'Devices',
-    browsers: editLang === 'TR' ? 'Tarayıcılar' : 'Browsers',
-    countries: editLang === 'TR' ? 'Ülkeler' : 'Countries',
-    refresh: editLang === 'TR' ? 'Yenile' : 'Refresh',
-    lastUpdated: editLang === 'TR' ? 'Son güncelleme' : 'Last updated',
-    noData: editLang === 'TR' ? 'Henüz veri yok. Ziyaretçiler gelmeye başladığında burada görünecek.' : 'No data yet. Stats will appear as visitors start coming.',
-    gaLink: editLang === 'TR' ? 'Google Analytics\'te Aç' : 'Open in Google Analytics',
-    views: editLang === 'TR' ? 'görüntüleme' : 'views',
-    visitors: editLang === 'TR' ? 'ziyaretçi' : 'visitors',
-  };
-
-  const loadData = async () => {
-    setLoading(true);
+  // Always load the longest period plus the one before it, so switching periods needs no refetch
+  const load = useCallback(async () => {
+    setIsRefreshing(true);
+    setError(false);
     try {
-      const result = await getAnalyticsSummary();
-      setData(result);
-      setLastRefresh(new Date().toLocaleTimeString());
+      const [stats, total] = await Promise.all([
+        getDailyStats(isoDay(-(PERIODS[PERIODS.length - 1] * 2 - 1))),
+        getTotalPageViews().catch(() => null),
+      ]);
+      setDays(stats);
+      setAllTime(total);
+      setUpdatedAt(new Date());
     } catch (e) {
-      console.error('Analytics load error:', e);
+      console.error('Analytics fetch error:', e);
+      setError(true);
     } finally {
-      setLoading(false);
+      setIsRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    loadData();
   }, []);
 
-  const cardClass = `rounded-2xl border p-6 bg-white/70 border-black/[0.08] backdrop-blur-xl dark:bg-white/[0.04] dark:border-white/10`;
+  useEffect(() => { load(); }, [load]);
 
-  const statCardClass = `rounded-xl border p-4 bg-white/60 border-black/[0.08] dark:bg-white/[0.05] dark:border-white/10`;
+  const number = (n: number) => n.toLocaleString(locale);
 
-  // Simple bar chart renderer
-  const renderBarChart = (stats: { date: string; pageViews: number }[]) => {
-    const last14 = stats.slice(-14);
-    if (last14.length === 0) return null;
-    const maxViews = Math.max(...last14.map(s => s.pageViews), 1);
-
-    return (
-      <div className="flex items-end gap-1.5 h-40 mt-4">
-        {last14.map((stat, i) => {
-          const height = Math.max((stat.pageViews / maxViews) * 100, 4);
-          const dayLabel = new Date(stat.date + 'T00:00:00').toLocaleDateString(editLang === 'TR' ? 'tr-TR' : 'en-US', { day: 'numeric', month: 'short' });
-          return (
-            <div key={stat.date} className="flex-1 flex flex-col items-center gap-1 group relative">
-              {/* Tooltip */}
-              <div className={`absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity text-xs px-2 py-1 rounded-xl whitespace-nowrap z-10 bg-gray-900 text-white dark:bg-white dark:text-black`}>
-                {stat.pageViews} {t.views}
-              </div>
-              <div 
-                className="w-full rounded-t-md transition-all duration-300 group-hover:opacity-80"
-                style={{ 
-                  height: `${height}%`,
-                  background: `linear-gradient(to top, rgb(var(--primary) / 0.6), rgb(var(--primary)))`
-                }}
-              />
-              <span className={`text-[9px] text-gray-400 dark:text-gray-500 ${last14.length > 10 ? 'hidden md:block' : ''}`}>
-                {dayLabel}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  // Pie-like horizontal breakdown
-  const renderBreakdown = (data: Record<string, number>, icon: React.ReactNode) => {
-    const total = Object.values(data).reduce((a, b) => a + b, 0);
-    if (total === 0) return null;
-    const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]);
-    const colors = ['bg-primary', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-pink-500', 'bg-purple-500'];
-
-    return (
-      <div className="space-y-3 mt-3">
-        {/* Progress bar */}
-        <div className="flex rounded-full overflow-hidden h-3">
-          {sorted.map(([name, count], i) => (
-            <div 
-              key={name}
-              className={`${colors[i % colors.length]} transition-all`}
-              style={{ width: `${(count / total) * 100}%` }}
-              title={`${name}: ${count}`}
-            />
-          ))}
-        </div>
-        {/* Legend */}
-        <div className="space-y-2">
-          {sorted.slice(0, 6).map(([name, count], i) => (
-            <div key={name} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${colors[i % colors.length]}`} />
-                <span className={`text-sm text-gray-700 dark:text-gray-300`}>{name}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`text-sm font-semibold text-gray-900 dark:text-white`}>{count}</span>
-                <span className={`text-xs text-gray-400 dark:text-gray-500`}>
-                  ({((count / total) * 100).toFixed(0)}%)
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // Country breakdown with flags
-  const renderCountries = () => {
-    if (!data?.dailyStats) return null;
-    const countries: Record<string, number> = {};
-    data.dailyStats.forEach(day => {
-      if (day.countries) {
-        Object.entries(day.countries).forEach(([c, count]) => {
-          countries[c] = (countries[c] || 0) + (count as number);
-        });
-      }
+  const data = useMemo(() => {
+    if (!days) return null;
+    const byDate = new Map(days.map(d => [d.date, d]));
+    const series = Array.from({ length: period }, (_, i) => {
+      const date = isoDay(i - (period - 1));
+      return { date, views: byDate.get(date)?.pageViews ?? 0 };
     });
-    if (Object.keys(countries).length === 0) return null;
+    const current = days.filter(d => d.date >= isoDay(-(period - 1)));
+    const previous = days.filter(d => d.date >= isoDay(-(period * 2 - 1)) && d.date < isoDay(-(period - 1)));
+    const views = current.reduce((s, d) => s + (d.pageViews || 0), 0);
+    const prevViews = previous.reduce((s, d) => s + (d.pageViews || 0), 0);
+    return {
+      series,
+      views,
+      visitors: current.reduce((s, d) => s + (d.uniqueVisitors || 0), 0),
+      change: prevViews ? (views - prevViews) / prevViews : null,
+      pages: toRanked(cleanPages(sumField(current, 'pages'))),
+      referrers: toRanked(cleanReferrers(sumField(current, 'referrers'))),
+      devices: toRanked(sumField(current, 'devices')),
+      browsers: toRanked(sumField(current, 'browsers')),
+      countries: toRanked(sumField(current, 'countries')),
+    };
+  }, [days, period]);
 
-    const total = Object.values(countries).reduce((a, b) => a + b, 0);
-    const sorted = Object.entries(countries).sort((a, b) => b[1] - a[1]);
-
-    return (
-      <div className="space-y-2 mt-3">
-        {sorted.slice(0, 8).map(([country, count]) => (
-          <div key={country} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Globe size={14} className="text-primary" />
-              <span className={`text-sm text-gray-700 dark:text-gray-300`}>{country}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className={`h-1.5 rounded-full bg-black/[0.06] dark:bg-white/10`} style={{ width: '60px' }}>
-                <div className="h-full bg-primary rounded-full" style={{ width: `${(count / sorted[0][1]) * 100}%` }} />
-              </div>
-              <span className={`text-sm font-medium w-8 text-right text-gray-900 dark:text-white`}>{count}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  const peak = Math.max(0, ...(data?.series.map(d => d.views) ?? [0]));
+  const maxViews = Math.max(1, peak);
+  const formatDay = (date: string, opts: Intl.DateTimeFormatOptions) => new Date(`${date}T12:00:00`).toLocaleDateString(locale, opts);
+  const periodLabel = (p: number) => tr ? `${p} gün` : `${p} days`;
+  const empty = tr ? 'Bu dönemde veri yok.' : 'No data for this period.';
+  const changeText = data?.change == null
+    ? (tr ? 'Önceki dönemle karşılaştırılacak veri yok' : 'No previous period to compare')
+    : `${data.change >= 0 ? '▲' : '▼'} ${Math.abs(Math.round(data.change * 100))}% ${tr ? `önceki ${period} güne göre` : `vs previous ${period} days`}`;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      {/* Header */}
-      <div className={cardClass}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className={`text-xl font-display font-bold flex items-center gap-2 text-gray-900 dark:text-white`}>
-              <BarChart3 size={24} className="text-primary" />
-              {t.title}
-            </h2>
-            <p className={`text-sm mt-1 text-gray-600 dark:text-gray-400`}>
-              {t.subtitle}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            {lastRefresh && (
-              <span className={`text-xs text-gray-400 dark:text-gray-500`}>
-                <Clock size={12} className="inline mr-1" />
-                {t.lastUpdated}: {lastRefresh}
-              </span>
-            )}
-            <button 
-              onClick={loadData}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all bg-black/[0.04] text-gray-700 hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-gray-300 dark:hover:bg-white/10`}
-            >
-              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-              {t.refresh}
-            </button>
-            <a 
-              href="https://analytics.google.com/analytics/web/#/p476927206/reports/intelligenthome"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary/20 text-primary hover:bg-primary/30 transition-all"
-            >
-              <ExternalLink size={16} />
-              {t.gaLink}
-            </a>
-          </div>
+      {/* Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Segmented
+          value={String(period) as `${Period}`}
+          onChange={(value) => setPeriod(Number(value) as Period)}
+          options={PERIODS.map(p => ({ value: String(p) as `${Period}`, label: periodLabel(p) }))}
+        />
+        <div className="flex items-center gap-2">
+          {updatedAt && (
+            <span className="hidden sm:inline text-xs text-gray-500 tabular-nums">
+              {tr ? 'Güncellendi' : 'Updated'} {updatedAt.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+          <button
+            onClick={load}
+            disabled={isRefreshing}
+            className="p-2.5 rounded-full border border-black/[0.08] bg-white/60 text-gray-600 hover:text-gray-900 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:text-white dark:hover:bg-white/10 disabled:opacity-50 transition-colors"
+            aria-label={tr ? 'Yenile' : 'Refresh'}
+          >
+            <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+          </button>
+          <a
+            href={GA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold border border-black/[0.08] bg-white/60 text-gray-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10 transition-colors"
+          >
+            Google Analytics <ArrowUpRight size={15} />
+          </a>
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className={statCardClass}>
-          <div className="flex items-center justify-between mb-2">
-            <Eye size={18} className="text-blue-500" />
-            <TrendingUp size={14} className="text-emerald-500" />
-          </div>
-          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
-            {data?.totalPageViews?.toLocaleString() || 0}
-          </p>
-          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.totalViews}</p>
-        </div>
-
-        <div className={statCardClass}>
-          <div className="flex items-center justify-between mb-2">
-            <Users size={18} className="text-emerald-500" />
-            <TrendingUp size={14} className="text-emerald-500" />
-          </div>
-          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
-            {data?.totalVisitors?.toLocaleString() || 0}
-          </p>
-          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.totalVisitors}</p>
-        </div>
-
-        <div className={statCardClass}>
-          <div className="flex items-center justify-between mb-2">
-            <Calendar size={18} className="text-amber-500" />
-          </div>
-          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
-            {data?.todayPageViews?.toLocaleString() || 0}
-          </p>
-          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.todayViews}</p>
-        </div>
-
-        <div className={statCardClass}>
-          <div className="flex items-center justify-between mb-2">
-            <Users size={18} className="text-pink-500" />
-          </div>
-          <p className={`text-2xl font-display font-bold text-gray-900 dark:text-white`}>
-            {data?.todayVisitors?.toLocaleString() || 0}
-          </p>
-          <p className={`text-xs text-gray-600 dark:text-gray-400`}>{t.todayVisitors}</p>
-        </div>
-      </div>
-
-      {/* Week/Month Summary */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className={statCardClass}>
-          <p className={`text-sm font-medium mb-1 text-gray-600 dark:text-gray-400`}>📅 {t.thisWeek}</p>
-          <p className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
-            {data?.weekPageViews?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-500">{t.views}</span>
-          </p>
-        </div>
-        <div className={statCardClass}>
-          <p className={`text-sm font-medium mb-1 text-gray-600 dark:text-gray-400`}>📆 {t.thisMonth}</p>
-          <p className={`text-xl font-display font-bold text-gray-900 dark:text-white`}>
-            {data?.monthPageViews?.toLocaleString() || 0} <span className="text-sm font-normal text-gray-500">{t.views}</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Daily Chart */}
-      {data?.dailyStats && data.dailyStats.length > 0 && (
-        <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase text-gray-600 dark:text-gray-400`}>
-            📊 {t.dailyChart}
-          </h3>
-          {renderBarChart(data.dailyStats)}
-        </div>
+      {error && (
+        <p className="px-5 py-4 rounded-2xl border border-red-500/30 bg-red-500/10 text-sm text-red-500">
+          {tr ? 'Veriler yüklenemedi. Yenilemeyi deneyin.' : 'Could not load analytics. Try refreshing.'}
+        </p>
       )}
 
-      {/* Three Column Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Devices */}
-        <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 text-gray-600 dark:text-gray-400`}>
-            <Monitor size={16} />
-            {t.devices}
-          </h3>
-          {data?.deviceBreakdown && Object.keys(data.deviceBreakdown).length > 0 
-            ? renderBreakdown(data.deviceBreakdown, <Monitor size={14} />)
-            : <p className={`text-sm mt-3 text-gray-400 dark:text-gray-500`}>—</p>
-          }
-        </div>
+      {!data ? (
+        !error && <div className="flex justify-center py-24"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
+      ) : (
+        <>
+          {/* Key numbers */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatTile label={tr ? 'Görüntülenme' : 'Page views'} value={number(data.views)} detail={changeText} />
+            <StatTile
+              label={tr ? 'Ziyaretçi' : 'Visitors'}
+              value={number(data.visitors)}
+              detail={tr ? 'Günlük tekil ziyaretçilerin toplamı' : 'Sum of daily unique visitors'}
+            />
+            <StatTile
+              label={tr ? 'Günlük ortalama' : 'Daily average'}
+              value={number(Math.round(data.views / period))}
+              detail={tr ? 'görüntülenme / gün' : 'page views / day'}
+            />
+            <StatTile label={tr ? 'Tüm zamanlar' : 'All time'} value={allTime == null ? '–' : number(allTime)} detail={tr ? 'görüntülenme' : 'page views'} />
+          </div>
 
-        {/* Browsers */}
-        <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 text-gray-600 dark:text-gray-400`}>
-            <Globe size={16} />
-            {t.browsers}
-          </h3>
-          {data?.browserBreakdown && Object.keys(data.browserBreakdown).length > 0
-            ? renderBreakdown(data.browserBreakdown, <Globe size={14} />)
-            : <p className={`text-sm mt-3 text-gray-400 dark:text-gray-500`}>—</p>
-          }
-        </div>
-
-        {/* Countries */}
-        <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase flex items-center gap-2 text-gray-600 dark:text-gray-400`}>
-            <Globe size={16} />
-            {t.countries}
-          </h3>
-          {renderCountries() || <p className={`text-sm mt-3 text-gray-400 dark:text-gray-500`}>—</p>}
-        </div>
-      </div>
-
-      {/* Two Column: Top Pages + Referrers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Top Pages */}
-        <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase mb-3 text-gray-600 dark:text-gray-400`}>
-            🔗 {t.topPages}
-          </h3>
-          {data?.topPages && data.topPages.length > 0 ? (
-            <div className="space-y-2">
-              {data.topPages.map((page, i) => (
-                <div key={page.path} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-mono w-5 text-center text-gray-400 dark:text-gray-500`}>
-                      {i + 1}
-                    </span>
-                    <span className={`text-sm text-gray-700 dark:text-gray-300`}>{page.path}</span>
-                  </div>
-                  <span className={`text-sm font-semibold text-gray-900 dark:text-white`}>
-                    {page.views}
-                  </span>
-                </div>
-              ))}
+          {/* Daily views */}
+          <section className="p-6 rounded-3xl border border-black/[0.08] bg-white/70 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
+            <div className="flex items-baseline justify-between gap-4 mb-6">
+              <h3 className="font-display text-lg font-bold text-gray-900 dark:text-white">{tr ? 'Günlük görüntülenme' : 'Daily page views'}</h3>
+              <span className="text-xs text-gray-500 tabular-nums">{tr ? 'En yüksek' : 'Peak'}: {number(peak)}</span>
             </div>
-          ) : (
-            <p className={`text-sm text-gray-400 dark:text-gray-500`}>—</p>
-          )}
-        </div>
-
-        {/* Top Referrers */}
-        <div className={cardClass}>
-          <h3 className={`text-sm font-bold uppercase mb-3 text-gray-600 dark:text-gray-400`}>
-            🌐 {t.topReferrers}
-          </h3>
-          {data?.topReferrers && data.topReferrers.length > 0 ? (
-            <div className="space-y-2">
-              {data.topReferrers.map((ref, i) => (
-                <div key={ref.referrer} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-mono w-5 text-center text-gray-400 dark:text-gray-500`}>
-                      {i + 1}
-                    </span>
-                    <span className={`text-sm text-gray-700 dark:text-gray-300`}>
-                      {ref.referrer === 'Direct' ? (editLang === 'TR' ? '🔗 Doğrudan' : '🔗 Direct') : ref.referrer}
-                    </span>
+            <div className="relative h-48">
+              <div className="absolute inset-x-0 top-0 border-t border-dashed border-black/[0.08] dark:border-white/10" />
+              <div className="absolute inset-0 flex items-end gap-[2px]" onMouseLeave={() => setHovered(null)}>
+                {data.series.map((day, i) => (
+                  <div key={day.date} className="relative flex-1 h-full flex items-end" onMouseEnter={() => setHovered(i)}>
+                    <div
+                      className={`w-full rounded-t-[4px] transition-opacity ${day.views ? 'bg-primary' : 'bg-black/[0.06] dark:bg-white/[0.08]'} ${
+                        hovered !== null && hovered !== i ? 'opacity-40' : ''
+                      }`}
+                      style={{ height: day.views ? `${Math.max(3, (day.views / maxViews) * 100)}%` : '2px' }}
+                    />
+                    {hovered === i && (
+                      <div className={`absolute bottom-full mb-2 z-10 px-3 py-2 rounded-xl text-xs whitespace-nowrap bg-gray-900 text-white shadow-lg dark:bg-white dark:text-gray-900 ${
+                        i < period / 4 ? 'left-0' : i > period * 0.75 ? 'right-0' : 'left-1/2 -translate-x-1/2'
+                      }`}>
+                        <span className="font-bold tabular-nums">{number(day.views)}</span> {tr ? 'görüntülenme' : 'views'}
+                        <span className="block opacity-60">{formatDay(day.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                      </div>
+                    )}
                   </div>
-                  <span className={`text-sm font-semibold text-gray-900 dark:text-white`}>
-                    {ref.count}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          ) : (
-            <p className={`text-sm text-gray-400 dark:text-gray-500`}>—</p>
-          )}
-        </div>
-      </div>
+            <div className="flex justify-between mt-2 text-[11px] text-gray-500 tabular-nums">
+              <span>{formatDay(data.series[0].date, { day: 'numeric', month: 'short' })}</span>
+              <span>{formatDay(data.series[Math.floor(period / 2)].date, { day: 'numeric', month: 'short' })}</span>
+              <span>{tr ? 'Bugün' : 'Today'}</span>
+            </div>
+          </section>
 
-      {/* No data message */}
-      {(!data?.dailyStats || data.dailyStats.length === 0) && (
-        <div className={`${cardClass} text-center py-12`}>
-          <BarChart3 size={48} className={`mx-auto mb-4 text-gray-300 dark:text-gray-500`} />
-          <p className={`text-sm text-gray-600 dark:text-gray-400`}>
-            {t.noData}
+          {/* Breakdowns */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RankedList title={tr ? 'Sayfalar' : 'Pages'} rows={data.pages} format={number} empty={empty} label={k => k === '/' ? (tr ? 'Ana sayfa' : 'Home') : k} />
+            <RankedList title={tr ? 'Kaynaklar' : 'Sources'} rows={data.referrers} format={number} empty={empty} label={k => k === 'Direct' ? (tr ? 'Doğrudan' : 'Direct') : k} />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <RankedList title={tr ? 'Ülkeler' : 'Countries'} rows={data.countries} format={number} empty={empty} />
+            <RankedList title={tr ? 'Cihazlar' : 'Devices'} rows={data.devices} format={number} empty={empty} />
+            <RankedList title={tr ? 'Tarayıcılar' : 'Browsers'} rows={data.browsers} format={number} empty={empty} />
+          </div>
+
+          <p className="text-xs text-gray-500">
+            {tr
+              ? 'Admin paneli, geliştirme ortamı ve admin olarak giriş yaptığınız tarayıcı artık sayılmıyor. Eski günlerin toplamlarında bu ziyaretler hâlâ yer alabilir.'
+              : 'The admin panel, local development and your signed-in browser are no longer counted. Totals for older days may still include those visits.'}
           </p>
-        </div>
+        </>
       )}
     </div>
   );

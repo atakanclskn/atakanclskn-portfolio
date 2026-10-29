@@ -1,10 +1,10 @@
 // Analytics Service - Tracks page views and events in Firestore
 import { db } from './firebase';
-import { doc, getDoc, setDoc, increment, collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { doc, getDoc, setDoc, increment, collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
 
 // ==================== PAGE VIEW TRACKING ====================
 
-interface DailyStats {
+export interface DailyStats {
   date: string; // YYYY-MM-DD
   pageViews: number;
   uniqueVisitors: number;
@@ -16,7 +16,7 @@ interface DailyStats {
   countries: Record<string, number>; // country -> count (from timezone)
 }
 
-interface AnalyticsSummary {
+export interface AnalyticsSummary {
   totalPageViews: number;
   totalVisitors: number;
   todayPageViews: number;
@@ -108,8 +108,18 @@ const getTodayStr = (): string => {
   return new Date().toISOString().split('T')[0];
 };
 
+// Set on this browser once the admin signs in, so the owner's own visits never count
+export const OWNER_FLAG_KEY = '_owner';
+
+const shouldSkipTracking = (path: string): boolean => {
+  if (import.meta.env.DEV || ['localhost', '127.0.0.1'].includes(window.location.hostname)) return true;
+  if (path.startsWith('/admin')) return true;
+  try { return localStorage.getItem(OWNER_FLAG_KEY) === '1'; } catch { return false; }
+};
+
 // Track a page view
 export const trackPageView = async (path: string = '/'): Promise<void> => {
+  if (shouldSkipTracking(path)) return;
   try {
     const today = getTodayStr();
     const device = getDeviceType();
@@ -244,4 +254,16 @@ export const getAnalyticsSummary = async (): Promise<AnalyticsSummary> => {
   }
 
   return summary;
+};
+
+// Daily documents from `since` (YYYY-MM-DD) up to today, oldest first
+export const getDailyStats = async (since: string): Promise<DailyStats[]> => {
+  const q = query(collection(db, 'analytics'), where('date', '>=', since), orderBy('date', 'asc'));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => d.data() as DailyStats);
+};
+
+export const getTotalPageViews = async (): Promise<number> => {
+  const snap = await getDoc(doc(db, 'analytics', '_totals'));
+  return snap.exists() ? snap.data().totalPageViews || 0 : 0;
 };

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, Mail, Send, CheckCircle, Loader2 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import { Social, Profile } from '../types';
+import { Social, Profile, HideableSection } from '../types';
 import { MagicCard } from './MagicCard';
 import { Reveal } from './Reveal';
 import { useLanguage } from '../lib/i18n';
@@ -19,7 +19,8 @@ interface ConnectProps {
 
 export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
   const { t, lang } = useLanguage();
-  const { addMessage, sectionContent, footerSettings, heroContent } = useAdmin();
+  const { addMessage, sectionContent, footerSettings, heroContent, siteSettings } = useAdmin();
+  const isHidden = (id: string) => siteSettings.hiddenSections?.includes(id as HideableSection) ?? false;
   
   // Form state
   const [formData, setFormData] = useState({ name: '', email: '', message: '', website: '' });
@@ -42,6 +43,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
 
   return (
     <>
+      {!isHidden('contact') && (
       <section id="contact" className="py-24 relative overflow-hidden bg-gray-50 dark:bg-[#050505] transition-colors duration-300">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           
@@ -254,6 +256,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
           </div>
         </div>
       </section>
+      )}
 
       <footer className="relative z-20 bg-white dark:bg-black border-t border-gray-200 dark:border-white/10">
         {/* Main Footer Content */}
@@ -284,7 +287,7 @@ export const Connect: React.FC<ConnectProps> = ({ socials, profile }) => {
                   { label: t.nav.projects, href: '#projects' },
                   { label: t.nav.experience, href: '#experience' },
                   { label: t.nav.contact, href: '#contact' },
-                ].map(link => (
+                ].filter(link => !isHidden(link.href.slice(1))).map(link => (
                   <a 
                     key={link.href}
                     href={link.href}

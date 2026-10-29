@@ -1,30 +1,92 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Settings, Briefcase, Code, Share2,
-  Layers, FileText, Heart, Moon, Sun, X, Mail, Layout, PanelBottom,
-  Loader2, Check, BarChart3, RotateCcw, AlertCircle
+  LayoutDashboard, Home, User, Layers, Code, Briefcase, AtSign, PanelBottom,
+  Palette, Menu, Search, Inbox, BarChart3, ArrowUpRight,
+  Moon, Sun, X, Loader2, Check, RotateCcw, AlertCircle
 } from 'lucide-react';
 import { useAdmin } from '../lib/adminContext';
 import { setTheme, useIsDark } from '../lib/theme';
+import { HideableSection } from '../types';
 import { AdminSidebar, TabItem } from './admin/AdminSidebar';
 import { AdminLogin } from './admin/AdminLogin';
 import {
   GeneralTab, AboutTab, HobbiesTab,
   TechTab, ProjectsTab, ExperienceTab, SocialsTab,
-  SectionsTab, FooterTab, AnalyticsTab
+  FooterTab, AnalyticsTab
 } from './admin/tabs';
 import { MessagesTab } from './admin/tabs/MessagesTab';
+import { DashboardTab } from './admin/tabs/DashboardTab';
+import { HeroEditor, SectionHeadingEditor, ContactDetailsEditor } from './admin/tabs/SectionEditors';
 import { adminTranslations, getTranslation } from '../lib/adminTranslations';
-import { ConfirmProvider, useConfirm } from './admin/ui';
+import { ConfirmProvider, Toggle, useConfirm } from './admin/ui';
 
 const isAdminPath = (path: string) => path.startsWith('/admin');
+
+// Remembered for the browser session, so previewing the site and coming back lands on the same page
+const readSession = (key: string) => {
+  try { return sessionStorage.getItem(key); } catch { return null; }
+};
+const writeSession = (key: string, value: string) => {
+  try { sessionStorage.setItem(key, value); } catch { /* storage unavailable */ }
+};
+
+// Where each page section lives on the site; 'top' / 'bottom' for the parts without an id
+const SECTION_TARGETS: Record<string, { anchor: string; hideable?: HideableSection }> = {
+  hero: { anchor: 'top' },
+  about: { anchor: 'about', hideable: 'about' },
+  tech: { anchor: 'tech-stack', hideable: 'tech-stack' },
+  projects: { anchor: 'projects', hideable: 'projects' },
+  experience: { anchor: 'experience', hideable: 'experience' },
+  contact: { anchor: 'contact', hideable: 'contact' },
+  footer: { anchor: 'bottom' },
+};
+
+const scrollToAnchor = (anchor: string) => {
+  if (anchor === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
+  else if (anchor === 'bottom') window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+  else document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth' });
+};
+
+const SectionToolbar: React.FC<{ tab: string; editLang: 'EN' | 'TR'; onPreview: () => void }> = ({ tab, editLang, onPreview }) => {
+  const { siteSettings, setSiteSettings } = useAdmin();
+  const tr = editLang === 'TR';
+  const { hideable } = SECTION_TARGETS[tab];
+  const hidden = siteSettings.hiddenSections ?? [];
+  const isVisible = !hideable || !hidden.includes(hideable);
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 mb-6 px-5 py-4 rounded-3xl border border-black/[0.08] bg-white/60 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.03]">
+      {hideable ? (
+        <Toggle
+          checked={isVisible}
+          onChange={(show) => setSiteSettings({
+            ...siteSettings,
+            hiddenSections: show ? hidden.filter(id => id !== hideable) : [...hidden, hideable],
+          })}
+          label={tr ? 'Sitede göster' : 'Show on site'}
+          description={isVisible
+            ? (tr ? 'Bölüm ve menüdeki bağlantısı görünür.' : 'The section and its menu link are visible.')
+            : (tr ? 'Bölüm ve menüdeki bağlantısı gizli.' : 'The section and its menu link are hidden.')}
+        />
+      ) : (
+        <p className="text-sm text-gray-500">{tr ? 'Bu bölüm her zaman görünür.' : 'This section is always shown.'}</p>
+      )}
+      <button
+        onClick={onPreview}
+        className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-black/[0.08] bg-white/60 text-gray-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10 transition-colors"
+      >
+        {tr ? 'Sitede gör' : 'View on site'} <ArrowUpRight size={15} />
+      </button>
+    </div>
+  );
+};
 
 const AdminPanelContent: React.FC<{
   editLang: 'EN' | 'TR';
   setEditLang: (lang: 'EN' | 'TR') => void;
 }> = ({ editLang, setEditLang }) => {
   const [isOpen, setIsOpen] = useState(isAdminPath(window.location.pathname));
-  const [activeTab, setActiveTab] = useState('sections');
+  const [activeTab, setActiveTabState] = useState(() => readSession('admin_tab') || 'dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const isDark = useIsDark();
@@ -33,6 +95,11 @@ const AdminPanelContent: React.FC<{
     saveToFirebase, discardChanges, isDirty, isSaving, isLoading, lastSyncTime, isAuthLoading, currentUser } = useAdmin();
 
   const tr = editLang === 'TR';
+
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    writeSession('admin_tab', tab);
+  };
 
   // Disable body scroll when admin panel is open
   useEffect(() => {
@@ -60,17 +127,6 @@ const AdminPanelContent: React.FC<{
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Warn before leaving the page with unsaved edits
-  useEffect(() => {
-    if (!isDirty) return;
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isDirty]);
-
   const handleSave = async () => {
     if (isSaving) return;
     setSaveError(false);
@@ -91,12 +147,6 @@ const AdminPanelContent: React.FC<{
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
-  const confirmLoseChanges = async () => !isDirty || confirm({
-    title: tr ? 'Kaydedilmemiş değişiklikler' : 'Unsaved changes',
-    message: tr ? 'Kaydetmeden çıkarsanız yaptığınız düzenlemeler kaybolur.' : 'If you leave now, your edits will be lost.',
-    confirmLabel: tr ? 'Kaydetmeden çık' : 'Leave without saving',
-  });
-
   const handleDiscard = async () => {
     const ok = await confirm({
       title: tr ? 'Değişiklikler geri alınsın mı?' : 'Discard changes?',
@@ -108,59 +158,76 @@ const AdminPanelContent: React.FC<{
     await discardChanges();
   };
 
-  const handleClose = async () => {
-    if (await confirmLoseChanges()) setIsOpen(false);
+  // Unsaved edits survive closing the panel: the site previews them and offers to come back and save
+  const viewOnSite = (anchor?: string) => {
+    setIsOpen(false);
+    if (anchor) setTimeout(() => scrollToAnchor(anchor), 350);
   };
 
   const handleLogout = async () => {
-    if (!(await confirmLoseChanges())) return;
+    if (isDirty && !(await confirm({
+      title: tr ? 'Kaydedilmemiş değişiklikler' : 'Unsaved changes',
+      message: tr ? 'Çıkış yaparsanız kaydedilmemiş düzenlemeler kaybolur.' : 'Signing out throws away your unsaved edits.',
+      confirmLabel: tr ? 'Kaydetmeden çık' : 'Sign out without saving',
+    }))) return;
+    if (isDirty) await discardChanges();
     logout();
     setIsOpen(false);
   };
 
   const groups = {
-    content: tr ? 'İçerik' : 'Content',
-    site: tr ? 'Site' : 'Site',
+    sections: tr ? 'Bölümler' : 'Sections',
+    site: 'Site',
     inbox: tr ? 'Gelen' : 'Inbox',
   };
 
   const tabs: TabItem[] = [
-    { id: 'sections', group: groups.content, label: getTranslation(adminTranslations.tabs.sections, editLang), icon: Layout },
-    { id: 'about', group: groups.content, label: getTranslation(adminTranslations.tabs.about, editLang), icon: FileText },
-    { id: 'hobbies', group: groups.content, label: getTranslation(adminTranslations.tabs.hobbies, editLang), icon: Heart },
-    { id: 'tech', group: groups.content, label: getTranslation(adminTranslations.tabs.tech, editLang), icon: Layers },
-    { id: 'projects', group: groups.content, label: getTranslation(adminTranslations.tabs.projects, editLang), icon: Code },
-    { id: 'experience', group: groups.content, label: getTranslation(adminTranslations.tabs.experience, editLang), icon: Briefcase },
-    { id: 'general', group: groups.site, label: getTranslation(adminTranslations.tabs.general, editLang), icon: Settings },
-    { id: 'socials', group: groups.site, label: getTranslation(adminTranslations.tabs.socials, editLang), icon: Share2 },
-    { id: 'footer', group: groups.site, label: getTranslation(adminTranslations.tabs.footer, editLang), icon: PanelBottom },
-    { id: 'messages', group: groups.inbox, label: getTranslation(adminTranslations.tabs.messages, editLang), icon: Mail, badge: unreadCount },
-    { id: 'analytics', group: groups.inbox, label: getTranslation(adminTranslations.tabs.analytics, editLang), icon: BarChart3 },
+    { id: 'dashboard', group: '', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'hero', group: groups.sections, label: 'Hero', icon: Home },
+    { id: 'about', group: groups.sections, label: tr ? 'Hakkımda' : 'About', icon: User },
+    { id: 'tech', group: groups.sections, label: tr ? 'Teknolojiler' : 'Tech Stack', icon: Layers },
+    { id: 'projects', group: groups.sections, label: tr ? 'Projeler' : 'Projects', icon: Code },
+    { id: 'experience', group: groups.sections, label: tr ? 'Deneyim' : 'Experience', icon: Briefcase },
+    { id: 'contact', group: groups.sections, label: tr ? 'İletişim' : 'Contact', icon: AtSign },
+    { id: 'footer', group: groups.sections, label: 'Footer', icon: PanelBottom },
+    { id: 'appearance', group: groups.site, label: tr ? 'Görünüm' : 'Appearance', icon: Palette },
+    { id: 'navigation', group: groups.site, label: tr ? 'Menü' : 'Navigation', icon: Menu },
+    { id: 'seo', group: groups.site, label: 'SEO', icon: Search },
+    { id: 'messages', group: groups.inbox, label: tr ? 'Mesajlar' : 'Messages', icon: Inbox, badge: unreadCount },
+    { id: 'analytics', group: groups.inbox, label: tr ? 'Analitik' : 'Analytics', icon: BarChart3 },
   ];
   const activeTabItem = tabs.find(tab => tab.id === activeTab) ?? tabs[0];
 
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 'messages':
-        return <MessagesTab editLang={editLang} />;
-      case 'general':
-        return <GeneralTab editLang={editLang} />;
+    switch (activeTabItem.id) {
+      case 'dashboard':
+        return <DashboardTab editLang={editLang} onNavigate={setActiveTab} onViewSite={() => viewOnSite('top')} />;
+      case 'hero':
+        return <HeroEditor editLang={editLang} />;
       case 'about':
-        return <AboutTab editLang={editLang} />;
-      case 'hobbies':
-        return <HobbiesTab editLang={editLang} />;
+        return <div className="space-y-6"><AboutTab editLang={editLang} /><HobbiesTab editLang={editLang} /></div>;
       case 'tech':
-        return <TechTab editLang={editLang} />;
+        return <div className="space-y-6"><SectionHeadingEditor section="techStack" editLang={editLang} /><TechTab editLang={editLang} /></div>;
       case 'projects':
-        return <ProjectsTab editLang={editLang} />;
+        return <div className="space-y-6"><SectionHeadingEditor section="projects" editLang={editLang} /><ProjectsTab editLang={editLang} /></div>;
       case 'experience':
-        return <ExperienceTab editLang={editLang} onTabChange={setActiveTab} />;
-      case 'socials':
-        return <SocialsTab editLang={editLang} />;
-      case 'sections':
-        return <SectionsTab editLang={editLang} />;
+        return <div className="space-y-6"><SectionHeadingEditor section="experience" editLang={editLang} /><ExperienceTab editLang={editLang} onTabChange={setActiveTab} /></div>;
+      case 'contact':
+        return (
+          <div className="space-y-6">
+            <SectionHeadingEditor section="contact" editLang={editLang} />
+            <ContactDetailsEditor editLang={editLang} />
+            <SocialsTab editLang={editLang} />
+          </div>
+        );
       case 'footer':
         return <FooterTab editLang={editLang} />;
+      case 'appearance':
+      case 'navigation':
+      case 'seo':
+        return <GeneralTab editLang={editLang} part={activeTabItem.id} />;
+      case 'messages':
+        return <MessagesTab editLang={editLang} />;
       case 'analytics':
         return <AnalyticsTab editLang={editLang} />;
       default:
@@ -200,7 +267,7 @@ const AdminPanelContent: React.FC<{
             activeTab={activeTab}
             onTabChange={setActiveTab}
             onLogout={handleLogout}
-            onViewSite={handleClose}
+            onViewSite={() => viewOnSite()}
             editLang={editLang}
             logoText={navbarSettings.logoText || 'Admin'}
             userEmail={currentUser?.email}
@@ -273,7 +340,7 @@ const AdminPanelContent: React.FC<{
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
-            <button onClick={handleClose} className={roundButton} aria-label={tr ? 'Paneli kapat' : 'Close panel'}>
+            <button onClick={() => viewOnSite()} className={roundButton} aria-label={tr ? 'Paneli kapat' : 'Close panel'}>
               <X size={16} />
             </button>
           </header>
@@ -307,10 +374,15 @@ const AdminPanelContent: React.FC<{
                   ? <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
                   : <AdminLogin onLoginWithGoogle={loginWithGoogle} editLang={editLang} isLoading={isAuthLoading} />}
               </div>
-            ) : activeTab === 'messages' ? (
+            ) : activeTabItem.id === 'messages' ? (
               <div className="h-full p-3 md:p-6">{renderTabContent()}</div>
             ) : (
-              <div key={activeTab} className="max-w-5xl mx-auto px-3 py-6 md:px-8 md:py-8">{renderTabContent()}</div>
+              <div key={activeTabItem.id} className="max-w-5xl mx-auto px-3 py-6 md:px-8 md:py-8">
+                {SECTION_TARGETS[activeTabItem.id] && (
+                  <SectionToolbar tab={activeTabItem.id} editLang={editLang} onPreview={() => viewOnSite(SECTION_TARGETS[activeTabItem.id].anchor)} />
+                )}
+                {renderTabContent()}
+              </div>
             )}
           </main>
         </div>
@@ -320,7 +392,11 @@ const AdminPanelContent: React.FC<{
 };
 
 export const AdminPanel: React.FC = () => {
-  const [editLang, setEditLang] = useState<'EN' | 'TR'>('EN');
+  const [editLang, setEditLangState] = useState<'EN' | 'TR'>(() => readSession('admin_lang') === 'TR' ? 'TR' : 'EN');
+  const setEditLang = (lang: 'EN' | 'TR') => {
+    setEditLangState(lang);
+    writeSession('admin_lang', lang);
+  };
   return (
     <ConfirmProvider lang={editLang}>
       <AdminPanelContent editLang={editLang} setEditLang={setEditLang} />

@@ -23,12 +23,6 @@ const typeIcons = {
   project: FolderGit2,
 };
 
-const typeColors = {
-  work: 'from-blue-500 to-blue-600',
-  education: 'from-purple-500 to-purple-600',
-  certification: 'from-yellow-500 to-yellow-600',
-  project: 'from-emerald-500 to-emerald-600',
-};
 
 export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabChange }) => {
   const confirm = useConfirm();
@@ -592,13 +586,12 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {(['work', 'education', 'certification'] as const).map((type) => {
             const Icon = typeIcons[type];
-            const colorClass = typeColors[type];
             
             return (
               <button
                 key={type}
                 onClick={() => addExperience(type)}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r ${colorClass} text-white font-medium text-sm transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]`}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-full border border-black/[0.08] bg-white/60 text-gray-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10 font-semibold text-sm transition-colors`}
               >
                 <Plus size={18} />
                 <Icon size={18} />
@@ -609,7 +602,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
           {/* Project button redirects to Projects tab */}
           <button
             onClick={() => onTabChange?.('projects')}
-            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r ${typeColors.project} text-white font-medium text-sm transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]`}
+            className={`flex items-center justify-center gap-2 px-4 py-3 rounded-full border border-black/[0.08] bg-white/60 text-gray-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10 font-semibold text-sm transition-colors`}
           >
             <FolderGit2 size={18} />
             <span>{getText(t.typeProject as { EN: string; TR: string })}</span>
@@ -647,7 +640,6 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
         ) : (
           sortedExperiences.map((exp) => {
             const Icon = typeIcons[exp.type || 'work'];
-            const colorClass = typeColors[exp.type || 'work'];
             const isExpanded = expandedItems.has(exp._id);
             const roleText = typeof exp.role === 'string' ? exp.role : exp.role[editLang];
 
@@ -661,7 +653,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
                   {/* Drag Handle & Icon */}
                   <div className="flex items-center gap-2">
                     <GripVertical size={18} className={`cursor-grab text-gray-400 dark:text-gray-500`} />
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${colorClass} flex items-center justify-center text-white`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-black/[0.04] text-gray-600 dark:bg-white/[0.06] dark:text-gray-300`}>
                       <Icon size={20} />
                     </div>
                   </div>
@@ -822,7 +814,7 @@ export const ExperienceTab: React.FC<ExperienceTabProps> = ({ editLang, onTabCha
                   onClick={() => onTabChange?.('projects')}
                 >
                   <div className={`p-4 flex items-center gap-4`}>
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${typeColors.project} flex items-center justify-center text-white`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-black/[0.04] text-gray-600 dark:bg-white/[0.06] dark:text-gray-300`}>
                       <FolderGit2 size={20} />
                     </div>
                     <div className="flex-1 min-w-0">

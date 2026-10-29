@@ -163,10 +163,18 @@ export interface SiteSettings {
   ogImage?: string;
   defaultTheme: 'light' | 'dark' | 'system';
   techStackSpeed?: number; // Animation speed in pixels per frame (default: 0.5)
+  hiddenSections?: HideableSection[];
 }
+
+// Page sections the admin can switch off; values are the sections' DOM ids
+export type HideableSection = 'about' | 'tech-stack' | 'projects' | 'experience' | 'contact';
 
 // Section Content Settings
 export interface SectionContent {
+  techStack?: {
+    title: MultiLangText;
+    description: MultiLangText;
+  };
   projects: {
     title: MultiLangText;
     description: MultiLangText;
