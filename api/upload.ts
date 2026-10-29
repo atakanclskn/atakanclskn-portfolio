@@ -5,7 +5,7 @@
 //   BLOB_STORE_ID         – added when a Blob store is connected; auth runs over Vercel OIDC
 //   FIREBASE_API_KEY      – the site's public Firebase web API key, used to check the admin's ID token
 //   ADMIN_EMAIL           – optional, defaults to the admin address in lib/firebase.ts
-import { issueSignedToken } from '@vercel/blob';
+import { issueSignedToken, presignUrl } from '@vercel/blob';
 import { handleUploadPresigned, type HandleUploadPresignedBody } from '@vercel/blob/client';
 import { corsHeaders, json, preflight } from './_shared.js';
 
@@ -43,8 +43,14 @@ export async function GET(request: Request) {
     FIREBASE_API_KEY: !!process.env.FIREBASE_API_KEY,
   };
   try {
-    await issueSignedToken({ pathname: 'portfolio/health-check.txt', operations: ['put'] });
-    return json(200, { blobAuth: 'ok', env }, {});
+    const token = await issueSignedToken({ pathname: 'portfolio/health-check.png', operations: ['put'], allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES });
+    let presign = 'ok';
+    try {
+      await presignUrl(token, { operation: 'put', pathname: 'portfolio/health-check.png', allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES, addRandomSuffix: true });
+    } catch (error) {
+      presign = error instanceof Error ? error.message : String(error);
+    }
+    return json(200, { blobAuth: 'ok', presign, env }, {});
   } catch (error) {
     return json(500, { blobAuth: error instanceof Error ? error.message : String(error), env }, {});
   }
