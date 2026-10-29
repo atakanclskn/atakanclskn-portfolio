@@ -12,19 +12,23 @@ import { corsHeaders, json, preflight } from './_shared.js';
 const MAX_BYTES = 8 * 1024 * 1024;
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/gif', 'image/svg+xml'];
 
-// Asks Firebase Auth who owns the ID token; only the admin's verified account may upload
-const isAdminToken = async (idToken: string): Promise<boolean> => {
+// Asks Firebase Auth who owns the ID token; only the admin's verified account may upload.
+// Throws a specific reason so a failed upload says what to fix.
+const assertAdminToken = async (idToken: string | undefined): Promise<void> => {
   const apiKey = process.env.FIREBASE_API_KEY;
-  if (!apiKey) return false;
+  if (!apiKey) throw new Error('Not authorized: FIREBASE_API_KEY is not set on Vercel');
+  if (!idToken) throw new Error('Not authorized: not signed in');
   const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ idToken }),
   });
-  if (!response.ok) return false;
+  if (!response.ok) throw new Error(`Not authorized: Firebase rejected the sign-in token (${response.status})`);
   const { users } = await response.json() as { users?: { email?: string; emailVerified?: boolean }[] };
   const user = users?.[0];
-  return !!user?.emailVerified && user.email === (process.env.ADMIN_EMAIL || 'calskanatakan55@gmail.com');
+  if (!user?.emailVerified || user.email !== (process.env.ADMIN_EMAIL || 'calskanatakan55@gmail.com')) {
+    throw new Error('Not authorized: this account is not the admin');
+  }
 };
 
 export const OPTIONS = preflight;
@@ -40,7 +44,7 @@ export async function POST(request: Request) {
       request,
       getSignedToken: async (pathname, clientPayload) => {
         const { idToken } = JSON.parse(clientPayload || '{}') as { idToken?: string };
-        if (!idToken || !(await isAdminToken(idToken))) throw new Error('Not authorized');
+        await assertAdminToken(idToken);
         const token = await issueSignedToken({
           pathname,
           operations: ['put'],
@@ -54,6 +58,6 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Upload failed';
     console.error('Upload authorization failed:', message);
-    return json(message === 'Not authorized' ? 401 : 400, { error: message }, headers);
+    return json(message.startsWith('Not authorized') ? 401 : 400, { error: message }, headers);
   }
 }

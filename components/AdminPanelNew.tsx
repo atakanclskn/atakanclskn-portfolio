@@ -91,7 +91,7 @@ const AdminPanelContent: React.FC<{
   const [saveError, setSaveError] = useState(false);
   const isDark = useIsDark();
   const confirm = useConfirm();
-  const { isLoggedIn, loginWithGoogle, logout, unreadCount, navbarSettings,
+  const { isLoggedIn, loginWithGoogle, logout, unreadCount, navbarSettings, heroContent,
     saveToFirebase, discardChanges, isDirty, isSaving, isLoading, lastSyncTime, isAuthLoading, currentUser } = useAdmin();
 
   const tr = editLang === 'TR';
@@ -278,6 +278,7 @@ const AdminPanelContent: React.FC<{
 
         <div className="flex-1 min-w-0 flex flex-col">
           {/* Top Bar */}
+          {isLoggedIn && (
           <header className="m-3 mb-0 flex items-center gap-2 md:gap-3 min-h-16 px-4 md:px-5 py-2 rounded-3xl border border-black/[0.08] bg-white/60 backdrop-blur-2xl dark:border-white/10 dark:bg-white/[0.03]">
             <div className="min-w-0 flex-1">
               <h1 className="font-display font-bold text-lg tracking-tight truncate">
@@ -344,6 +345,7 @@ const AdminPanelContent: React.FC<{
               <X size={16} />
             </button>
           </header>
+          )}
 
           {/* Mobile tab bar */}
           {isLoggedIn && (
@@ -369,11 +371,22 @@ const AdminPanelContent: React.FC<{
           {/* Content */}
           <main className="flex-1 overflow-y-auto">
             {!isLoggedIn ? (
-              <div className="min-h-full flex items-center justify-center p-6">
-                {isAuthLoading
-                  ? <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-                  : <AdminLogin onLoginWithGoogle={loginWithGoogle} editLang={editLang} isLoading={isAuthLoading} />}
-              </div>
+              isAuthLoading ? (
+                <div className="min-h-full flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                </div>
+              ) : (
+                <AdminLogin
+                  onLoginWithGoogle={loginWithGoogle}
+                  editLang={editLang}
+                  setEditLang={setEditLang}
+                  isDark={isDark}
+                  onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')}
+                  onBack={() => viewOnSite()}
+                  logoText={navbarSettings.logoText || 'Admin'}
+                  firstName={heroContent.name.split(' ')[0]}
+                />
+              )
             ) : activeTabItem.id === 'messages' ? (
               <div className="h-full p-3 md:p-6">{renderTabContent()}</div>
             ) : (

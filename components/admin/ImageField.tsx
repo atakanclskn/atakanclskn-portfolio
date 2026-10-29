@@ -50,7 +50,8 @@ export const ImageField: React.FC<{
       onChange(blob.url);
     } catch (e) {
       console.error('Image upload failed:', e);
-      setError(tr ? 'Yükleme başarısız oldu. Tekrar deneyin.' : 'Upload failed. Please try again.');
+      const reason = e instanceof Error ? e.message.replace(/^Vercel Blob:\s*/, '') : '';
+      setError(`${tr ? 'Yükleme başarısız' : 'Upload failed'}${reason ? `: ${reason}` : '.'}`);
     } finally {
       setProgress(null);
     }
