@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
+import { uploadPresigned } from '@vercel/blob/client';
 import { ImagePlus, Link2, Loader2, Trash2, Upload } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 import { apiUrl } from '../../lib/api';
@@ -41,7 +41,7 @@ export const ImageField: React.FC<{
     try {
       setProgress(0);
       const idToken = await auth.currentUser?.getIdToken();
-      const blob = await upload(`portfolio/${folder}/${file.name}`, file, {
+      const blob = await uploadPresigned(`portfolio/${folder}/${file.name}`, file, {
         access: 'public',
         handleUploadUrl: uploadUrl,
         clientPayload: JSON.stringify({ idToken }),
