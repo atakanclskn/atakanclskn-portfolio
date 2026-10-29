@@ -5,7 +5,7 @@
 //   BLOB_STORE_ID         – added when a Blob store is connected; auth runs over Vercel OIDC
 //   FIREBASE_API_KEY      – the site's public Firebase web API key, used to check the admin's ID token
 //   ADMIN_EMAIL           – optional, defaults to the admin address in lib/firebase.ts
-import { issueSignedToken, presignUrl } from '@vercel/blob';
+import { issueSignedToken } from '@vercel/blob';
 import { handleUploadPresigned, type HandleUploadPresignedBody } from '@vercel/blob/client';
 import { corsHeaders, json, preflight } from './_shared.js';
 
@@ -33,29 +33,6 @@ const assertAdminToken = async (idToken: string | undefined): Promise<void> => {
 
 export const OPTIONS = preflight;
 
-// Health check: tries Blob auth and reports only whether it worked (no token is returned)
-export async function GET(request: Request) {
-  const testPath = new URL(request.url).searchParams.get('path') || 'portfolio/health-check.png';
-  const env = {
-    BLOB_STORE_ID: !!process.env.BLOB_STORE_ID,
-    BLOB_READ_WRITE_TOKEN: !!process.env.BLOB_READ_WRITE_TOKEN,
-    VERCEL_OIDC_TOKEN_env: !!process.env.VERCEL_OIDC_TOKEN,
-    oidc_header: request.headers.has('x-vercel-oidc-token'),
-    FIREBASE_API_KEY: !!process.env.FIREBASE_API_KEY,
-  };
-  try {
-    const token = await issueSignedToken({ pathname: testPath, operations: ['put'], allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES });
-    let presign = 'ok';
-    try {
-      await presignUrl(token, { access: 'public', operation: 'put', pathname: testPath, allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES, addRandomSuffix: true });
-    } catch (error) {
-      presign = error instanceof Error ? error.message : String(error);
-    }
-    return json(200, { blobAuth: 'ok', presign, env }, {});
-  } catch (error) {
-    return json(500, { blobAuth: error instanceof Error ? error.message : String(error), env }, {});
-  }
-}
 
 export async function POST(request: Request) {
   const headers = corsHeaders(request.headers.get('origin'));
