@@ -46,7 +46,7 @@ export async function GET(request: Request) {
     const token = await issueSignedToken({ pathname: 'portfolio/health-check.png', operations: ['put'], allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES });
     let presign = 'ok';
     try {
-      await presignUrl(token, { operation: 'put', pathname: 'portfolio/health-check.png', allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES, addRandomSuffix: true });
+      await presignUrl(token, { access: 'public', operation: 'put', pathname: 'portfolio/health-check.png', allowedContentTypes: IMAGE_TYPES, maximumSizeInBytes: MAX_BYTES, addRandomSuffix: true });
     } catch (error) {
       presign = error instanceof Error ? error.message : String(error);
     }
