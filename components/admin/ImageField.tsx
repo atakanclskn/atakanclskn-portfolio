@@ -9,6 +9,17 @@ type Lang = 'EN' | 'TR';
 
 const MAX_MB = 8;
 
+// Blob pathnames are safest as plain ASCII: "Ekran görüntüsü (1).PNG" -> "ekran-goruntusu-1.png"
+const safeFileName = (name: string) => {
+  const dot = name.lastIndexOf('.');
+  const ext = dot > 0 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+  const base = (dot > 0 ? name.slice(0, dot) : name)
+    .normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .replace(/ı/g, 'i').replace(/İ/g, 'I')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'image';
+  return ext ? `${base}.${ext}` : base;
+};
+
 // Image input for the admin: drop or pick a file to upload it to Vercel Blob, or paste a URL
 export const ImageField: React.FC<{
   value: string | undefined;
@@ -41,7 +52,7 @@ export const ImageField: React.FC<{
     try {
       setProgress(0);
       const idToken = await auth.currentUser?.getIdToken();
-      const blob = await uploadPresigned(`portfolio/${folder}/${file.name}`, file, {
+      const blob = await uploadPresigned(`portfolio/${folder}/${safeFileName(file.name)}`, file, {
         access: 'public',
         handleUploadUrl: uploadUrl,
         clientPayload: JSON.stringify({ idToken }),
